@@ -1,0 +1,101 @@
+features to add to demo
+
+-assimp
+    -format->format
+        -assimp export x.format y.format
+        -supported formats
+            -Collada ( .dae, .xml )
+            -Blender ( .blend )
+            -Biovision BVH ( .bvh )
+            -3D Studio Max 3DS ( .3ds )
+            -3D Studio Max ASE ( .ase )
+            -Wavefront Object ( .obj )
+            -glFT/glFT2.0 ( .glFT )
+            -Stanford Polygon Library ( .ply )
+            -AutoCAD DXF ( .dxf )
+            -IFC-STEP ( .ifc )
+            -Neutral File Format ( .nff )
+            -Sense8 WorldToolkit ( .nff )
+            -Valve Model ( .smd, .vta )
+            -Quake I ( .mdl )
+            -Quake II ( .md2 )
+            -Quake III ( .md3
+            -Quake 3 BSP ( .pk3 )
+            -RtCW ( .mdc )
+            -Doom 3 ( .md5mesh, .md5anim, .md5camera )
+            -DirectX X ( .x )
+            -Quick3D ( .q3o, .q3s )
+            -Raw Triangles ( .raw )
+            -AC3D ( .ac )
+            -Stereolithography ( .stl )
+            -Autodesk DXF ( .dxf )
+            -Irrlicht Mesh ( .irrmesh, .xml )
+            -Irrlicht Scene ( .irr, .xml )
+            -Object File Format ( .off )
+            -Terragen Terrain ( .ter )
+            -3D GameStudio Model ( .mdl )
+            -3D GameStudio Terrain ( .hmp )
+            -Ogre ( .mesh.xml, .skeleton.xml, .material )
+            -Milkshape 3D ( .ms3d )
+            -LightWave Model ( .lwo )
+            -LightWave Scene ( .lws )
+            -Modo Model ( .lxo )
+            -CharacterStudio Motion ( .csm )
+            -Stanford Ply ( .ply )
+            -TrueSpace ( .cob, .scn )
+        -Test Models: https://github.com/assimp/assimp/tree/v5.0.1/test/models
+-ffmpeg
+    -crop video
+        -ffmpeg -i input.format -filter:v "crop=w:h:x:y" output.format
+    -trim time(audio/video)
+        -ffmpeg -ss 00:01:00 -i input.format -to 00:02:00 -c copy format.mp4
+    -change audio
+        -ffmpeg -i INPUT.format -i AUDIO.format -map 0:0 -map 1:0 -c:v copy -c:a aac -b:a 256k -shortest OUTPUT.format
+    -remove audio
+        -ffmpeg -i INPUT.format -codec copy -an OUTPUT.format
+    -extract audio from video
+        -ffmpeg -i input-video.format -vn -acodec copy output-audio.format
+    -format->format
+        -ffmpeg -i input.format output.format
+    -optimize audio/video
+        -adjust crf to change quality
+        -ffmpeg -y -i input.format -c:v libx264 -crf 23 -profile:v high -pix_fmt yuv420p -color_primaries 1 -color_trc 1 -colorspace 1 -movflags +faststart -an output.format
+    -watermarking/overlaying
+        -does this work for video-on-video?
+        -overlay px:px specifies the top left corner of overlay
+        -ffmpeg -i input.format -i watermark.png -filter_complex "overlay=10:10" output.format
+    -rescale video
+        -change 320 to new width(height is auto)
+        -ffmpeg -i input.format -filter:v scale=320:-1 -c:a copy output.format
+    -video->gif
+        -you may want to pass thru trim time first
+        -use the t flag to determine the length of the gif, currently 3 seconds
+        -loop controls looping, 0 is infinite, -1 is no loop, 1 is 1 loop, 2 is 2, etc
+        -ffmpeg -t 3 -i input.format -vf "fps=10,scale=320:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 output.gif
+    -Supported formats:
+        -ffmpeg -codecs
+        -ffmpeg -formats
+    -Test Files:
+        -http://fate-suite.ffmpeg.org/
+-imagemagick
+    -image->image
+        -convert input.format output.format
+    -crop image
+        -w and h are the width and height of the cropped segment, x and y the start x and y
+        -convert -crop wxh+x+y input.format output.format
+    -resize image
+        -convert input.format -resize 50% output.format
+    -make image monochrome
+        -convert input.format -monochrome output.format
+    -optimize image
+        -change interlace to format
+        -convert input.format -sampling-factor 4:2:0 -strip -quality 85 -interlace JPEG -colorspace RGB output.format
+    -images to gif
+        -the delay is currently set to one second
+        -convert -delay 100 -loop 5 -dispose previous input1.format input2.format input3.format input4.format output.gif
+    -combine gifs
+        -convert input1.gif input2.gif output.gif
+    -image overlay
+        -CHALLENGE
+-other
+    -pipe function

@@ -1,0 +1,46 @@
+A service engine is a web-based alternative to the core of an operating system, it performs single tasks based on natural instructions rather than using a whole application.
+
+could be created with a web vm running in js or with wasm, or with a server api and desktop application
+
+"piping" will be done with x then y, so to take a picture then crop it, you would say "take a picture then crop it"
+
+* denotes a core feature
+ServiceEngine main components:
+    -I/O
+        -Text editor(w/ optional syntax highlighting)
+        -hex editor
+        -Take photo
+        -Take video
+        -Record audio
+    -RTC:
+        -P2P filesharing
+        -Video call
+        -Audio
+        -Text
+        -multiuser streaming
+    -Conversion/editing*:
+        -Assimp
+        -FFMpeg
+        -imageMagick
+        -base64 conversion
+        -url string conversion
+        -document conversion(doc, pdf, rtf, html)
+        -header changes(utf-8, dos, unix, mac)
+    -Compression*:
+        -tar utility
+        -image minifier
+    -Encryption*:
+        -tar utility
+    -Compilation:
+        -Closure compiler
+    -Downloading/network*:
+        -wget download manager
+        -git
+        -ftp
+        -ssh
+    -Upscaling:
+        -waifu2x
+    -Other
+        -pipe
+        -timer
+        -calculator
