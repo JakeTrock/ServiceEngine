@@ -1,0 +1,10 @@
+{
+   "1": {
+        "invocation": "Adjust the timestamp of 'filename' by subtracting 2 hours from it.",
+        "cmd": ""
+    },
+    "2": {
+        "invocation": "Adjust the timestamp of 'filename' by subtracting 2 hours from it.",
+        "cmd": ""
+    },
+}

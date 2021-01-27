@@ -37,12 +37,25 @@ ServiceEngine main components:
         -wget download manager
         -git
         -ftp
-        -ssh
+        -rsync
     -Upscaling:
         -waifu2x
+    -Sums
+        -sha
+        -md5
+        -total dir filesize
+    -fs
+        -batch renaming
+        -doctor creation times
+        -delete all files with content match
+        -add content to files with content match
+        -add content to all files
+        -combine text
+        -make html listing of directories
     -Other
         -pipe
         -tee
+        -if/else
         -timer
         -calculator
 
