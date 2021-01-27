@@ -32,10 +32,6 @@ cropped image sent back
 the aforementioned functions, but chained together with commands like tee or pipe, this will probably warrant we assign temporary working directories rather than pool all files
 =============================================
 
-
-desc, clientComm, servComm
-
-
 features to add to demo
 
 -assimp
