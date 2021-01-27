@@ -42,5 +42,8 @@ ServiceEngine main components:
         -waifu2x
     -Other
         -pipe
+        -tee
         -timer
         -calculator
+
+        Later we'll also have a desktop code generator using Magnum-NLC2CMD and a set for windows, linux and macos

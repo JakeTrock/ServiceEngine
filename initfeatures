@@ -1,3 +1,37 @@
+How (I think) it'll work:
+
+(ultra-simple functions)-------------------
+plain english command: "2 minute timer"
+
+html file found based on command
+
+html file is sent with paramater 00:02:00:00 for time
+(simple functions)-------------------
+plain english command: "convert [file dragged here] to mp3"
+
+file validated(is this audio or video? not an image/model/pdf etc.)
+
+file and command are sent to server
+
+server converts file
+
+file sent back
+(advanced functions)-------------------
+plain english command: "crop [image(s) dragged here]"
+
+file validated(is this audio or video? not an video/model/sound etc.)
+
+table of commands and html components used to perform them if no paramaters specified(so a thing to crop an image with a rectangle)
+
+html snippet is sent for user to crop image
+
+user crops image, sends xywh of bounding box, input file
+
+cropped image sent back
+(super advanced functions)-------------------
+the aforementioned functions, but chained together with commands like tee or pipe, this will probably warrant we assign temporary working directories rather than pool all files
+=============================================
+
 features to add to demo
 
 -assimp
@@ -99,3 +133,5 @@ features to add to demo
         -CHALLENGE
 -other
     -pipe function
+    -tee function
+    -timer
