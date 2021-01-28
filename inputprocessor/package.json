@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "export": "node index.mjs && cp ./svcInput.json ../uploadprocessor/config  && cp ./nl2bash-data.json ../Magnum-NLC2CMD/src/data/"
   },
   "keywords": [],
   "author": "",
