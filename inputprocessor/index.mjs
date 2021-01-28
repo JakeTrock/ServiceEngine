@@ -24,13 +24,13 @@ fs.createReadStream('in.csv')
   })
   .on('end', () => {
 
-    fs.writeFile("nl2bash-data.json", mlInput, function (err) {
+    fs.writeFile("nl2bash-data.json", JSON.stringify(mlInput), function (err) {
       if (err) {
         return console.log(err);
       }
       console.log("MLI was saved!");
     });
-    fs.writeFile("svcInput.json", serviceInput, function (err) {
+    fs.writeFile("svcInput.json", JSON.stringify(serviceInput), function (err) {
       if (err) {
         return console.log(err);
       }
