@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "export": "node index.mjs && cp ./svcInput.json ../uploadprocessor/config  && cp ./nl2bash-data.json ../Magnum-NLC2CMD/src/data/"
+    "export": "node index.mjs && cp ./searchMatch.ts ../uploadprocessor/config  && cp ./commandBase.ts ../uploadprocessor/config"
   },
   "keywords": [],
   "author": "",
