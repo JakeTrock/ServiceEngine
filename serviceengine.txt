@@ -8,6 +8,7 @@ could be created with a web vm running in js or with wasm, or with a server api 
 ServiceEngine main components:
     -I/O
         -Text editor(w/ optional syntax highlighting)
+        -latex editor w/ symbol detexifier
         -hex editor
         -Take photo
         -Take video
@@ -24,7 +25,7 @@ ServiceEngine main components:
         -imageMagick
         -base64 conversion
         -url string conversion
-        -document conversion(doc, pdf, rtf, html)
+        -document conversion/collation(doc, pdf, rtf, html)
         -header changes(utf-8, dos, unix, mac)
     -Compression*:
         -tar utility
