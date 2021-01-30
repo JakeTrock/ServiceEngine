@@ -1,0 +1,89 @@
+problem statement - the layperson dosen't know how to use the commandline
+
+Actual Frontend(GUI)
+===============================
+
+
+Frontend(search)
+===============================
+-First search
+    -Repeatedly send GET request to search endpoint which returns results as array of up to 5
+    -On query choice, get static file and compat UUID(which is also the UUID of the function that will run)
+    -If second query is chosen before done is pressed, check if files have been inserted into prior elements. If not, error popup, otherwise, send POST request to search endpoint and include compat in the body to make sure the next item added will be a valid pipe
+        -sample compat: {
+            numFiles: int,
+            funcType: u-u-i-d <-uuid in dictionary of accepted types and fsizes
+        }
+    -sample request group:
+        -first search:
+            -GET to http://localhost/search/convert%20mp4%20to%20mp3
+                -returns:
+                    {res:[
+                        "asdf",
+                        "asdf",
+                        "asdf",
+                        "asdf",
+                    ]}
+        -second search:
+            -POST to http://localhost/search/convert%20mp3%20to%20ogg
+            -body:{
+                numFiles:2,
+                funcType: u-u-i-d <-uuid in dictionary of accepted types and fsizes
+            }
+        -hitting "Done":
+            -body:{
+                {
+                    act: u-u-i-d, <-used to denote the function that runs
+                    params: [
+                        {
+                        input:[1,2], <- all file inputs are sent as array index integers, representing the input file's position on the file upload list
+                        a:"",
+                        b:"",
+                        },{
+                            input:[1,2] <- because filesystem transforms are applied in place, input can be the the same. this may be unstable in the future
+                        }
+                    ]
+                },
+                {
+                
+                }
+            }
+    
+Backend(processing)
+===============================
+-recieves files and instructions
+    -converts file listing to an array of blob strings to make fs more manageable
+    -passes instruction set through validator with compat info to make sure it works before running
+    -structure of compat info dictionary
+        - u-u-i-d:{
+            input:{
+                numFiles: -1, <- -1 for files means infinity files accepted, for frontend funcs like timer, 0 means that it accepts no input(so typefiles is empty)
+                typeFiles:[
+                    "ogg",
+                    "mp3"
+                ]
+            },
+            output:{
+                numFiles: -1,
+                typeFiles:[
+                    "webm",
+                    "mp4"
+                ]
+            }
+        }
+    -loop through each element of instructions with corresponding files
+    -structure of functional dictionary:
+        - u-u-i-d:(files[],params[],err,next){
+            if(err)return next(null,null,err,null);
+            return next(files, params, null, output);
+        }
+    -return output
+    
+Dictionaries(general info/functions)
+================================
+- search query -> service uuid (for duplicate queries, have different names that point to same uuid)
+-service uuid-> links to compat info dictionary
+    |
+    o---------> links to function dictionary
+    
+    
