@@ -1,16 +1,11 @@
+import * as React from "react";
+import {
+  Holder,
+} from '../styles';
+
 const persons: { [uuid: string]: Function } = {
-  "u-u-i-d": function Result({ match }: Props) {
-    return (
-      <Holder>
-        {match.parts.map((part, index) => {
-          return (
-            <ResultPart key={index} type={part.type}>
-              {part.content}
-            </ResultPart>
-          );
-        })}
-      </Holder>
-    );
+  "u-u-i-d": function () {
+    return <Holder>test</Holder>;
   },
 };
 export default persons;
