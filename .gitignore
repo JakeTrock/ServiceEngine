@@ -1,2 +1,4 @@
 inputprocessor/node_modules/**/*
-node_modules/**/*
+sengine-frontend/node_modules/
+sengine-frontend/.cache/
+sengine-frontend/public
