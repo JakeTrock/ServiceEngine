@@ -13,7 +13,7 @@ import {
   DoneButton,
   PlusButton,
   Error,
-} from './styles';
+} from "./styles";
 
 //consts
 
@@ -36,14 +36,14 @@ interface ValidComponent {
 const IndexPage = () => {
   let cdt = Date.now();
   let openAdd = false;
-  let alertText="";
+  let alertText = "";
   let searchBox;
   let components: ValidComponent[] = [
-    // {
-    //   serviceUUID: "u-u-i-d",
-    //   numFiles: 0,
-    //   satisfied: false,
-    // },
+    {
+      serviceUUID: "u-u-i-d",
+      numFiles: 0,
+      satisfied: false,
+    },
   ];
   let results = [
     // {
@@ -69,8 +69,8 @@ const IndexPage = () => {
   ];
 
   const alertPush = (textInput: string) => {
-    alertText=textInput;
-    if(textInput!="")setTimeout(() => alertPush(""), alertClose);
+    alertText = textInput;
+    if (textInput != "") setTimeout(() => alertPush(""), alertClose);
   };
 
   const sendSearch = (term: string, conditions: SearchConditions | null) => {
@@ -82,7 +82,7 @@ const IndexPage = () => {
     //     numFiles: conditions.numFiles,
     //   })
     //   .catch((error) => {
-    //     return console.error(error);
+    //     return alertPush(error);
     //   });
   };
 
@@ -93,7 +93,7 @@ const IndexPage = () => {
       .post(baseUrl + "/query/" + uuid)
       .then((itm) => components.push(itm.data))
       .catch((error) => {
-        return console.error(error);
+        return alertPush(error);
       });
   };
   return (
@@ -114,7 +114,7 @@ const IndexPage = () => {
             })}
           </ServiceContainer>
         )}
-        {alertText!=""&&<Error>{alertText}</Error>}
+        {alertText != "" && <Error>{alertText}</Error>}
         {components.length < 0 || !openAdd ? (
           <SearchInput
             ref={(el) => (searchBox = el)}

@@ -3,9 +3,7 @@ import {
   Holder,
 } from '../styles';
 
-const persons: { [uuid: string]: Function } = {
-  "u-u-i-d": function () {
-    return <Holder>test</Holder>;
-  },
+const ServiceDictionary: { [uuid: string]: any } = {
+  "u-u-i-d": (<Holder>test</Holder>),
 };
-export default persons;
+export default ServiceDictionary;
