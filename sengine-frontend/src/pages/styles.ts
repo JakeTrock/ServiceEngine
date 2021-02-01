@@ -59,6 +59,23 @@ const SearchInput = styled.input`
     border-color: #bbb;
   }
 `;
+const PlusButton = styled.a`
+  text-align: center;
+  background: lightgreen;
+  display: block;
+  width: 100%;
+  padding: 25px;
+  font: inherit;
+  font-weight: bold;
+  font-size: 30px;
+  border: 2px solid #ddd;
+  outline: none;
+  color: white;
+
+  &:hover {
+    border-color: #bbb;
+  }
+`;
 const DoneButton = styled.a`
   text-align: center;
   font: inherit;
@@ -72,26 +89,6 @@ const DoneButton = styled.a`
   border: 2px solid lightgreen;
   &:hover {
     border: 2px solid green;
-  }
-`;
-const PlusButton = styled.a`
-  text-align: center;
-  font: inherit;
-  display: inline-block;
-  margin: 0.5rem 1rem;
-  background: lightgreen;
-  color: white;
-
-  width: 100%;
-  padding: 25px;
-  font: inherit;
-  font-weight: bold;
-  font-size: 30px;
-  border: 2px solid #ddd;
-  outline: none;
-
-  &:hover {
-    border-color: #bbb;
   }
 `;
 const Error = styled.div`

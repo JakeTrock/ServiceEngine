@@ -115,28 +115,10 @@ const IndexPage = () => {
           </ServiceContainer>
         )}
         {alertText != "" && <Error>{alertText}</Error>}
-        {components.length < 0 || !openAdd ? (
-          <SearchInput
-            ref={(el) => (searchBox = el)}
-            placeholder="ex: convert mkv to mp4"
-            onChange={(event) =>
-              sendSearch(
-                event.target.value,
-                components.length > 0
-                  ? {
-                      numFiles: 4,
-                      serviceUUID: "u-u-i-d",
-                      // components[components.length].numFiles,
-                      // components[components.length].serviceUUID
-                    }
-                  : null
-              )
-            }
-          />
-        ) : (
+        {components.length > 0 || openAdd ? (
           <PlusButton
             onClick={() => {
-              if (components[components.length].satisfied) openAdd = true;
+              if (components[components.length - 1].satisfied) openAdd = true;
               else
                 alertPush(
                   "Please finish the current form before adding another"
@@ -145,6 +127,24 @@ const IndexPage = () => {
           >
             +
           </PlusButton>
+        ) : (
+          <SearchInput
+            ref={(el) => (searchBox = el)}
+            placeholder="ex: convert mkv to mp4"
+            onChange={(event) =>
+              sendSearch(
+                event.target.value,
+                components.length > 0
+                  ? {
+                      numFiles: components[components.length - 1].numFiles || 0,
+                      serviceUUID:
+                        components[components.length - 1].serviceUUID ||
+                        "u-u-i-d",
+                    }
+                  : null
+              )
+            }
+          />
         )}
         <IntroHolder>
           Type and select your command to start the conversion process
