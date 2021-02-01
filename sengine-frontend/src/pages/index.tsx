@@ -14,23 +14,12 @@ import {
   PlusButton,
   Error,
 } from "./styles";
-
+import { ValidComponent, SearchConditions } from "./interfaces";
 //consts
 
 const delay = 800;
 const alertClose = 8000;
 const baseUrl = "http://localhost:3000";
-
-//interfaces
-interface SearchConditions {
-  numFiles: number;
-  serviceUUID: string;
-}
-interface ValidComponent {
-  serviceUUID: string;
-  numFiles: number;
-  satisfied: boolean;
-}
 
 // markup
 const IndexPage = () => {
@@ -43,6 +32,7 @@ const IndexPage = () => {
       serviceUUID: "u-u-i-d",
       numFiles: 0,
       satisfied: false,
+      params: [],
     },
   ];
   let results = [
@@ -108,7 +98,7 @@ const IndexPage = () => {
             {components.map((result, index) => {
               return (
                 <ServiceBox key={index}>
-                  {ServiceDictionary[result.serviceUUID]}
+                  {ServiceDictionary[result.serviceUUID](result)}
                 </ServiceBox>
               );
             })}

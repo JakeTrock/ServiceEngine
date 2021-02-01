@@ -1,9 +1,12 @@
 import * as React from "react";
-import {
-  Holder,
-} from '../styles';
+import { ValidComponent } from "../interfaces";
+import { Holder } from "../styles";
 
-const ServiceDictionary: { [uuid: string]: any } = {
-  "u-u-i-d": (<Holder>test</Holder>),
+const ServiceDictionary: {
+  [uuid: string]: (componentCtx: ValidComponent) => JSX.Element;
+} = {
+  "u-u-i-d": function Result(componentCtx: ValidComponent) {
+    return <Holder>{componentCtx.serviceUUID}</Holder>;
+  },
 };
 export default ServiceDictionary;
