@@ -108,6 +108,41 @@ const Error = styled.div`
   outline: none;
 `;
 
+const TimeDisp = styled.h1`
+  color: #000;
+  font: inherit;
+  font-weight: bold;
+  font-size: 30px;
+`;
+
+const TimeInput = styled.input`
+  width: 15%;
+  border: none;
+  font: inherit;
+  font-weight: bold;
+  font-size: 30px;
+  border-bottom: 1.5px solid #000;
+  &:hover {
+    border-bottom: 3px solid #000;
+  }
+`;
+
+const FormButton = styled.a`
+  text-align: center;
+  font: inherit;
+  display: inline-block;
+  border-radius: 5px;
+  padding: 0.3rem 0;
+  // margin: 0.5rem 1rem;
+  width: 8rem;
+  background: lightgray;
+  color: white;
+  border: 2px solid lightgray;
+  &:hover {
+    border: 2px solid lightgreen;
+  }
+`;
+
 export {
   Holder,
   ServiceContainer,
@@ -120,4 +155,7 @@ export {
   DoneButton,
   PlusButton,
   Error,
+  TimeDisp,
+  TimeInput,
+  FormButton,
 };

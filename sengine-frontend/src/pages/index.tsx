@@ -32,7 +32,11 @@ const IndexPage = () => {
       serviceUUID: "u-u-i-d",
       numFiles: 0,
       satisfied: false,
-      params: [],
+      params: {
+        hours: 0,
+        minutes: 5,
+        seconds: 1,
+      },
     },
   ];
   let results = [
@@ -96,9 +100,14 @@ const IndexPage = () => {
         {components.length > 0 && (
           <ServiceContainer>
             {components.map((result, index) => {
+              const Tmp = React.lazy(
+                () => import(`./components/${result.serviceUUID}`)
+              );
               return (
                 <ServiceBox key={index}>
-                  {ServiceDictionary[result.serviceUUID](result)}
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <Tmp component={result} />
+                  </React.Suspense>
                 </ServiceBox>
               );
             })}

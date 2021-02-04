@@ -13,6 +13,7 @@ ServiceEngine main components:
         -Take photo
         -Take video
         -Record audio
+        -bibliography generator
     -RTC:
         -P2P filesharing
         -Video call

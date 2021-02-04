@@ -6,5 +6,5 @@ export interface ValidComponent {
   serviceUUID: string;
   numFiles: number;
   satisfied: boolean;
-  params: string[];
+  params: any;
 }
