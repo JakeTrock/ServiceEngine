@@ -33,7 +33,8 @@ const IndexPage = () => {
   let components: ValidComponent[] = [
     {
       serviceUUID: "u-u-i-d-2",
-      numFilesAllowed: -1,
+      numFilesIn: -1,
+      numFilesOut: -1,
       satisfied: false,
       params: {
         ftypeskey: "u-u-i-d-3",
@@ -107,7 +108,7 @@ const IndexPage = () => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          onUploadProgress: function (progressEvent) {
+          onUploadProgress: (progressEvent) => {
             setProg(
               Math.round((progressEvent.loaded * 100) / progressEvent.total)
             );
@@ -159,7 +160,8 @@ const IndexPage = () => {
                 event.target.value,
                 components.length > 0
                   ? {
-                      numFiles: components[components.length - 1].numFiles || 0,
+                      numFiles:
+                        components[components.length - 1].numFilesOut || 0,
                       serviceUUID:
                         components[components.length - 1].serviceUUID ||
                         "u-u-i-d",

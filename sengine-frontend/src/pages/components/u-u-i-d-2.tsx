@@ -22,9 +22,9 @@ export default class Uploader extends React.Component {
   parseFiles(data) {
     let fileArray = [];
     if (
-      this.props.component.numFilesAllowed == -1 ||
-      data.length - 1 < this.props.component.numFilesAllowed ||
-      data.length == this.props.component.numFilesAllowed ||
+      this.props.component.numFilesIn == -1 ||
+      data.length - 1 < this.props.component.numFilesIn ||
+      data.length == this.props.component.numFilesIn ||
       data.length > 0
     ) {
       Array.from(data).forEach((e: any) => {
@@ -51,7 +51,7 @@ export default class Uploader extends React.Component {
       });
     } else
       alert(
-        `you are over the file limit, you can only upload ${this.props.numFilesAllowed} files`
+        `you are over the file limit, you can only upload ${this.props.numFilesIn} files`
       );
   }
   render() {
