@@ -38,7 +38,7 @@ const IndexPage = () => {
       satisfied: false,
       params: {
         ftypeskey: "u-u-i-d-3",
-        uplSubType: "conversion-image",
+        uplSubType: "conversion-selector",
         allowMultiFile: true,
       },
     },

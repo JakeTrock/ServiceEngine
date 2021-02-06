@@ -10,7 +10,7 @@ export default class Uploader extends React.Component {
       customProp: {},
       child: React.lazy(
         () =>
-          import(`./subcomponents/${this.props.component.params.uplSubType}`) //Bad practice?
+          import(`./subcomponents/${this.props.component.params.uplSubType}`)
       ),
     };
   }
