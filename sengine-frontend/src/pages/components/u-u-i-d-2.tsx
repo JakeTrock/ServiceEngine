@@ -1,104 +1,86 @@
 import * as React from "react";
-import { FormButton, Holder, TimeDisp, TimeInput } from "../styles";
-import fdict from "../dicts/ftypedict";
+import { FileInput, FormButton, Holder } from "../../data/styles";
+import fdict from "../../data/dicts/ftypedict";
 
 export default class Uploader extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      numFiles: 0,
-      ftypes: fdict[this.props.component.params.ftypeskey],
+      files: [],
+      customProp: {},
+      child: React.lazy(
+        () =>
+          import(`./subcomponents/${this.props.component.params.uplSubType}`) //Bad practice?
+      ),
     };
   }
-  chgCount = () => {
-    if (this.state.secTime > 1) {
-      if (this.state.label2)
-        this.setState((state) => ({ isShow: state.secTime++ }));
-      else this.setState((state) => ({ isShow: state.secTime-- }));
-    }
-  };
-  swap = (type) => {
-    if (type == 1) {
-      this.setState((state) => ({ label1: !state.label1 }));
-      if (this.state.label1) {
-        clearInterval(this.tick);
-      } else {
-        this.tick = setInterval(this.chgCount, 1000);
-      }
-    } else if (type == 2) {
-      this.setState((state) => ({ label2: !state.label2 }));
-    }
-  };
-  ftime = (time) => {
-    if (time < 10) return "0" + String(time);
-    return String(time);
-  };
+  setCustom(input) {
+    this.setState({
+      customProp: input,
+    });
+  }
+  parseFiles(data) {
+    let fileArray = [];
+    if (
+      this.props.component.numFilesAllowed == -1 ||
+      data.length - 1 < this.props.component.numFilesAllowed ||
+      data.length == this.props.component.numFilesAllowed ||
+      data.length > 0
+    ) {
+      Array.from(data).forEach((e: any) => {
+        if (e.size < 536870912) {
+          if (
+            fdict[this.props.component.params.ftypeskey].some(
+              (t) => t == e.type.split("/")[1]
+            )
+          ) {
+            if (e.name.split(".")[1] == e.type.split("/")[1]) {
+              fileArray.push(e);
+            } else alert("filetype must match filename for file " + e.name);
+          } else
+            alert(
+              `we do not accept the filetype ${
+                e.type.split("/")[1]
+              } for this converter`
+            );
+        } else alert("file is over our size limit(512mb)");
+        if (fileArray != [])
+          this.setState({
+            files: fileArray,
+          });
+      });
+    } else
+      alert(
+        `you are over the file limit, you can only upload ${this.props.numFilesAllowed} files`
+      );
+  }
   render() {
     return (
       <Holder>
-        <TimeDisp>
-          {this.ftime(Math.floor(this.state.secTime / 3600))} :{" "}
-          {this.ftime(
-            Math.floor(this.state.secTime / 60) -
-              Math.floor(this.state.secTime / 3600) * 60
-          )}{" "}
-          : {this.ftime(Math.floor(this.state.secTime % 60))}
-        </TimeDisp>
-        <br />
-        <FormButton onClick={() => this.swap(1)}>
-          {this.state.label1 ? "Stop Timer" : "Start Timer"}
-        </FormButton>
-        <FormButton onClick={() => this.swap(2)}>
-          {this.state.label2 ? "Count Down" : "Count Up"}
-        </FormButton>
-        <br />
-        <TimeInput
-          type="number"
-          maxLength="2"
-          defaultValue="00"
-          min="0"
-          onChange={(e) => {
-            e.persist();
-            this.setState((state) => ({
-              hour: parseInt(e.target.value),
-            }));
-          }}
-        />{" "}
-        :{" "}
-        <TimeInput
-          type="number"
-          maxLength="2"
-          defaultValue="00"
-          min="0"
-          onChange={(e) => {
-            e.persist();
-            this.setState((state) => ({
-              mins: parseInt(e.target.value),
-            }));
-          }}
-        />{" "}
-        :{" "}
-        <TimeInput
-          type="number"
-          maxLength="2"
-          defaultValue="00"
-          min="0"
-          onChange={(e) => {
-            e.persist();
-            this.setState((state) => ({
-              secs: parseInt(e.target.value),
-            }));
-          }}
+        <FileInput
+          type="file"
+          multiple={this.props.component.params.allowMultiFile || false}
+          onChange={(e) => this.parseFiles(e.target.files)}
         />
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <this.state.child
+            files={this.state.files}
+            info={{ ftypes: fdict[this.props.component.params.ftypeskey] }}
+            callback={(f) => {
+              this.setCustom(f);
+            }}
+          />
+        </React.Suspense>
         <FormButton
-          onClick={() =>
-            this.setState((state) => ({
-              secTime:
-                this.state.secs + this.state.mins * 60 + this.state.hour * 3600,
-            }))
-          }
+          onClick={() => {
+            let tmp = {
+              files: this.state.files,
+            };
+            tmp[this.props.component.params.uplSubType] = this.state.customProp;
+            this.props.callback(tmp);
+          }}
         >
-          Set New Time
+          Upload file(s)
         </FormButton>
       </Holder>
     );

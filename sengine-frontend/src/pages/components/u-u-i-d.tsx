@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormButton, Holder, TimeDisp, TimeInput } from "../styles";
+import { FormButton, Holder, TimeDisp, TimeInput } from "../../data/styles";
 
 export default class Timer extends React.Component {
   constructor(props) {
@@ -11,9 +11,9 @@ export default class Timer extends React.Component {
       secs: 0,
       hour: 0,
       secTime:
-        this.props.component.params.seconds +
-        this.props.component.params.minutes * 60 +
-        this.props.component.params.hours * 3600,
+        (this.props.component.params.seconds || 0) +
+        (this.props.component.params.minutes || 5) * 60 +
+        (this.props.component.params.hours || 0) * 3600,
     };
   }
   chgCount = () => {
@@ -24,14 +24,14 @@ export default class Timer extends React.Component {
     }
   };
   swap = (type) => {
-    if (type == 1) {
+    if (type) {
       this.setState((state) => ({ label1: !state.label1 }));
       if (this.state.label1) {
         clearInterval(this.tick);
       } else {
         this.tick = setInterval(this.chgCount, 1000);
       }
-    } else if (type == 2) {
+    } else {
       this.setState((state) => ({ label2: !state.label2 }));
     }
   };
@@ -51,10 +51,10 @@ export default class Timer extends React.Component {
           : {this.ftime(Math.floor(this.state.secTime % 60))}
         </TimeDisp>
         <br />
-        <FormButton onClick={() => this.swap(1)}>
-          {this.state.label1 ? "Stop Timer" : "Start Timer"}
+        <FormButton onClick={() => this.swap(true)}>
+          {this.state.label1 ? "⏸︎" : "▶︎"}
         </FormButton>
-        <FormButton onClick={() => this.swap(2)}>
+        <FormButton onClick={() => this.swap(false)}>
           {this.state.label2 ? "Count Down" : "Count Up"}
         </FormButton>
         <br />
@@ -65,9 +65,9 @@ export default class Timer extends React.Component {
           min="0"
           onChange={(e) => {
             e.persist();
-            this.setState((state) => ({
+            this.setState({
               hour: parseInt(e.target.value),
-            }));
+            });
           }}
         />{" "}
         :{" "}
@@ -78,9 +78,9 @@ export default class Timer extends React.Component {
           min="0"
           onChange={(e) => {
             e.persist();
-            this.setState((state) => ({
+            this.setState({
               mins: parseInt(e.target.value),
-            }));
+            });
           }}
         />{" "}
         :{" "}
@@ -91,17 +91,17 @@ export default class Timer extends React.Component {
           min="0"
           onChange={(e) => {
             e.persist();
-            this.setState((state) => ({
+            this.setState({
               secs: parseInt(e.target.value),
-            }));
+            });
           }}
         />
         <FormButton
           onClick={() =>
-            this.setState((state) => ({
+            this.setState({
               secTime:
                 this.state.secs + this.state.mins * 60 + this.state.hour * 3600,
-            }))
+            })
           }
         >
           Set New Time

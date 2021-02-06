@@ -4,7 +4,7 @@ export interface SearchConditions {
 }
 export interface ValidComponent {
   serviceUUID: string;
-  numFiles: number;
+  numFilesAllowed: number;
   satisfied: boolean;
   params: any;
 }

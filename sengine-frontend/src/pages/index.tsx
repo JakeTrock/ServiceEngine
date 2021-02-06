@@ -1,6 +1,5 @@
 import * as React from "react";
 import axios from "axios";
-import ServiceDictionary from "./components/ServiceDictionary";
 import {
   Holder,
   ServiceContainer,
@@ -13,29 +12,33 @@ import {
   DoneButton,
   PlusButton,
   Error,
-} from "./styles";
-import { ValidComponent, SearchConditions } from "./interfaces";
+} from "../data/styles";
+import { ValidComponent, SearchConditions } from "../data/interfaces";
 //consts
 
 const delay = 800;
-const alertClose = 8000;
-const baseUrl = "http://localhost:3000";
 
+const defaultConnect = axios.create({
+  baseURL: "http://localhost:3000",
+  headers: {
+    "Content-type": "application/json",
+  },
+});
 // markup
 const IndexPage = () => {
   let cdt = Date.now();
-  let openAdd = false;
-  let alertText = "";
+  let [openAdd, setOA] = React.useState(false);
+  let [uplProgress, setProg] = React.useState(0);
   let searchBox;
   let components: ValidComponent[] = [
     {
-      serviceUUID: "u-u-i-d",
-      numFiles: 0,
+      serviceUUID: "u-u-i-d-2",
+      numFilesAllowed: -1,
       satisfied: false,
       params: {
-        hours: 0,
-        minutes: 5,
-        seconds: 1,
+        ftypeskey: "u-u-i-d-3",
+        uplSubType: "conversion-image",
+        allowMultiFile: true,
       },
     },
   ];
@@ -62,32 +65,59 @@ const IndexPage = () => {
     // },
   ];
 
-  const alertPush = (textInput: string) => {
-    alertText = textInput;
-    if (textInput != "") setTimeout(() => alertPush(""), alertClose);
-  };
-
   const sendSearch = (term: string, conditions: SearchConditions | null) => {
     if (cdt >= Date.now() - delay) return;
     cdt = Date.now();
-    // return axios
-    //   .post(baseUrl + "/user/" + term, {
-    //     serviceUUID: conditions.serviceUUID,
-    //     numFiles: conditions.numFiles,
-    //   })
-    //   .catch((error) => {
-    //     return alertPush(error);
-    //   });
+    return defaultConnect
+      .post("/search/" + term, {
+        serviceUUID: conditions.serviceUUID,
+        numFiles: conditions.numFiles,
+      })
+      .catch((error) => alert(error));
   };
 
   const genReq = (uuid: string) => {
-    openAdd = false;
+    setOA(false);
     if (searchBox) searchBox.value = "";
-    return axios
-      .post(baseUrl + "/query/" + uuid)
+    return defaultConnect
+      .post("/query/" + uuid)
       .then((itm) => components.push(itm.data))
       .catch((error) => {
-        return alertPush(error);
+        return alert(error);
+      });
+  };
+
+  const finalReq = async () => {
+    await new Promise((resolve, reject) => {
+      let formData = new FormData();
+
+      components.forEach((c, i) => {
+        if (c.satisfied) {
+          formData.append(i + "-" + c.serviceUUID, JSON.stringify(c));
+          c.params.files.forEach((f, v) =>
+            formData.append(c.serviceUUID + "-" + v, f)
+          );
+        } else
+          throw reject("component not satisfied! please check components.");
+      });
+      resolve(formData);
+    })
+      .then((formData) =>
+        defaultConnect.post("/exec", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: function (progressEvent) {
+            setProg(
+              Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            );
+          },
+        })
+      )
+      .then((res) => console.log(res)) //TODO:properly handling this?
+      .catch((e) => {
+        setProg(-1);
+        alert(e);
       });
   };
   return (
@@ -106,27 +136,21 @@ const IndexPage = () => {
               return (
                 <ServiceBox key={index}>
                   <React.Suspense fallback={<div>Loading...</div>}>
-                    <Tmp component={result} />
+                    <Tmp
+                      component={result}
+                      callback={(input) => {
+                        let tmp = (result.params = input);
+                        tmp.satisfied = true;
+                        components[index] = tmp;
+                      }}
+                    />
                   </React.Suspense>
                 </ServiceBox>
               );
             })}
           </ServiceContainer>
         )}
-        {alertText != "" && <Error>{alertText}</Error>}
-        {components.length > 0 || openAdd ? (
-          <PlusButton
-            onClick={() => {
-              if (components[components.length - 1].satisfied) openAdd = true;
-              else
-                alertPush(
-                  "Please finish the current form before adding another"
-                );
-            }}
-          >
-            +
-          </PlusButton>
-        ) : (
+        {components.length == 0 || openAdd ? (
           <SearchInput
             ref={(el) => (searchBox = el)}
             placeholder="ex: convert mkv to mp4"
@@ -144,6 +168,17 @@ const IndexPage = () => {
               )
             }
           />
+        ) : (
+          <PlusButton
+            onClick={() => {
+              console.log(components[components.length - 1].satisfied);
+              if (components[components.length - 1].satisfied) setOA(true);
+              else
+                alert("Please finish the current form before adding another");
+            }}
+          >
+            +
+          </PlusButton>
         )}
         <IntroHolder>
           Type and select your command to start the conversion process
@@ -160,7 +195,11 @@ const IndexPage = () => {
           })}
         </ResultsHolder>
       )}
-      {components.length > 0 && <DoneButton>Done</DoneButton>}
+      {components.length > 0 && (
+        <DoneButton onClick={() => finalReq()}>Done</DoneButton>
+      )}
+      {uplProgress > 0 && <progress value={uplProgress} max="100" />}
+      {uplProgress == -1 && <Error>Error Uploading File</Error>}
     </Holder>
   );
 };

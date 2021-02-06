@@ -19,7 +19,6 @@ const ServiceBox = styled.div`
   outline: none;
   &:hover {
     border: 2px solid #ccf;
-    border-left 5px solid #ccf;
   }
 `;
 const Suggestion = styled.div`
@@ -132,14 +131,24 @@ const FormButton = styled.a`
   font: inherit;
   display: inline-block;
   border-radius: 5px;
-  padding: 0.3rem 0;
-  // margin: 0.5rem 1rem;
-  width: 8rem;
-  background: lightgray;
+  padding: 0.3rem 0.5rem;
+  margin: 0.5rem 1rem;
+  background: lightgreen;
   color: white;
-  border: 2px solid lightgray;
+  border: 2px solid lightgreen;
   &:hover {
-    border: 2px solid lightgreen;
+    border: 2px solid lightgray;
+  }
+`;
+
+const FileInput = styled.input`
+  border: none;
+  font: inherit;
+  font-weight: bold;
+  font-size: 15px;
+  border-bottom: 1.5px solid #000;
+  &:hover {
+    border-bottom: 3px solid #000;
   }
 `;
 
@@ -158,4 +167,5 @@ export {
   TimeDisp,
   TimeInput,
   FormButton,
+  FileInput,
 };
