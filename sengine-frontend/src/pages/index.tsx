@@ -14,6 +14,7 @@ import {
   Error,
 } from "../data/styles";
 import { ValidComponent, SearchConditions } from "../data/interfaces";
+import sdict from "./sdict";
 //consts
 
 const delay = 800;
@@ -37,8 +38,6 @@ const IndexPage = () => {
       numFilesOut: -1,
       satisfied: false,
       params: {
-        ftypeskey: "u-u-i-d-3",
-        uplSubType: "conversion-selector",
         allowMultiFile: true,
       },
     },
@@ -130,22 +129,17 @@ const IndexPage = () => {
         />
         {components.length > 0 && (
           <ServiceContainer>
-            {components.map((result, index) => {
-              const Tmp = React.lazy(
-                () => import(`./components/${result.serviceUUID}`)
-              );
+            {components.map((vals, index) => {
               return (
                 <ServiceBox key={index}>
-                  <React.Suspense fallback={<div>Loading...</div>}>
-                    <Tmp
-                      component={result}
-                      callback={(input) => {
-                        let tmp = (result.params = input);
-                        tmp.satisfied = true;
-                        components[index] = tmp;
-                      }}
-                    />
-                  </React.Suspense>
+                  {sdict[vals.serviceUUID]({
+                    vals,
+                    callback: (input) => {
+                      let tmp = (vals.params = input);
+                      tmp.satisfied = true;
+                      components[index] = tmp;
+                    },
+                  })}
                 </ServiceBox>
               );
             })}
