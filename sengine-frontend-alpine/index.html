@@ -1,0 +1,283 @@
+<html>
+
+<head>
+  <script type="module" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
+  <link rel="shortcut icon" href="../looks/images/logo.svg" type="image/svg+xml" />
+  <link type="text/css" rel="stylesheet" charset="UTF-8" href="../looks/styles.css">
+</head>
+
+<body>
+  <div class="Holder" x-data="logiccontroller()">
+
+    <div class="SearchFormHolder">
+      <!--TODO:add x in corner to remove component-->
+      <img alt="ServiceEngine Logo" src="../looks/images/logo.svg" />
+      <template x-if="components.length > 0" class="ServiceContainer">
+        <template x-spread="servelist">
+          <div class="ServiceBox">
+            <div x-html="cmp"></div>
+          </div>
+        </template>
+      </template>
+      <template x-if="components.length == 0 || openAdd">
+        <div>
+          <input class="SearchInput" x-ref="sboxval" x-spread="searchbox" placeholder="ex: convert mkv to mp4" />
+          <p class="IntroHolder">
+            Type and select your command to start the conversion process
+          </p>
+        </div>
+      </template>
+      <template x-if="!(components.length == 0 || openAdd)">
+        <a class="PlusButton" x-spread="plusbutton">
+          +
+        </a>
+      </template>
+    </div>
+    <template x-if="results.length > 0" class="ResultsHolder">
+      <template x-for="result in results" :key="result">
+        <div class="Suggestion" x-text="result.qname"
+          @click="if($refs.sboxval)$refs.sboxval.value = '';select(result.action)"></div>
+      </template>
+    </template>
+
+    <template x-if="components.length > 0">
+      <a class="DoneButton" @click.camel="finalReq()">Done</a>
+    </template>
+    <template x-if="uplprogress > 0">
+      <progress x-bind:value="uplprogress" max="100" />
+    </template>
+    <template x-if="uplprogress == -1">
+      <p class="Error">Error Uploading File</p>
+    </template>
+  </div>
+</body>
+<script>
+  const urlBase = "http://localhost:8000";
+
+  async function postData(url, isForm, data) {
+    return await fetch(urlBase + url, {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': isform ? 'application/x-www-form-urlencoded' : 'application/json',
+      },
+      redirect: 'follow',
+      referrerPolicy: 'no-referrer',
+      body: isform ? data : JSON.stringify(data)
+    });
+  }
+
+  const sendSearch = (term, conditions) => {
+    return postData("/search/" + term, false, {
+        serviceUUID: conditions.serviceUUID,
+        numFiles: conditions.numFiles,
+      })
+      .then(r => r.json())
+      .catch(e => {
+        throw alert(e)
+      });
+  };
+
+
+
+  function finalReq() {
+
+
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', '/article/xmlhttprequest/example/load');
+    xhr.send();
+    xhr.onload = function () {
+      if (xhr.status != 200) {
+        alert(`Error ${xhr.status}: ${xhr.statusText}`);
+      } else { // show the result
+        alert(`Done, got ${xhr.response.length} bytes`);
+      }
+    };
+    xhr.onprogress = function (event) {
+      if (event.lengthComputable) {
+        alert(`Received ${event.loaded} of ${event.total} bytes`);
+      } else {
+        alert(`Received ${event.loaded} bytes`);
+      }
+
+    };
+    xhr.onerror = function (e) {
+      alert("Request failed");
+    };
+
+
+    let formData = new FormData();
+
+    components.forEach((c, i) => {
+      if (c.satisfied) {
+        formData.append(i + "-" + c.serviceUUID, JSON.stringify(c));
+        c.params.files.forEach((f, v) =>
+          formData.append(c.serviceUUID + "-" + v, f)
+        );
+      } else
+        throw alert("component not satisfied! please check components.");
+    });
+
+    const req = postData("/exec", true, formData)
+      .then(f => returnDialog(f.response))
+      .catch((e) => {
+        setProg(-1);
+        alert(e);
+      });
+
+    // req.upload.addEventListener('progress', e => setProg(
+    //   Math.round((e.loaded * 100) / e.total)
+    // ));
+    // req.addEventListener('load', f => returnDialog(f.response));
+  };
+
+
+
+
+
+
+
+  function cpadd(f, acc) {
+    if (acc.length == 1)
+      return f(acc[0]);
+    else return f(cpadd(acc[0], acc.splice(1)));
+  }
+
+
+  const sdict = {
+    "u-u-i-d-1": ["timer"],
+    "u-u-i-d-2": ["uploader", "uploader-multiloader", "cropper", "vidplayer"],
+    "u-u-i-d-3": ["clock"],
+  };
+
+
+
+  var unloadedComponents = {}; //TODO: cache me if you can
+  var
+    loadedComponents = []; //TODO:perhaps rather than using own x-data, this should change the values on the parent x data component
+  const buildComponent = (toLoad, i) => {
+    const dct = Object.keys(unloadedComponents);
+    if (toLoad.every((e) => dct.indexOf(e) != -1)) {
+      if (toLoad.length == 1) {
+        console.log(unloadedComponents[toLoad].replaceAll("${ap}", i));
+        loadedComponents.push(unloadedComponents[toLoad].replaceAll("${ap}", i));
+      } else {
+        const loadList = toLoad.map(function (e) {
+          return unloadedComponents[e];
+        });
+        loadedComponents = loadedComponents.push(loadList.reverse().reduce(function (acc, cv) {
+          acc = cv.replaceAll("${ch}", acc);
+        }).replaceAll("${ap}", i));
+      }
+      window.dispatchEvent(new CustomEvent('reload-comps'));
+    }
+  };
+
+  function logiccontroller() {
+
+    return {
+      //DATA
+      openAdd: false,
+      uplprogress: 0,
+      // JSON.parse(new URLSearchParams(location.search).get('cmps')) ||
+      components: [{
+        serviceUUID: 'u-u-i-d-1',
+        numFilesIn: -1,
+        numFilesOut: -1,
+        satisfied: false,
+        params: {
+          hours: 1,
+          allowMultiFile: true,
+          ftypeskey: 'u-u-i-d-2'
+        },
+      }, ],
+      results: [{
+          qname: "alpha",
+          action: "u-u-i-d-3",
+        },
+        {
+          qname: "beta",
+          action: "u-u-i-d-3",
+        },
+        {
+          qname: "gamma",
+          action: "u-u-i-d-1",
+        },
+        {
+          qname: "kappa",
+          action: "u-u-i-d-1",
+        },
+        {
+          qname: "delta",
+          action: "u-u-i-d-1",
+        },
+      ],
+      integratedComps:[],
+      count: 1,
+      //FUNCTIONS
+
+      buildIndex: function (comp, i) {
+        const loaded = Object.keys(unloadedComponents);
+        comp.filter(function (v) {
+          return loaded.indexOf(v) == -1;
+        }).map((c) => {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', `/components/${c}.txt`);
+          xhr.send();
+          xhr.onload = function () {
+            if (xhr.status != 200) {
+              alert(`Error ${xhr.status}: ${xhr.statusText}`);
+            } else {
+              unloadedComponents[c] = xhr.response;
+              buildComponent(comp, i);
+            }
+          };
+          xhr.onerror = function (e) {
+            alert("Request failed");
+          };
+        });
+      },
+      select: function (act) {
+        openadd = false;
+        this.buildIndex(sdict[act], this.components.length);
+        // postData('/query/' + result.action, false, {})
+        //   .then(r => components.push(r.json()))
+        //   .catch(e => {
+        //     throw alert(e)
+        //   });
+      },
+      //COMPONENTS
+      servelist: {
+        ['@reload-comps.window'](){
+          this.integratedComps=loadedComponents;
+        },
+        ['x-for']() {
+          return "cmp in integratedComps"
+        },
+        [':key']() {
+          return "cmp"
+        },
+      },
+      searchbox: {
+        ['x-on:input.debounce.800.camel'](e) {
+          var tg = this.components[this.components.length - 1];
+          sendSearch(e.target.value, this.components.length > 0 ? {
+            numFiles: tg.numFilesOut,
+            serviceUUID: tg.serviceUUID
+          } : null)
+        },
+      },
+      plusbutton: {
+        ['@click']() {
+          (this.components[this.components.length - 1].satisfied) ? setOA(true): alert(
+            'Please finish the current form before adding another')
+        },
+      },
+    }
+  }
+</script>
+
+</html>

@@ -9,3 +9,8 @@ export interface ValidComponent {
   satisfied: boolean;
   params: any;
 }
+
+export interface context {
+  vals: ValidComponent;
+  callback: (input: any) => void;
+}

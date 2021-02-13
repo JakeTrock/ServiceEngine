@@ -1,0 +1,6 @@
+<div class="Holder">
+  <div class="Header" x-data="{ctm:''}"
+    x-init="function(){setInterval(function(d=new Date()){ctm=d.toLocaleDateString()+' - '+d.toLocaleTimeString();},1000)}"
+    x-html="ctm">
+  </div>
+</div>

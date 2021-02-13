@@ -2,13 +2,14 @@ import * as React from "react";
 import { FileInput, FormButton, Holder } from "../../data/styles";
 import fdict from "../../data/dicts/ftypedict";
 
-export const Uploader = (props) => {
-  const Child = props.child[0];
+export default (props) => {
+  const Child = props.children[0];
   let [files, setFiles] = React.useState([]);
   let [customProp, setCustomProp] = React.useState({});
 
   const parseFiles = (data) => {
     let fileArray = [];
+    console.log(props.component);
     if (
       props.component.numFilesIn == -1 ||
       data.length - 1 < props.component.numFilesIn ||
@@ -50,7 +51,7 @@ export const Uploader = (props) => {
       <React.Suspense fallback={<div>Loading...</div>}>
         <Child
           files={files}
-          children={props.children.shift()}
+          children={props.children.splice(1)}
           info={{ ftypes: fdict[props.component.params.ftypeskey] }}
           callback={(f) => setCustomProp(f)}
         />

@@ -1,0 +1,18 @@
+<div class="Holder" x-data="{
+  label1: false,
+  label2: false,
+  hrs: components[${ap}].params.hours||0,
+  mns: components[${ap}].params.minutes||0,
+  scs: components[${ap}].params.seconds||0,
+  tick: undefined,                        
+  }">
+      <a class="FormButton" @click="(label1=!label1)? tick=setInterval(function (){if(label2){if(scs++>58){scs=0;if(mns++>58){mns=0;if(hrs++>98)hrs=0}}}else if(scs--<1){scs=0;if(mns--<1){mns=0;if(hrs--<1)hrs=0;else mns=59}else scs=59}}, 1000):clearInterval(tick)"
+        x-html="label1 ? '&#9208;&#xFE0E;' : '&#9654;&#xFE0E;'"></a>
+      <a class="FormButton" @click="label2=!label2" x-html="label2 ? 'Count Down' : 'Count Up'"></a>
+      <br />
+      <input class="TimeInput" type="number" maxLength="2" min="0" max="99" x-model="hrs" />
+      :
+      <input class="TimeInput" type="number" maxLength="2" min="0" max="59" x-model="mns" />
+      :
+      <input class="TimeInput" type="number" maxLength="2" min="0" max="59" x-model="scs" />
+    </div>

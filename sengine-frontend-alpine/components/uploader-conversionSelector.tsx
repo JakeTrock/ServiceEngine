@@ -1,7 +1,7 @@
 import * as React from "react";
-import { FileInput, FormButton, Holder } from "../../data/styles";
+import { Holder } from "../../data/styles";
 
-export const MultiLoader = (props) => {
+export default (props) => {
   let [selected, setSelected] = React.useState("None");
   return (
     <Holder>

@@ -1,50 +1,52 @@
-import styled from "styled-components";
-const Holder = styled.div`
+.Holder {
   font-family: Helvetica Neue, sans-serif;
   max-width: 600px;
   margin: 100px auto;
   padding: 20px;
+  box-sizing: border-box;
+}
 
-  &,
-  & * {
-    box-sizing: border-box;
-  }
-`;
-const ServiceContainer = styled.div`
+.ServiceContainer {
   border: 2px solid #ddd;
   outline: none;
-`;
-const ServiceBox = styled.div`
+}
+
+.ServiceBox {
   border: 2px solid #ddd;
   outline: none;
-  &:hover {
-    border: 2px solid #ccf;
-  }
-`;
-const Suggestion = styled.div`
+}
+
+.ServiceBox:hover {
+  border: 2px solid #ccf;
+}
+
+.Suggestion {
   display: flex;
   font-size: 20px;
   align-items: baseline;
   padding: 10px 0;
   border: 1px solid #ddd;
   outline: none;
-  &:hover {
-    border: 2px solid #ccf;
-    border-left 5px solid #ccf;
-  }
-`;
-const IntroHolder = styled.div`
+}
+
+.Suggestion:hover {
+  border: 2px solid #ccf;
+  border-left: 5px solid #ccf;
+}
+
+.IntroHolder {
   padding: 20px 0;
   font-weight: bold;
   opacity: 0.2;
   font-family: inherit;
-`;
-const SearchFormHolder = styled.div``;
-const ResultsHolder = styled.div`
+}
+
+.ResultsHolder {
   border: 2px solid #ddd;
   outline: none;
-`;
-const SearchInput = styled.input`
+}
+
+.SearchInput {
   display: block;
   width: 100%;
   padding: 25px;
@@ -53,12 +55,13 @@ const SearchInput = styled.input`
   font-size: 30px;
   border: 2px solid #ddd;
   outline: none;
+}
 
-  &:focus {
-    border-color: #bbb;
-  }
-`;
-const PlusButton = styled.a`
+.SearchInput:focus {
+  border-color: #bbb;
+}
+
+.PlusButton {
   text-align: center;
   background: lightgreen;
   display: block;
@@ -70,12 +73,13 @@ const PlusButton = styled.a`
   border: 2px solid #ddd;
   outline: none;
   color: white;
+}
 
-  &:hover {
-    border-color: #bbb;
-  }
-`;
-const DoneButton = styled.a`
+.PlusButton:hover {
+  border-color: #bbb;
+}
+
+.DoneButton {
   text-align: center;
   font: inherit;
   display: inline-block;
@@ -86,11 +90,13 @@ const DoneButton = styled.a`
   background: lightgreen;
   color: white;
   border: 2px solid lightgreen;
-  &:hover {
-    border: 2px solid green;
-  }
-`;
-const Error = styled.div`
+}
+
+.DoneButton:hover {
+  border: 2px solid green;
+}
+
+.Error {
   font: inherit;
   display: inline-block;
   margin: 0.5rem 1rem;
@@ -105,28 +111,29 @@ const Error = styled.div`
   font-size: 0.8em;
   border: 1px solid red;
   outline: none;
-`;
+}
 
-const TimeDisp = styled.h1`
+.Header {
   color: #000;
   font: inherit;
   font-weight: bold;
   font-size: 30px;
-`;
+}
 
-const TimeInput = styled.input`
+.TimeInput {
   width: 15%;
   border: none;
   font: inherit;
   font-weight: bold;
   font-size: 30px;
   border-bottom: 1.5px solid #000;
-  &:hover {
-    border-bottom: 3px solid #000;
-  }
-`;
+}
 
-const FormButton = styled.a`
+.TimeInput:hover {
+  border-bottom: 3px solid #000;
+}
+
+.FormButton {
   text-align: center;
   font: inherit;
   display: inline-block;
@@ -136,36 +143,89 @@ const FormButton = styled.a`
   background: lightgreen;
   color: white;
   border: 2px solid lightgreen;
-  &:hover {
-    border: 2px solid lightgray;
-  }
-`;
+}
 
-const FileInput = styled.input`
+.FormButton:hover {
+  border: 2px solid lightgray;
+}
+
+.FileInput {
   border: none;
   font: inherit;
   font-weight: bold;
   font-size: 15px;
   border-bottom: 1.5px solid #000;
-  &:hover {
-    border-bottom: 3px solid #000;
-  }
-`;
+}
 
-export {
-  Holder,
-  ServiceContainer,
-  ServiceBox,
-  Suggestion,
-  IntroHolder,
-  SearchFormHolder,
-  ResultsHolder,
-  SearchInput,
-  DoneButton,
-  PlusButton,
-  Error,
-  TimeDisp,
-  TimeInput,
-  FormButton,
-  FileInput,
-};
+.FileInput:hover {
+  border-bottom: 3px solid .000;
+}
+
+.CropParent {
+  position: absolute;
+  max-height: inherit;
+  max-width: inherit;
+  box-sizing: border-box;
+  overflow: none;
+  margin: 10px;
+  background-color: rgba(150, 0, 0, 0.5);
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  top: 100px;
+  left: 100px;
+}
+
+.CropBox {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.CropTopLeft {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: red;
+  position: absolute;
+
+  left: -5px;
+  top: -5px;
+  cursor: nwse-resize;
+}
+
+.CropTopRight {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: red;
+  position: absolute;
+
+  right: -5px;
+  top: -5px;
+  cursor: nesw-resize;
+}
+
+.CropBottomLeft {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: red;
+  position: absolute;
+
+  left: -5px;
+  bottom: -5px;
+  cursor: nesw-resize;
+}
+
+.CropBottomRight {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: red;
+  position: absolute;
+
+  right: -5px;
+  bottom: -5px;
+  cursor: nwse-resize;
+}

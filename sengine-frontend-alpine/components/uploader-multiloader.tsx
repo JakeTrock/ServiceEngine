@@ -1,21 +1,16 @@
 import * as React from "react";
-import { FileInput, FormButton, Holder } from "../../data/styles";
-import fdict from "../../data/dicts/ftypedict";
+import { FormButton, Holder } from "../../data/styles";
 
-export const MultiLoader = (props) => {
-  const Child = props.child[0];
+export default (props) => {
+  console.log(props);
+  const Child = props.children[0];
+  console.log(Child);
+  console.log(props.children);
+  const filesUrl = props.files.map((f) =>
+    (window.URL || window.webkitURL).createObjectURL(f)
+  );
   let [params, setParams] = React.useState([]);
   let [currentFile, setCurrentFile] = React.useState("0");
-
-  const changeFile = (event) => {
-    const file = props.files[Number(currentFile)];
-    var videoNode = document.querySelector("video");
-    if (videoNode.canPlayType(file.type) === "")
-      return alert("video editor dosen't support this format");
-  
-    var fileURL = (window.URL || window.webkitURL).createObjectURL(file);
-    videoNode.src = fileURL;
-  };
 
   return (
     <Holder>
@@ -33,17 +28,15 @@ export const MultiLoader = (props) => {
       </select>
       <React.Suspense fallback={<div>Loading...</div>}>
         <Child
-          files={props.files}
-          children={props.children.shift()}
-          info={{ ftypes: fdict[props.component.params.ftypeskey] }}
+          file={filesUrl[Number(currentFile)]}
+          children={props.children.splice(1)}
           callback={(f) => {
-            const tmp = params;
+            let tmp = params;
             params[Number(currentFile)] = f;
             setParams(tmp);
           }}
         />
       </React.Suspense>
-      {/* ^ above component will contain <video controls></video> */}
       <FormButton onClick={props.callback(params)}>Save</FormButton>
     </Holder>
   );

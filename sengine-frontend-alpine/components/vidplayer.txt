@@ -1,0 +1,2 @@
+<video onLoadedMetadata={(e)=> props.callback([e.videoWidth, e.videoHeight])} style="width:100%;height:100%;"
+  src={props.file} autoPlay loop muted />
