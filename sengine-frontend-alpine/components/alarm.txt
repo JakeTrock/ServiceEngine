@@ -1,0 +1,13 @@
+<div class="Holder" x-data="{s:0,m:0,h:0,a:false,ctm:'',t: undefined,}">
+    <p>input time here:</p><input type="text" step="1" @blur="h=$event.target.value.padStart(2, '0')">:
+    <input type="text" step="1" @blur="m=$event.target.value.padStart(2, '0')">:
+    <input type="text" step="1" @blur="s=$event.target.value.padStart(2, '0')">
+    <a class="FormButton" @click="a=!a" x-html="a ? 'AM' : 'PM'"></a>
+    <a class="FormButton" @click="t=setInterval(function(d=new Date()){
+      var tls=d.toLocaleTimeString();
+      if(tls==`${h}:${m}:${s} ${a ? 'AM' : 'PM'}`){ctm='time up!';clearInterval(t)}
+      else ctm=d.toLocaleDateString()+' - '+tls;
+      },1000)">set time</a>
+    <div class="Header" x-html="ctm">
+    </div>
+  </div>
