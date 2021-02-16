@@ -161,6 +161,8 @@
   border-bottom: 3px solid .000;
 }
 
+/* put in seperate css file: */
+
 .CropParent {
   position: absolute;
   max-height: inherit;

@@ -1,4 +1,3 @@
-  <script src="./data/dicts/ftypedict.js"></script>
   <div class="Holder" x-data="{s:undefined}">
     <p>
       Click dropdown and scroll to find codec of choice, or type first letter

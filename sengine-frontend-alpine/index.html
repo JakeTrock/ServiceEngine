@@ -3,6 +3,9 @@
 <head>
   <script type="module" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
   <script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
+  <!--do I need to load this:-->
+  <script src="./data/dicts/ftypedict.js"></script>
+  <!--end expendable block-->
   <link rel="shortcut icon" href="../looks/images/logo.svg" type="image/svg+xml" />
   <link type="text/css" rel="stylesheet" charset="UTF-8" href="../looks/styles.css">
 </head>
@@ -149,10 +152,10 @@
 
   const sdict = {
     "u-u-i-d-1": ["timer"],
-    "u-u-i-d-2": ["clock"],//TODO:possibly add option to change timezone
+    "u-u-i-d-2": ["clock"], //TODO:possibly add option to change timezone
     "u-u-i-d-3": ["alarm"],
     "u-u-i-d-4": ["uploader", "uploader-multiloader", "cropper", "vidplayer"],
-    
+
   };
 
 
@@ -217,7 +220,7 @@
           action: "u-u-i-d-1",
         },
       ],
-      integratedComps:[],
+      integratedComps: [],
       count: 1,
       //FUNCTIONS
 
@@ -253,8 +256,8 @@
       },
       //COMPONENTS
       servelist: {
-        ['@reload-comps.window'](){
-          this.integratedComps=loadedComponents;
+        ['@reload-comps.window']() {
+          this.integratedComps = loadedComponents;
         },
         ['x-for']() {
           return "cmp in integratedComps"

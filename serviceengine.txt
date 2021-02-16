@@ -6,14 +6,13 @@ could be created with a web vm running in js or with wasm, or with a server api 
 
 * denotes a core feature
 ServiceEngine main components:
-    -I/O
+    -I/O    
         -Text editor(w/ optional syntax highlighting)
-        -latex editor w/ symbol detexifier
+        -latex editor/compiler w/ symbol detexifier
         -hex editor
         -Take photo
         -Take video
         -Record audio
-        -bibliography generator
     -RTC:
         -P2P filesharing
         -Video call
@@ -60,5 +59,9 @@ ServiceEngine main components:
         -if/else
         -timer
         -calculator
+        -bibliography generator
+        -unit converter
+        -calculator
+        -multifile selector for single file operations
 
         Later we'll also have a desktop code generator using Magnum-NLC2CMD and a set for windows, linux and macos
