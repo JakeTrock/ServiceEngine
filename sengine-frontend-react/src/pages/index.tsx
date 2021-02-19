@@ -1,7 +1,6 @@
-//TODO:add url parsing
-
 import * as React from "react";
 import axios from "axios";
+import URLON from "urlon";
 import {
   Holder,
   ServiceContainer,
@@ -14,6 +13,8 @@ import {
   DoneButton,
   PlusButton,
   Error,
+  FormButton,
+  CloseButton,
 } from "../data/styles";
 import { ValidComponent, SearchConditions } from "../data/interfaces";
 //consts
@@ -30,19 +31,21 @@ const IndexPage = () => {
   let [openAdd, setOA] = React.useState(false);
   let [uplProgress, setProg] = React.useState(0);
   let searchBox;
-  let components: ValidComponent[] = [
-    {
-      serviceName: "convert",
-      satisfied: false,
-      initParams: {
-        numFilesIn: -1,
-        numFilesOut: -1,
-        files: [],
-        ftypeskey: "u-u-i-d-3",
-      },
-      params: [,],
-    },
-  ];
+  let components: ValidComponent[] = location.search
+    ? URLON.parse(location.search)
+    : [
+        {
+          serviceName: "convert",
+          satisfied: false,
+          initParams: {
+            numFilesIn: -1,
+            numFilesOut: -1,
+            files: [],
+            ftypeskey: "u-u-i-d-3",
+          },
+          params: [,],
+        },
+      ];
   let results = [
     // {
     //   qname: "alpha",
@@ -150,6 +153,7 @@ const IndexPage = () => {
               const TCom = LoadedComps[vals.serviceName];
               return (
                 <ServiceBox key={index}>
+                  <CloseButton onClick={components.splice(index)} />
                   <React.Suspense fallback={<div>Loading...</div>}>
                     <TCom
                       component={vals}
@@ -213,8 +217,17 @@ const IndexPage = () => {
         </ResultsHolder>
       )}
       {components.length > 0 && (
-        <DoneButton onClick={() => finalReq()}>Done</DoneButton>
+        <Holder>
+          <DoneButton onClick={() => finalReq()}>Run conversion</DoneButton>
+          or
+          <FormButton
+            onClick={() => alert(location + URLON.stringify(components))} //TODO:create a dl box class to replace alert
+          >
+            Share conversion
+          </FormButton>
+        </Holder>
       )}
+
       {uplProgress > 0 && <progress value={uplProgress} max="100" />}
       {uplProgress == -1 && <Error>Error Uploading File</Error>}
     </Holder>

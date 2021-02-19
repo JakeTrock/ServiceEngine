@@ -159,6 +159,34 @@ const Header = styled.h1`
   font-size: 30px;
 `;
 
+const Dialogue = styled.div`
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  border: 2px solid #ddd;
+`;
+
+const DialogueChild = styled.div`
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+`;
+
+const CloseButton = styled.span`
+  content: "&times;";
+  color: #aaaaaa;
+  float: right;
+  font-size: 30px;
+  font-weight: bold;
+`;
+
 export {
   Holder,
   ServiceContainer,
@@ -176,4 +204,7 @@ export {
   FormButton,
   FileInput,
   Header,
+  Dialogue,
+  DialogueChild,
+  CloseButton,
 };
