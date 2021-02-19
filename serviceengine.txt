@@ -62,6 +62,7 @@ ServiceEngine main components:
         -bibliography generator
         -unit converter
         -calculator
-        -multifile selector for single file operations
+        -sitemap generator
+
 
         Later we'll also have a desktop code generator using Magnum-NLC2CMD and a set for windows, linux and macos
