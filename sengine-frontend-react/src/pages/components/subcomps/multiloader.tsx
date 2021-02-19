@@ -4,7 +4,7 @@ import { FormButton, Holder } from "../../../data/styles";
 export default (props) => {
   console.log("loaded");
   const Child = props.child[0];
-  let [currentFile, setCurrentFile] = React.useState("0");
+  const [currentFile, setCurrentFile] = React.useState("0");
 
   return (
     <Holder>

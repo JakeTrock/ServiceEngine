@@ -3,8 +3,8 @@ import { FileInput, FormButton, Holder } from "../../../data/styles";
 import fdict from "../../../data/dicts/ftypedict";
 
 export default (props) => {
-  let [fsl, setFsl] = React.useState(["loading failed"]);
-  let [selected, setSelected] = React.useState("None");
+  const [fsl, setFsl] = React.useState(["loading failed"]);
+  const [selected, setSelected] = React.useState("None");
   React.useEffect(
     () => setFsl(fdict[props.component.initParams.ftypeskey]),
     []
@@ -21,7 +21,7 @@ export default (props) => {
           const v = e.target.value;
           setSelected(v);
           if (v != "None") {
-            let tmp = props.component;
+            const tmp = props.component;
             console.log(tmp.params);
             if (props.current) tmp.params[props.current].toType = v;
             else tmp.params[0].toType = v;

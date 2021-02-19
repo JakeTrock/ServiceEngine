@@ -4,11 +4,11 @@ import fdict from "../../../data/dicts/ftypedict";
 
 export default (props) => {
   const Child = props.children[0];
-  let [customComp, setCustomComp] = React.useState(props.component);
-  let [satisfied, setSatisfied] = React.useState(false);
+  const [customComp, setCustomComp] = React.useState(props.component);
+  const [satisfied, setSatisfied] = React.useState(false);
 
   const parseFiles = (data) => {
-    let fileArray = [];
+    const fileArray = [];
     if (
       props.component.numFilesIn == -1 ||
       data.length - 1 < props.component.initParams.numFilesIn ||

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Header, Holder } from "../../data/styles";
 
 export default (props) => {
-  let [ctm, setCtm] = React.useState("");
+  const [ctm, setCtm] = React.useState("");
   const tick = (d = new Date()) => {
     setCtm(d.toLocaleDateString() + " - " + d.toLocaleTimeString());
   };

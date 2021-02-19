@@ -7,13 +7,13 @@ const ftime = (time) => {
 };
 
 export default (props) => {
-  let [label1, setLabel1] = React.useState(false);
-  let [label2, setLabel2] = React.useState(false);
+  const [label1, setLabel1] = React.useState(false);
+  const [label2, setLabel2] = React.useState(false);
   let mins = 0;
   let secs = 0;
   let hour = 0;
   let tick;
-  let [secTime, setSecTime] = React.useState(
+  const [secTime, setSecTime] = React.useState(
     (props.component.initParams.seconds || 0) +
       (props.component.initParams.minutes || 5) * 60 +
       (props.component.initParams.hours || 0) * 3600

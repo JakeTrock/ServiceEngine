@@ -180,7 +180,6 @@ const DialogueChild = styled.div`
 `;
 
 const CloseButton = styled.span`
-  content: "&times;";
   color: #aaaaaa;
   float: right;
   font-size: 30px;

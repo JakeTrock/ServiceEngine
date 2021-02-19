@@ -13,10 +13,10 @@ const minimum_size = 20;
 
 export default (props) => {
   const Child = props.children[0];
-  let [xywh, setXYWH] = React.useState([0, 0, 0, 0]);
-  let [MXMY, setMXMY] = React.useState([0, 0]);
+  const [xywh, setXYWH] = React.useState([0, 0, 0, 0]);
+  const [MXMY, setMXMY] = React.useState([0, 0]);
   const CropRef = React.useRef(null);
-  let [vwh, setvwh] = React.useState([0, 0]);
+  const [vwh, setvwh] = React.useState([0, 0]);
   const clickHandle = (e, type) => {
     //calculate relative px using vwh
     e.preventDefault();
