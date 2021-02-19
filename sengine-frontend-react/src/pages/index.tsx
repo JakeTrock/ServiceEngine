@@ -28,25 +28,27 @@ const defaultConnect = axios.create({
 // markup
 const IndexPage = () => {
   let cdt = Date.now();
-  let [openAdd, setOA] = React.useState(false);
-  let [uplProgress, setProg] = React.useState(0);
+  const [openAdd, setOA] = React.useState(false);
+  const [uplProgress, setProg] = React.useState(0);
   let searchBox;
-  let components: ValidComponent[] = location.search
-    ? URLON.parse(location.search)
-    : [
-        {
-          serviceName: "convert",
-          satisfied: false,
-          initParams: {
-            numFilesIn: -1,
-            numFilesOut: -1,
-            files: [],
-            ftypeskey: "u-u-i-d-3",
+  const [components, setComponents] = React.useState(
+    location.search
+      ? URLON.parse(location.search)
+      : [
+          {
+            serviceName: "convert",
+            satisfied: false,
+            initParams: {
+              numFilesIn: -1,
+              numFilesOut: -1,
+              files: [],
+              ftypeskey: "u-u-i-d-3",
+            },
+            params: [],
           },
-          params: [,],
-        },
-      ];
-  let results = [
+        ]
+  );
+  const results = [
     // {
     //   qname: "alpha",
     //   action: "u-u-i-d",
@@ -69,7 +71,7 @@ const IndexPage = () => {
     // },
   ];
 
-  let LoadedComps: {
+  const LoadedComps: {
     [name: string]: any;
   } = {};
 
@@ -99,7 +101,7 @@ const IndexPage = () => {
     return defaultConnect
       .post("/query/" + uuid)
       .then((itm) => {
-        components.push(itm.data);
+        setComponents(components.push(itm.data));
         sLoader();
       })
       .catch((error) => {
@@ -109,7 +111,7 @@ const IndexPage = () => {
 
   const finalReq = async () => {
     await new Promise((resolve, reject) => {
-      let formData = new FormData();
+      const formData = new FormData();
 
       components.forEach((c, i) => {
         if (c.satisfied) {
@@ -153,14 +155,29 @@ const IndexPage = () => {
               const TCom = LoadedComps[vals.serviceName];
               return (
                 <ServiceBox key={index}>
-                  <CloseButton onClick={components.splice(index)} />
+                  <CloseButton
+                    onClick={() => {
+                      setComponents(() => {
+                        //TODO:better way? js arrays suck
+                        components.splice(index);
+                        return components;
+                      });
+                      // this.forceUpdate();
+                    }}
+                  >
+                    &times;
+                  </CloseButton>
                   <React.Suspense fallback={<div>Loading...</div>}>
                     <TCom
                       component={vals}
                       callback={(input) => {
-                        let tmp = input;
+                        const tmp = input;
                         tmp.satisfied = true;
-                        components[index] = tmp;
+                        setComponents(() => {
+                          components[index] = tmp;
+                          return components;
+                        });
+                        console.log(components);
                       }}
                     />
                   </React.Suspense>

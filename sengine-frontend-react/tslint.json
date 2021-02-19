@@ -6,6 +6,7 @@
     ],
     "jsRules": {},
     "rules": {
+        "prefer-const": false,
         "prettier": true,
         "jsx-no=multiline-js": false,
         "jsx-no-lambda": false,

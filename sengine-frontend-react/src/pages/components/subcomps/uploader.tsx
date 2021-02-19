@@ -30,8 +30,14 @@ export default (props) => {
             );
         } else alert("file is over our size limit(512mb)");
         if (fileArray != [])
-          setCustomComp((cc) => (cc.initParams.files = fileArray));
-          setSatisfied(true);
+          setCustomComp(() => {
+            customComp.initParams.files = fileArray;
+            customComp.params = new Array(
+              props.component.initParams.files.length
+            ).fill({});
+            return customComp;
+          });
+        setSatisfied(true);
       });
     } else
       alert(
@@ -43,7 +49,7 @@ export default (props) => {
     <Holder>
       <FileInput
         type="file"
-        multiple={props.component.initParams.allowMultiFile || false}
+        multiple={props.component.initParams.numFilesIn!=0 || false}
         onChange={(e) => parseFiles(e.target.files)}
       />
       {satisfied && (
@@ -53,11 +59,7 @@ export default (props) => {
               ? props.children.splice(1)
               : props.children.splice(2)
           }
-          component={
-            props.component.initParams.files.length > 1
-              ? new Array(props.component.initParams.files.length).fill({})
-              : customComp
-          }
+          component={customComp}
           callback={(f) => {
             setCustomComp(f);
             console.log(f);
