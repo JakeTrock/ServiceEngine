@@ -1,0 +1,96 @@
+{
+    "convert image": {
+        "serviceName": "convert",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "image"
+        },
+        "params": []
+    },
+    "convert 3d model": {
+        "serviceName": "convert",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "model"
+        },
+        "params": []
+    },
+    "convert audio": {
+        "serviceName": "convert",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "vid-aud"
+        },
+        "params": []
+    },
+    "convert video": {
+        "serviceName": "convert",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "vid-aud"
+        },
+        "params": []
+    },
+    "crop video": {
+        "serviceName": "vidcrop",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "vid-aud"
+        },
+        "params": []
+    },
+    "crop image": {
+        "serviceName": "imgcrop",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "image"
+        },
+        "params": []
+    },
+
+    "timer": {
+        "serviceName": "timer",
+        "satisfied": true,
+        "initParams": {
+            "numFilesIn": 0,
+            "numFilesOut": 0
+        },
+        "params": []
+    },
+    "alarm": {
+        "serviceName": "alarm",
+        "satisfied": true,
+        "initParams": {
+            "numFilesIn": 0,
+            "numFilesOut": 0
+        },
+        "params": []
+    },
+    "clock": {
+        "serviceName": "timer",
+        "satisfied": true,
+        "initParams": {
+            "numFilesIn": 0,
+            "numFilesOut": 0
+        },
+        "params": []
+    },
+}

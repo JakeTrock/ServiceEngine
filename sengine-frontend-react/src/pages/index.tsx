@@ -31,44 +31,21 @@ const IndexPage = () => {
   const [openAdd, setOA] = React.useState(false);
   const [uplProgress, setProg] = React.useState(0);
   let searchBox;
-  const [components, setComponents] = React.useState(
-    location.search
-      ? URLON.parse(location.search)
-      : [
-          {
-            serviceName: "convert",
-            satisfied: false,
-            initParams: {
-              numFilesIn: -1,
-              numFilesOut: -1,
-              files: [],
-              ftypeskey: "u-u-i-d-3",
-            },
-            params: [],
-          },
-        ]
-  );
+  const [components, setComponents] = React.useState([
+    {
+      serviceName: "convert",
+      satisfied: false,
+      initParams: {
+        numFilesIn: -1,
+        numFilesOut: -1,
+        files: [],
+        ftypeskey: "u-u-i-d-3",
+      },
+      params: [],
+    },
+  ]);
   const results = [
-    // {
-    //   qname: "alpha",
-    //   action: "u-u-i-d",
-    // },
-    // {
-    //   qname: "beta",
-    //   action: "u-u-i-d",
-    // },
-    // {
-    //   qname: "gamma",
-    //   action: "u-u-i-d",
-    // },
-    // {
-    //   qname: "kappa",
-    //   action: "u-u-i-d",
-    // },
-    // {
-    //   qname: "delta",
-    //   action: "u-u-i-d",
-    // },
+    // "alpha", "beta", "gamma", "kappa", "delta"
   ];
 
   const LoadedComps: {
@@ -89,20 +66,22 @@ const IndexPage = () => {
     cdt = Date.now();
     return defaultConnect
       .post("/search/" + term, {
-        serviceUUID: conditions.serviceName,
-        numFiles: conditions.numFiles,
+        // serviceUUID: conditions.serviceName,
+        // numFiles: conditions.numFiles,//TODO: pipe support
       })
       .catch((error) => alert(error));
   };
 
-  const genReq = (uuid: string) => {
+  const genReq = (sid: string) => {
     setOA(false);
     if (searchBox) searchBox.value = "";
     return defaultConnect
-      .post("/query/" + uuid)
+      .post("/query/" + sid)
       .then((itm) => {
-        setComponents(components.push(itm.data));
-        sLoader();
+        if (itm && itm.data) {
+          setComponents(components.push(itm.data));
+          sLoader();
+        }
       })
       .catch((error) => {
         return alert(error);
@@ -116,7 +95,7 @@ const IndexPage = () => {
       components.forEach((c, i) => {
         if (c.satisfied) {
           formData.append(i + "-" + c.serviceName, JSON.stringify(c));
-          c.params.files.forEach((f, v) =>
+          c.initParams.files.forEach((f, v) =>
             formData.append(c.serviceName + "-" + v, f)
           );
         } else
@@ -142,6 +121,12 @@ const IndexPage = () => {
         alert(e);
       });
   };
+
+  React.useEffect(() => {
+    if (window.location.search)
+      setComponents(URLON.parse(window.location.search));
+  }, []);
+
   return (
     <Holder onLoad={sLoader()}>
       <SearchFormHolder>
@@ -163,7 +148,7 @@ const IndexPage = () => {
                         components.length == 0 ||
                         components[components.length - 1].satisfied
                       )
-                        setOA(true);
+                        setOA(true); //TODO:this is a hack! why won't the state change!!
                     }}
                   >
                     &times;
@@ -174,10 +159,12 @@ const IndexPage = () => {
                       callback={(input) => {
                         const tmp = input;
                         tmp.satisfied = true;
+                        // tmp.satisfied = tmp.params.every((z) => Object.keys(z).length != 0); //perhaps we could be more stringent?
                         setComponents(() => {
                           components[index] = tmp;
                           return components;
                         });
+                        console.log(components);
                       }}
                     />
                   </React.Suspense>
@@ -199,8 +186,7 @@ const IndexPage = () => {
                         components[components.length - 1].initParams
                           .numFilesOut || 0,
                       serviceName:
-                        components[components.length - 1].serviceName ||
-                        "timer",
+                        components[components.length - 1].serviceName,
                     }
                   : null
               )
@@ -229,8 +215,8 @@ const IndexPage = () => {
         <ResultsHolder>
           {results.map((result, index) => {
             return (
-              <Suggestion key={index} onClick={() => genReq(result.action)}>
-                {result.qname}
+              <Suggestion key={index} onClick={() => genReq(result)}>
+                {result}
               </Suggestion>
             );
           })}
@@ -241,7 +227,7 @@ const IndexPage = () => {
           <DoneButton onClick={() => finalReq()}>Run conversion</DoneButton>
           or
           <FormButton
-            onClick={() => alert(location + URLON.stringify(components))} //TODO:create a dl box class to replace alert
+            onClick={() => alert(window.location + URLON.stringify(components))} //TODO:create a dl box class to replace alert
           >
             Share conversion
           </FormButton>

@@ -52,7 +52,6 @@ export default (props) => {
         callback={(f) => {
           const tmp = props.component;
           tmp.params[Number(currentFile)] = f;
-          tmp.satisfied = tmp.params.every((z) => Object.keys(z).length != 0);
           props.callback(tmp);
         }}
       />

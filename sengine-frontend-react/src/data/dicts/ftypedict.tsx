@@ -1,5 +1,5 @@
 const fdict: { [uuid: string]: string[] } = {
-  "u-u-i-d": [//models
+  "model": [
     "dae",
     "xml",
     "blend",
@@ -48,7 +48,7 @@ const fdict: { [uuid: string]: string[] } = {
     "cob",
     "scn",
   ],
-  "u-u-i-d-2": [//video
+  "vid-aud": [
     "3dostr",
     "mts",
     "3g2",
@@ -379,7 +379,7 @@ const fdict: { [uuid: string]: string[] } = {
     "yop",
     "yuv4mpegpipe",
   ],
-  "u-u-i-d-3": [//images
+  "image": [
     "aai",
     "apng",
     "art",
