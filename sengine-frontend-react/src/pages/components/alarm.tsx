@@ -43,7 +43,6 @@ export default (props) => {
       <FormButton
         onClick={() => {
           setA(!a);
-          console.log(a);
         }}
       >
         {a ? "AM" : "PM"}

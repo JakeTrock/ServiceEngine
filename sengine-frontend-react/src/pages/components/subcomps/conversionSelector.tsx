@@ -27,12 +27,7 @@ export default (props) => {
             const v = e.target.value;
             setSelected(v);
             if (v != "None") {
-              const tmp = props.component;
-              console.log(tmp.params);
-              if (props.current) tmp.params[props.current].toType = v;
-              else tmp.params[0].toType = v;
-              tmp.satisfied = true;
-              props.callback(tmp);
+              props.callback({ toType: v });
             }
           }}
         >
@@ -47,11 +42,7 @@ export default (props) => {
         </select>
       </Holder>
     );
-  }else{
-    console.log(props.component)
-    console.log(props.component.initParams)
-    console.log(props.component.initParams.ftypeskey)
-    console.log(props.callback)
-    return (<p>loading...</p>);
+  } else {
+    return <p>loading...</p>;
   }
 };

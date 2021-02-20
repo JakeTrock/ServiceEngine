@@ -31,9 +31,6 @@ export default (props) => {
         if (fileArray != [])
           setCustomComp(() => {
             customComp.initParams.files = fileArray;
-            customComp.params = new Array(
-              props.component.initParams.files.length
-            ).fill({});
             return customComp;
           });
         setSatisfied(true);
@@ -53,11 +50,7 @@ export default (props) => {
       />
       {satisfied && (
         <Child
-          children={
-            props.component.initParams.files.length > 1
-              ? props.children.splice(1)
-              : props.children.splice(2)
-          }
+          children={props.children.splice(1)}
           component={customComp}
           callback={(f) => {
             setCustomComp(f);
