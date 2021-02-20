@@ -157,12 +157,13 @@ const IndexPage = () => {
                 <ServiceBox key={index}>
                   <CloseButton
                     onClick={() => {
-                      setComponents(() => {
-                        //TODO:better way? js arrays suck
-                        components.splice(index);
-                        return components;
-                      });
-                      // this.forceUpdate();
+                      components.splice(index);
+                      setComponents(components);
+                      if (
+                        components.length == 0 ||
+                        components[components.length - 1].satisfied
+                      )
+                        setOA(true);
                     }}
                   >
                     &times;
@@ -177,7 +178,6 @@ const IndexPage = () => {
                           components[index] = tmp;
                           return components;
                         });
-                        console.log(components);
                       }}
                     />
                   </React.Suspense>
@@ -209,8 +209,11 @@ const IndexPage = () => {
         ) : (
           <PlusButton
             onClick={() => {
-              console.log(components[components.length - 1].satisfied);
-              if (components[components.length - 1].satisfied) setOA(true);
+              if (
+                components.length == 0 ||
+                components[components.length - 1].satisfied
+              )
+                setOA(true);
               else
                 alert("Please finish the current form before adding another");
             }}

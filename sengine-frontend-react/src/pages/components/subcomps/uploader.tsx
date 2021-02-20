@@ -18,10 +18,9 @@ export default (props) => {
       Array.from(data).forEach((e: any) => {
         if (e.size < 536870912) {
           const fd = fdict[props.component.initParams.ftypeskey];
-          if (fd.some((t) => t == e.type.split("/")[1])) {
-            if (e.name.split(".")[1] == e.type.split("/")[1]) {
-              fileArray.push(e);
-            } else alert("filetype must match filename for file " + e.name);
+          const cft = e.type.split("/")[1];
+          if (fd.some((t) => t == cft)) {
+            fileArray.push(e);
           } else
             alert(
               `we do not accept the filetype ${
@@ -49,7 +48,7 @@ export default (props) => {
     <Holder>
       <FileInput
         type="file"
-        multiple={props.component.initParams.numFilesIn!=0 || false}
+        multiple={props.component.initParams.numFilesIn != 0 || false}
         onChange={(e) => parseFiles(e.target.files)}
       />
       {satisfied && (
@@ -62,7 +61,6 @@ export default (props) => {
           component={customComp}
           callback={(f) => {
             setCustomComp(f);
-            console.log(f);
           }}
         />
       )}
