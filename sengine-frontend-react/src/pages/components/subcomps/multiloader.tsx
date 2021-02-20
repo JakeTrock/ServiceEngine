@@ -1,5 +1,6 @@
 import * as React from "react";
-import { FormButton, Holder } from "../../../data/styles";
+import { Holder } from "../../../data/styles";
+import ToggleSwitch from "../microcomps/switch";
 
 export default (props) => {
   const Child = props.children[0];
@@ -14,7 +15,7 @@ export default (props) => {
 
   return (
     <Holder>
-      <FormButton
+      <ToggleSwitch
         onClick={() => {
           setClone(!clone);
           if (clone) {
@@ -26,11 +27,11 @@ export default (props) => {
             ).fill({});
             setCustomComp(customComp);
           }
-          //TODO:make this a toggle switch
         }}
-      >
-        {clone ? "set for each" : "apply to all"}
-      </FormButton>
+        labelF="set for each"
+        labelT="apply to all"
+      />
+
       {!clone && (
         <select
           onChange={(e) => setCurrentFile(e.target.value)}

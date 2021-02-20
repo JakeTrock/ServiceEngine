@@ -33,13 +33,13 @@ const IndexPage = () => {
   let searchBox;
   const [components, setComponents] = React.useState([
     {
-      serviceName: "convert",
+      serviceName: "alarm",
       satisfied: false,
       initParams: {
         numFilesIn: -1,
         numFilesOut: -1,
         files: [],
-        ftypeskey: "u-u-i-d-3",
+        ftypeskey: "image",
       },
       params: [],
     },
@@ -79,7 +79,8 @@ const IndexPage = () => {
       .post("/query/" + sid)
       .then((itm) => {
         if (itm && itm.data) {
-          setComponents(components.push(itm.data));
+          components.push(JSON.parse(itm.data)); //TODO: is data the right access field?
+          setComponents(components);
           sLoader();
         }
       })

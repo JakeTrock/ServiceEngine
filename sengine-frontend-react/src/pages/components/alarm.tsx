@@ -1,5 +1,6 @@
 import * as React from "react";
 import { FormButton, Holder, TimeInput, Header } from "../../data/styles";
+import ToggleSwitch from "./microcomps/switch";
 
 export default (props) => {
   let t;
@@ -40,13 +41,7 @@ export default (props) => {
         placeholder="00"
         onBlur={(e) => (s = e.target.value.padStart(2, "0"))}
       />
-      <FormButton
-        onClick={() => {
-          setA(!a);
-        }}
-      >
-        {a ? "AM" : "PM"}
-      </FormButton>
+      <ToggleSwitch onClick={() => setA(!a)} labelT="AM" labelF="PM" />
       <FormButton onClick={() => (t = setInterval(tick, delay))}>
         set time
       </FormButton>
