@@ -33,13 +33,13 @@ const IndexPage = () => {
   let searchBox;
   const [components, setComponents] = React.useState([
     {
-      serviceName: "alarm",
+      serviceName: "vidcrop",
       satisfied: false,
       initParams: {
         numFilesIn: -1,
         numFilesOut: -1,
         files: [],
-        ftypeskey: "image",
+        ftypeskey: "vid-aud",
       },
       params: [],
     },

@@ -1,17 +1,13 @@
 import styled from "styled-components";
 const CropParent = styled.div`
-  position: absolute;
+  position:absolute;
   max-height: inherit;
   max-width: inherit;
   box-sizing: border-box;
   overflow: none;
-  margin: 10px;
   background-color: rgba(150, 0, 0, 0.5);
   width: 100px;
   height: 100px;
-  position: absolute;
-  top: 100px;
-  left: 100px;
 `;
 const CropBox = styled.div`
   width: 100%;
@@ -59,6 +55,10 @@ const CropBottomRight = styled.div`
   cursor: nwse-resize;
 `;
 
+const Vwrap = styled.div`
+  border: 1px dotted black;
+`;
+
 export {
   CropBottomLeft,
   CropBottomRight,
@@ -66,4 +66,5 @@ export {
   CropParent,
   CropTopLeft,
   CropTopRight,
+  Vwrap
 };
