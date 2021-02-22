@@ -18,11 +18,18 @@ export default (props) => {
   React.useEffect(() => changeFile(), []);
   return (
     <FullVid
-      onLoadedMetadata={(e) => props.callback([e.videoWidth, e.videoHeight])}
+      onLoadedMetadata={(e) =>
+        props.callback([
+          e.target.getBoundingClientRect().left,
+          e.target.getBoundingClientRect().top,
+          e.target.offsetWidth,
+          e.target.offsetHeight,
+        ])
+      }
       ref={vid}
-      autoPlay="true"
-      loop="true"
-      muted="true"
+      autoPlay={true}
+      loop={true}
+      muted={true}
     />
   );
 };

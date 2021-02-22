@@ -4,9 +4,9 @@ import ToggleSwitch from "./microcomps/switch";
 
 export default (props) => {
   let t;
-  let h = 0 || props.component.initParams.hours;
-  let m = 0 || props.component.initParams.minutes;
-  let s = 0 || props.component.initParams.seconds;
+  let h = props.component.initParams.hours || 0;
+  let m = props.component.initParams.minutes || 0;
+  let s = props.component.initParams.seconds || 0;
   const [a, setA] = React.useState(false);
   const [ctm, setCtm] = React.useState("");
   const delay = 1000;
