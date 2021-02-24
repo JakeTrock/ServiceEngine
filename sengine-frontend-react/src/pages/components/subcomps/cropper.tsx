@@ -5,7 +5,6 @@ import {
   CropBottomRight,
   CropBox,
   CropParent,
-  CropTopLeft,
   CropTopRight,
   Vwrap,
 } from "../../../data/styles_custom/crop_styles";
@@ -22,13 +21,65 @@ export default (props) => {
   function initSet(ele, dim) {
     const element = ele.current;
     const resizers = document.querySelectorAll(" .resizer");
+    const vid = document.getElementsByClassName("videoBox")[0];
     const odim = dim;
-    let original_width = dim[2];
-    let original_height = dim[3];
+    let original_width = 100;
+    let original_height = 100;
     let original_x = dim[0];
     let original_y = dim[1];
     let original_mouse_x = 0;
     let original_mouse_y = 0;
+
+    function dragElement(elmnt) {
+      let pos1 = 0,
+        pos2 = 0,
+        pos3 = 0,
+        pos4 = 0;
+
+      elmnt.childNodes[0].onmousedown = dragMouseDown;
+
+      function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // get the mouse cursor position at startup:
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        const offset = vid.getBoundingClientRect();
+        const y = elmnt.offsetTop - pos2;
+        const x = elmnt.offsetLeft - pos1;
+        const h = original_height || 100;
+        const w = original_width || 100;
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        if (
+          y > offset.top + document.documentElement.scrollTop &&
+          y + h < vid.clientHeight + offset.top
+        ) {
+          elmnt.style.top = y + "px";
+        }
+        if (x > offset.left && x + w < vid.clientWidth + offset.left) {
+          elmnt.style.left = x + "px";
+        }
+      }
+
+      function closeDragElement() {
+        // stop moving when mouse button is released:
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+    dragElement(element);
     for (let i = 0; i < resizers.length; i++) {
       const currentResizer = resizers[i];
       currentResizer.addEventListener("mousedown", function (e) {
@@ -55,7 +106,7 @@ export default (props) => {
         if (currentResizer.classList.contains("bottom-right")) {
           const width = original_width + (e.pageX - original_mouse_x);
           const height = original_height + (e.pageY - original_mouse_y);
-          if (width > minimum_size && width < odim[3]) {
+          if (width > minimum_size && width < odim[2]) {
             element.style.width = width + "px";
           }
           if (height > minimum_size && height < odim[3]) {
@@ -69,8 +120,6 @@ export default (props) => {
           }
           if (width > minimum_size && width < odim[2]) {
             element.style.width = width + "px";
-            element.style.left =
-              original_x + (element.pageX - original_mouse_x) + "px";//the error is with these
           }
         } else if (currentResizer.classList.contains("top-right")) {
           const width = original_width + (e.pageX - original_mouse_x);
@@ -80,21 +129,6 @@ export default (props) => {
           }
           if (height > minimum_size && height < odim[3]) {
             element.style.height = height + "px";
-            element.style.top =
-              original_y + (element.pageY - original_mouse_y) + "px";//the error is with these
-          }
-        } else {
-          const width = original_width - (e.pageX - original_mouse_x);
-          const height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size && width < odim[2]) {
-            element.style.width = width + "px";
-            element.style.left =
-              original_x + (element.pageX - original_mouse_x) + "px";//the error is with these
-          }
-          if (height > minimum_size && height < odim[3]) {
-            element.style.height = height + "px";
-            element.style.top =
-              original_y + (element.pageY - original_mouse_y) + "px";//the error is with these
           }
         }
       }
@@ -112,20 +146,19 @@ onMouseDown={(r) => clickHandle(r, "bottomRight")}
 */
   return (
     <Holder>
-      <FormButton onClick={() => console.log(xywh)}>eee</FormButton>
       <p>Drag red rectangle inwards to crop</p>
       <CropParent ref={CropRef}>
-        <CropBox>
-          <CropTopLeft className="resizer top-left" />
-          <CropTopRight className="resizer top-right" />
-          <CropBottomLeft className="resizer bottom-left" />
-          <CropBottomRight className="resizer bottom-right" />
-        </CropBox>
+        <CropBox />
+        <CropTopRight className="resizer top-right" />
+        <CropBottomLeft className="resizer bottom-left" />
+        <CropBottomRight className="resizer bottom-right" />
       </CropParent>
-      <Child
-        file={props.component.initParams.files[props.current]}
-        callback={(e) => initSet(CropRef, e)}
-      />
+      <Vwrap className="videoBox">
+        <Child
+          file={props.component.initParams.files[props.current]}
+          callback={(e) => initSet(CropRef, e)}
+        />
+      </Vwrap>
     </Holder>
   );
 };

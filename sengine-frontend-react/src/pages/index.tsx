@@ -45,7 +45,7 @@ const IndexPage = () => {
     },
   ]);
   const results = [
-    // "alpha", "beta", "gamma", "kappa", "delta"
+    // "timer", "alarm", "clock"
   ];
 
   const LoadedComps: {
@@ -208,11 +208,9 @@ const IndexPage = () => {
             +
           </PlusButton>
         )}
-        <IntroHolder>
-          Type and select your command to start the conversion process
-        </IntroHolder>
+        <IntroHolder>Type and select your command to start</IntroHolder>
       </SearchFormHolder>
-      {results.length < 0 && (
+      {results.length > 0 && (
         <ResultsHolder>
           {results.map((result, index) => {
             return (
