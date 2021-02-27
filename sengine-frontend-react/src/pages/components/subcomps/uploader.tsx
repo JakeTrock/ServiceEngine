@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FileInput, FormButton, Holder } from "../../../data/styles";
+import { FileInput, Holder } from "../../../data/styles";
 import fdict from "../../../data/dicts/ftypedict";
 
 export default (props) => {
@@ -28,12 +28,14 @@ export default (props) => {
               } for this converter`
             );
         } else alert("file is over our size limit(512mb)");
-        if (fileArray != [])
+
+        if (fileArray[0]) {
           setCustomComp(() => {
             customComp.initParams.files = fileArray;
             return customComp;
           });
-        setSatisfied(true);
+          setSatisfied(true);
+        }
       });
     } else
       alert(
@@ -53,13 +55,11 @@ export default (props) => {
           children={props.children.splice(1)}
           component={customComp}
           callback={(f) => {
-            setCustomComp(f);
+            setCustomComp(f); //TODO: is state necessary
+            props.callback(customComp);
           }}
         />
       )}
-      <FormButton onClick={() => props.callback(customComp)}>
-        Upload file(s)
-      </FormButton>
     </Holder>
   );
 };

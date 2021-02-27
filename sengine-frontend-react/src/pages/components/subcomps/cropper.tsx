@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormButton, Holder } from "../../../data/styles";
+import { Holder } from "../../../data/styles";
 import {
   CropBottomLeft,
   CropBottomRight,
@@ -8,150 +8,139 @@ import {
   CropTopRight,
   Vwrap,
 } from "../../../data/styles_custom/crop_styles";
-// import "../../../data/styles_custom/cropstyles.css";
 
 const minimum_size = 20;
-
+const pxInt = (r) => parseFloat(r.replace("px", ""));
 export default (props) => {
   const Child = props.children[0];
-  const [xywh, setXYWH] = React.useState([0, 0, 0, 0]);
-  const [MXMY, setMXMY] = React.useState([0, 0]);
+
   const CropRef = React.useRef(null);
 
   function initSet(ele, dim) {
+    console.log(dim)
     const element = ele.current;
-    const resizers = document.querySelectorAll(" .resizer");
+    const resizers = element.querySelectorAll(" .rhndl");
     const vid = document.getElementsByClassName("videoBox")[0];
+    const vidOffset = vid.getBoundingClientRect();
     const odim = dim;
-    let original_width = 100;
-    let original_height = 100;
-    let original_x = dim[0];
-    let original_y = dim[1];
     let original_mouse_x = 0;
     let original_mouse_y = 0;
 
-    function dragElement(elmnt) {
-      let pos1 = 0,
-        pos2 = 0,
-        pos3 = 0,
-        pos4 = 0;
+    let pos1 = 0;
+    let pos2 = 0;
+    let pos3 = 0;
+    let pos4 = 0;
 
-      elmnt.childNodes[0].onmousedown = dragMouseDown;
+    element.childNodes[0].onmousedown = dragMouseDown;
 
-      function dragMouseDown(e) {
-        e = e || window.event;
-        e.preventDefault();
-        // get the mouse cursor position at startup:
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        // call a function whenever the cursor moves:
-        document.onmousemove = elementDrag;
+    function dragMouseDown(e) {
+      e = e || window.event;
+      e.preventDefault();
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = stopDrg;
+      document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      const y = element.offsetTop - pos2;
+      const x = element.offsetLeft - pos1;
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      if (
+        y > vidOffset.top &&
+        y + (pxInt(element.style.height) || 100) <
+          vid.clientHeight + vidOffset.top
+      ) {
+        element.style.top = y + "px";
       }
-
-      function elementDrag(e) {
-        e = e || window.event;
-        e.preventDefault();
-        const offset = vid.getBoundingClientRect();
-        const y = elmnt.offsetTop - pos2;
-        const x = elmnt.offsetLeft - pos1;
-        const h = original_height || 100;
-        const w = original_width || 100;
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-
-        if (
-          y > offset.top + document.documentElement.scrollTop &&
-          y + h < vid.clientHeight + offset.top
-        ) {
-          elmnt.style.top = y + "px";
-        }
-        if (x > offset.left && x + w < vid.clientWidth + offset.left) {
-          elmnt.style.left = x + "px";
-        }
-      }
-
-      function closeDragElement() {
-        // stop moving when mouse button is released:
-        document.onmouseup = null;
-        document.onmousemove = null;
+      if (
+        x > vidOffset.left &&
+        x + (pxInt(element.style.width) || 100) <
+          vid.clientWidth + vidOffset.left
+      ) {
+        element.style.left = x + "px";
       }
     }
-    dragElement(element);
-    for (let i = 0; i < resizers.length; i++) {
-      const currentResizer = resizers[i];
-      currentResizer.addEventListener("mousedown", function (e) {
-        e.preventDefault();
-        original_width = parseFloat(
-          getComputedStyle(element, null)
-            .getPropertyValue("width")
-            .replace("px", "")
-        );
-        original_height = parseFloat(
-          getComputedStyle(element, null)
-            .getPropertyValue("height")
-            .replace("px", "")
-        );
-        original_x = element.getBoundingClientRect().left;
-        original_y = element.getBoundingClientRect().top;
-        original_mouse_x = e.pageX;
-        original_mouse_y = e.pageY;
-        window.addEventListener("mousemove", resize);
-        window.addEventListener("mouseup", stopResize);
-      });
 
-      function resize(e) {
-        if (currentResizer.classList.contains("bottom-right")) {
-          const width = original_width + (e.pageX - original_mouse_x);
-          const height = original_height + (e.pageY - original_mouse_y);
-          if (width > minimum_size && width < odim[2]) {
-            element.style.width = width + "px";
-          }
-          if (height > minimum_size && height < odim[3]) {
-            element.style.height = height + "px";
-          }
-        } else if (currentResizer.classList.contains("bottom-left")) {
-          const width = original_width - (e.pageX - original_mouse_x);
-          const height = original_height + (e.pageY - original_mouse_y);
-          if (height > minimum_size && height < odim[3]) {
-            element.style.height = height + "px";
-          }
-          if (width > minimum_size && width < odim[2]) {
-            element.style.width = width + "px";
-          }
-        } else if (currentResizer.classList.contains("top-right")) {
-          const width = original_width + (e.pageX - original_mouse_x);
-          const height = original_height - (e.pageY - original_mouse_y);
-          if (width > minimum_size && width < odim[2]) {
-            element.style.width = width + "px";
-          }
-          if (height > minimum_size && height < odim[3]) {
-            element.style.height = height + "px";
-          }
-        }
-      }
-
-      const stopResize = () => {
-        window.removeEventListener("mousemove", resize);
+    const handleListen = (e) => {
+      e.preventDefault();
+      original_mouse_x = e.pageX;
+      original_mouse_y = e.pageY;
+      window.addEventListener("mousemove", resize);
+      window.addEventListener("mouseup", stopResize);
+    };
+    Array.from(resizers).map((r) =>
+      r.addEventListener("mousedown", handleListen)
+    );
+    const resize = (e) => {
+      const sumv = (v1, v2, op) => {
+        if (op) return v1 + v2;
+        else return v1 - v2;
       };
-    }
+      const setDim = (p1, p2) => {
+        const width = sumv(
+          pxInt(element.style.width) || 100,
+          e.pageX - original_mouse_x,
+          p1
+        );
+        const height = sumv(
+          pxInt(element.style.height) || 100,
+          e.pageY - original_mouse_y,
+          p2
+        );
+        if (p1 && width > minimum_size && width < odim[2]) {
+          element.style.width = width + "px";
+        }
+        if (p2 && height > minimum_size && height < odim[3]) {
+          element.style.height = height + "px";
+        }
+      };
+      switch (e.target.classList[e.target.classList.length - 1]) {
+        case "b-r":
+          setDim(true, true);
+          break;
+        case "b-l":
+          setDim(false, true);
+          break;
+        case "t-r":
+          setDim(true, false);
+          break;
+        default:
+          break;
+      }
+    };
+
+    const updateSt = () => {
+      const vals = [
+        pxInt(element.style.left) || 10,
+        pxInt(element.style.top) || 10,
+        pxInt(element.style.width) || 100,
+        pxInt(element.style.height) || 100,
+      ];
+      props.callback({ cropDim: vals });
+    };
+    const stopResize = () => {
+      window.removeEventListener("mousemove", resize);
+      updateSt();
+    };
+    const stopDrg = () => {
+      document.onmousemove = document.onmouseup = null;
+      updateSt();
+    };
   }
-  /*
- onMouseDown={(r) => clickHandle(r, "topLeft")}
-onMouseDown={(r) => clickHandle(r, "topRight")}
-onMouseDown={(r) => clickHandle(r, "bottomLeft")}
-onMouseDown={(r) => clickHandle(r, "bottomRight")}
-*/
   return (
     <Holder>
       <p>Drag red rectangle inwards to crop</p>
       <CropParent ref={CropRef}>
         <CropBox />
-        <CropTopRight className="resizer top-right" />
-        <CropBottomLeft className="resizer bottom-left" />
-        <CropBottomRight className="resizer bottom-right" />
+        <CropTopRight className="rhndl t-r" />
+        <CropBottomLeft className="rhndl b-l" />
+        <CropBottomRight className="rhndl b-r" />
       </CropParent>
       <Vwrap className="videoBox">
         <Child

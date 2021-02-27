@@ -51,6 +51,7 @@ export default (props) => {
         current={clone ? 0 : Number(currentFile)}
         children={props.children.splice(1)}
         callback={(f) => {
+          console.log(f);
           const tmp = props.component;
           tmp.params[Number(currentFile)] = f;
           props.callback(tmp);

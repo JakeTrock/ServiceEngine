@@ -14,6 +14,16 @@ export default (props) => {
   };
   React.useEffect(() => changeFile(), []);
   return (
-    <FullImg onLoad={(e) => props.callback([e.width, e.height])} ref={img} />
+    <FullImg
+      onLoad={(e) =>
+        props.callback([
+          e.target.getBoundingClientRect().left,
+          e.target.getBoundingClientRect().top,
+          e.target.width,
+          e.target.height,
+        ])
+      }
+      ref={img}
+    />
   );
 };

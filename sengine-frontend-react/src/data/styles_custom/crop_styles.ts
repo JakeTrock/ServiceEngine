@@ -16,29 +16,29 @@ const CropBox = styled.div`
 `;
 const CropTopRight = styled.div`
   width: 10px;
-  height: 10px;
-  background: red;
+  height: 80%;
+  background: green;
   position: absolute;
-  right: -10px;
-  top: -10px;
-  cursor: nesw-resize;
+  right: 0px;
+  top: 0px;
+  cursor: col-resize;
 `;
 const CropBottomLeft = styled.div`
-  width: 10px;
+  width: 80%;
   height: 10px;
-  background: red;
+  background: green;
   position: absolute;
-  left: -10px;
-  bottom: -10px;
-  cursor: nesw-resize;
+  left: 0px;
+  bottom: 0px;
+  cursor: row-resize;
 `;
 const CropBottomRight = styled.div`
-  width: 10px;
-  height: 10px;
+  width: 20px;
+  height: 20px;
   background: red;
   position: absolute;
-  right: -10px;
-  bottom: -10px;
+  right: 0px;
+  bottom: 0px;
   cursor: nwse-resize;
 `;
 

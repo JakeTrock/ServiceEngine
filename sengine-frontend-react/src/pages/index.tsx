@@ -1,3 +1,5 @@
+//TODO:component validation
+//TODO:nest children?
 import * as React from "react";
 import axios from "axios";
 import URLON from "urlon";
@@ -33,13 +35,13 @@ const IndexPage = () => {
   let searchBox;
   const [components, setComponents] = React.useState([
     {
-      serviceName: "vidcrop",
+      serviceName: "imgcrop",
       satisfied: false,
       initParams: {
         numFilesIn: -1,
         numFilesOut: -1,
         files: [],
-        ftypeskey: "vid-aud",
+        ftypeskey: "image",
       },
       params: [],
     },

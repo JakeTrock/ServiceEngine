@@ -22,6 +22,10 @@ ServiceEngine main components:
     -Conversion/editing*:
         -Assimp
         -FFMpeg
+            -crop video
+            -slow video
+            -convert video
+            -trim video
         -imageMagick
         -base64 conversion
         -url string conversion
@@ -63,6 +67,6 @@ ServiceEngine main components:
         -unit converter
         -calculator
         -sitemap generator
-
-
-        Later we'll also have a desktop code generator using Magnum-NLC2CMD and a set for windows, linux and macos
+        
+    -far-future:
+        Sengine will be a web-based OS with a messenger like ferdi, and a dropdown function bar that'll act like the current sengine box. If you want to use a service for an extended duration, you can pop it out of the hovering search dialouge.
