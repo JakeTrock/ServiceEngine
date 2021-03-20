@@ -3,7 +3,6 @@ const Holder = styled.div`
   font-family: Helvetica Neue, sans-serif;
   max-width: 600px;
   margin: 100px auto;
-  padding: 20px;
 
   &,
   & * {
@@ -58,9 +57,9 @@ const SearchInput = styled.input`
     border-color: #bbb;
   }
 `;
-const PlusButton = styled.a`
+const LgButton = styled.a`
   text-align: center;
-  background: lightgreen;
+  background: LightCoral;
   display: block;
   width: 100%;
   padding: 25px;
@@ -75,21 +74,7 @@ const PlusButton = styled.a`
     border-color: #bbb;
   }
 `;
-const DoneButton = styled.a`
-  text-align: center;
-  font: inherit;
-  display: inline-block;
-  border-radius: 5px;
-  padding: 0.5rem 0;
-  margin: 0.5rem 1rem;
-  width: 11rem;
-  background: lightgreen;
-  color: white;
-  border: 2px solid lightgreen;
-  &:hover {
-    border: 2px solid green;
-  }
-`;
+
 const Error = styled.div`
   font: inherit;
   display: inline-block;
@@ -107,15 +92,8 @@ const Error = styled.div`
   outline: none;
 `;
 
-const TimeDisp = styled.h1`
-  color: #000;
-  font: inherit;
-  font-weight: bold;
-  font-size: 30px;
-`;
-
-const TimeInput = styled.input`
-  width: 15%;
+const InputNorm = styled.input`
+  width: 50%;
   border: none;
   font: inherit;
   font-weight: bold;
@@ -159,31 +137,11 @@ const Header = styled.h1`
   font-size: 30px;
 `;
 
-const Dialogue = styled.div`
-  display: none;
-  position: fixed;
-  z-index: 1;
-  padding-top: 100px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  border: 2px solid #ddd;
-`;
-
-const DialogueChild = styled.div`
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-`;
-
-const CloseButton = styled.span`
-  color: #aaaaaa;
-  float: right;
-  font-size: 30px;
+const Small = styled.p`
+  color: #000;
+  font: inherit;
   font-weight: bold;
+  font-size: 10px;
 `;
 
 export {
@@ -195,15 +153,11 @@ export {
   SearchFormHolder,
   ResultsHolder,
   SearchInput,
-  DoneButton,
-  PlusButton,
+  LgButton,
   Error,
-  TimeDisp,
-  TimeInput,
   FormButton,
   FileInput,
   Header,
-  Dialogue,
-  DialogueChild,
-  CloseButton,
+  Small,
+  InputNorm
 };

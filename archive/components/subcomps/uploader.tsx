@@ -7,8 +7,10 @@ export default (props) => {
   const [customComp, setCustomComp] = React.useState(props.component);
   const [satisfied, setSatisfied] = React.useState(false);
 
-  const parseFiles = (data) => {
-    const fileArray = [];
+  const parseFiles = (event) => {
+    const data = event.target.files;
+    console.log(event.target.value);
+    let fileArray = [];
     if (
       props.component.numFilesIn == -1 ||
       data.length - 1 < props.component.initParams.numFilesIn ||
@@ -17,30 +19,35 @@ export default (props) => {
     ) {
       Array.from(data).forEach((e: any) => {
         if (e.size < 536870912) {
-          const fd = fdict[props.component.initParams.ftypeskey];
+          const fd = fdict[props.component.initParams.ftypesin];
           const cft = e.type.split("/")[1];
-          if (fd.some((t) => t == cft)) {
+          if (props.component.initParams.ftypesin=="any"||fd.some((t) => t == cft)) {
             fileArray.push(e);
-          } else
+          } else {
+            event.target.value = null;
             alert(
-              `we do not accept the filetype ${
-                e.type.split("/")[1]
+              `we do not accept the filetype ${e.type.split("/")[1]
               } for this converter`
             );
-        } else alert("file is over our size limit(512mb)");
+          }
+        } else {
+          event.target.value = null;
+          alert("file is over our size limit(512mb)");
+        }
 
         if (fileArray[0]) {
-          setCustomComp(() => {
-            customComp.initParams.files = fileArray;
-            return customComp;
-          });
+          customComp.initParams.files = fileArray;
+          setCustomComp(customComp);
+          console.log(customComp);
           setSatisfied(true);
         }
       });
-    } else
+    } else {
+      event.target.value = null;
       alert(
         `you are over the file limit, you can only upload ${props.component.initParams.numFilesIn} files`
       );
+    }
   };
 
   return (
@@ -48,9 +55,9 @@ export default (props) => {
       <FileInput
         type="file"
         multiple={props.component.initParams.numFilesIn != 0 || false}
-        onChange={(e) => parseFiles(e.target.files)}
+        onChange={(e) => parseFiles(e)}
       />
-      {satisfied && (
+      {props.children && satisfied && (//TODO:why wont the child reset
         <Child
           children={props.children.splice(1)}
           component={customComp}

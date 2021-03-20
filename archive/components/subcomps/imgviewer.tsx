@@ -21,6 +21,8 @@ export default (props) => {
           e.target.getBoundingClientRect().top,
           e.target.width,
           e.target.height,
+          e.target.naturalWidth,
+          e.target.naturalHeight,
         ])
       }
       ref={img}

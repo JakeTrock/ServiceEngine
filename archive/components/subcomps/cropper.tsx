@@ -1,4 +1,6 @@
+import { dirname } from "path";
 import * as React from "react";
+import { disposeEmitNodes } from "typescript";
 import { Holder } from "../../../data/styles";
 import {
   CropBottomLeft,
@@ -10,17 +12,17 @@ import {
 } from "../../../data/styles_custom/crop_styles";
 
 const minimum_size = 20;
-const pxInt = (r) => parseFloat(r.replace("px", ""));
+const pxInt = (r) => parseInt(r.replace("px", ""));
 export default (props) => {
   const Child = props.children[0];
 
   const CropRef = React.useRef(null);
+  const SbRef = React.useRef(null);
 
   function initSet(ele, dim) {
-    console.log(dim)
     const element = ele.current;
     const resizers = element.querySelectorAll(" .rhndl");
-    const vid = document.getElementsByClassName("videoBox")[0];
+    const vid = SbRef.current;
     const vidOffset = vid.getBoundingClientRect();
     const odim = dim;
     let original_mouse_x = 0;
@@ -54,14 +56,14 @@ export default (props) => {
       if (
         y > vidOffset.top &&
         y + (pxInt(element.style.height) || 100) <
-          vid.clientHeight + vidOffset.top
+        vid.clientHeight + vidOffset.top
       ) {
         element.style.top = y + "px";
       }
       if (
         x > vidOffset.left &&
         x + (pxInt(element.style.width) || 100) <
-          vid.clientWidth + vidOffset.left
+        vid.clientWidth + vidOffset.left
       ) {
         element.style.left = x + "px";
       }
@@ -116,13 +118,17 @@ export default (props) => {
     };
 
     const updateSt = () => {
+      const horiscale = odim[4] / vid.clientWidth;
+      const vertiscale = odim[5] / vid.clientHeight;
       const vals = [
-        pxInt(element.style.left) || 10,
-        pxInt(element.style.top) || 10,
-        pxInt(element.style.width) || 100,
-        pxInt(element.style.height) || 100,
-      ];
-      props.callback({ cropDim: vals });
+        (pxInt(element.style.left) || 10) * horiscale,
+        (pxInt(element.style.top) || 10) * vertiscale,
+        (pxInt(element.style.width) || 100) * horiscale,
+        (pxInt(element.style.height) || 100) * vertiscale,
+      ].map(x => Math.floor(x));
+      props.callback((props.component.serviceName == "imgcrop") ?
+        { "-crop": `${vals[2]}x${vals[3]}+${vals[0]}+${vals[1]}` }
+        : { "crop=": `${vals[2]}:${vals[3]}:${vals[1]}:${vals[0]}` });
     };
     const stopResize = () => {
       window.removeEventListener("mousemove", resize);
@@ -135,14 +141,14 @@ export default (props) => {
   }
   return (
     <Holder>
-      <p>Drag red rectangle inwards to crop</p>
+      <p>Drag red rectangle or green bars to crop</p>
       <CropParent ref={CropRef}>
         <CropBox />
         <CropTopRight className="rhndl t-r" />
         <CropBottomLeft className="rhndl b-l" />
         <CropBottomRight className="rhndl b-r" />
       </CropParent>
-      <Vwrap className="videoBox">
+      <Vwrap ref={SbRef}>
         <Child
           file={props.component.initParams.files[props.current]}
           callback={(e) => initSet(CropRef, e)}

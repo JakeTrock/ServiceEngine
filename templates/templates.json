@@ -1,6 +1,55 @@
 {
+    "trim audio": {
+        "serviceName": "audtrim",
+        "fileName": "audtrim",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "aud-vid"
+        },
+        "params": []
+    },
+     "trim audio of video": {
+        "serviceName": "vidtrim",
+        "fileName": "vidtrim",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "aud-vid"
+        },
+        "params": []
+    },
+    "change audio of video": {
+        "serviceName": "vidaudswap",
+        "fileName": "vidaudswap",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "aud-vid"
+        },
+        "params": []
+    },
+    "remove audio of video": {
+        "serviceName": "vidaudremove",
+        "fileName": "vidaudremove",
+        "satisfied": false,
+        "initParams": {
+            "numFilesIn": -1,
+            "numFilesOut": -1,
+            "files": [],
+            "ftypeskey": "aud-vid"
+        },
+        "params": []
+    },
     "convert image": {
-        "serviceName": "convert",
+        "serviceName": "imgconvert",
+        "fileName": "convert",
         "satisfied": false,
         "initParams": {
             "numFilesIn": -1,
@@ -11,7 +60,8 @@
         "params": []
     },
     "convert 3d model": {
-        "serviceName": "convert",
+        "serviceName": "mdlconvert",
+        "fileName": "convert",
         "satisfied": false,
         "initParams": {
             "numFilesIn": -1,
@@ -22,7 +72,8 @@
         "params": []
     },
     "convert audio": {
-        "serviceName": "convert",
+        "serviceName": "audconvert",
+        "fileName": "convert",
         "satisfied": false,
         "initParams": {
             "numFilesIn": -1,
@@ -33,7 +84,8 @@
         "params": []
     },
     "convert video": {
-        "serviceName": "convert",
+        "serviceName": "vidconvert",
+        "fileName": "convert",
         "satisfied": false,
         "initParams": {
             "numFilesIn": -1,
@@ -45,6 +97,7 @@
     },
     "crop video": {
         "serviceName": "vidcrop",
+        "fileName": "vidcrop",
         "satisfied": false,
         "initParams": {
             "numFilesIn": -1,
@@ -56,6 +109,7 @@
     },
     "crop image": {
         "serviceName": "imgcrop",
+        "fileName": "imgcrop",
         "satisfied": false,
         "initParams": {
             "numFilesIn": -1,
@@ -68,6 +122,7 @@
 
     "timer": {
         "serviceName": "timer",
+        "fileName": "timer",
         "satisfied": true,
         "initParams": {
             "numFilesIn": 0,
@@ -77,6 +132,7 @@
     },
     "alarm": {
         "serviceName": "alarm",
+        "fileName": "alarm",
         "satisfied": true,
         "initParams": {
             "numFilesIn": 0,
@@ -86,6 +142,7 @@
     },
     "clock": {
         "serviceName": "timer",
+        "fileName": "timer",
         "satisfied": true,
         "initParams": {
             "numFilesIn": 0,

@@ -28,8 +28,8 @@ export default (props) => {
             setCustomComp(customComp);
           }
         }}
-        labelF="set for each"
-        labelT="apply to all"
+        labelF="unique settings for each"
+        labelT="apply one setting to all"
       />
 
       {!clone && (

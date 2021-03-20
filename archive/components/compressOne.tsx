@@ -1,11 +1,10 @@
 import * as React from "react";
 import Uploader from "./subcomps/uploader";
-import Cropper from "./subcomps/cropper";
-import ImgViewer from "./subcomps/imgviewer";
-import MultiLoader from "./subcomps/multiloader";
+import List from "./microcomps/textinput";
+import ZipWiz from "./wizards/zipwiz";
 
 export default (props) => {
-  const chlist = [MultiLoader, Cropper, ImgViewer];
+  const chlist = [ZipWiz, List];
   return (
     <Uploader
       children={chlist}

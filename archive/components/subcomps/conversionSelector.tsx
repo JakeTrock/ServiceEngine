@@ -6,13 +6,13 @@ export default (props) => {
   if (
     props.component &&
     props.component.initParams &&
-    props.component.initParams.ftypeskey &&
+    props.component.initParams.ftypesout &&
     props.callback
   ) {
     const [fsl, setFsl] = React.useState(["loading failed"]);
     const [selected, setSelected] = React.useState("None");
     React.useEffect(
-      () => setFsl(fdict[props.component.initParams.ftypeskey]),
+      () => setFsl(fdict[props.component.initParams.ftypesout]),
       []
     );
     return (
@@ -43,6 +43,6 @@ export default (props) => {
       </Holder>
     );
   } else {
-    return <p>loading...</p>;
+    return <p>load error</p>;
   }
 };

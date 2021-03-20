@@ -11,6 +11,8 @@ ServiceEngine main components:
         -latex editor/compiler w/ symbol detexifier
         -hex editor
         -Take photo
+        -Screengrab video
+        -Screengrab still
         -Take video
         -Record audio
     -RTC:
@@ -34,6 +36,7 @@ ServiceEngine main components:
     -Compression*:
         -tar utility
         -image minifier
+        -lbf restore
     -Encryption*:
         -tar utility
     -Compilation:

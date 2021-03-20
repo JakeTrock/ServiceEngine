@@ -24,6 +24,8 @@ export default (props) => {
           e.target.getBoundingClientRect().top,
           e.target.offsetWidth,
           e.target.offsetHeight,
+          e.target.videoWidth,
+          e.target.videoHeight
         ])
       }
       ref={vid}
