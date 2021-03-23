@@ -21,6 +21,7 @@ const defaultConnect = axios.create({
 const AuthPage = ({ match, location, history }) => {
     const [errList, setErrList] = React.useState<[subel] | []>([]);
     const [Topen, setTopen] = React.useState(false);
+    const [code, setCode] = React.useState("");
     const [scheme, setScheme] = React.useState({
         "title": "sample title",
         "description": "make a descriptive description!",
@@ -45,9 +46,10 @@ const AuthPage = ({ match, location, history }) => {
 
     const svcPub = () => {
         return defaultConnect
-            .post("/login", {
+            .post("/create", {
                 params: {
                     scheme,
+                    code,
                     userUUID: JSON.parse(localStorage.getItem("tk")).uuid
                 }
             })
@@ -104,6 +106,11 @@ const AuthPage = ({ match, location, history }) => {
                 {Topen && <textarea onChange={(e) => setScheme(e.target.value)}>
                     {scheme}
                 </textarea>}
+                <textarea onChange={(e) => setCode(e.target.value)}>
+                    function(e){
+                        //e can be an error, change or submit
+                    }
+                </textarea>
                 <FormButton onClick={() => svcPub()}>Publish</FormButton>
 
             </ServiceContainer>

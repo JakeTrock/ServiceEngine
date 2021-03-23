@@ -1,8 +1,13 @@
 export interface ValidComponent {
   serviceUUID: string,
+  serviceHash: string,
   form: any,
   files: File[],
-  currentFormData: any
+  currentFormData: any,//TODO:alias
+  formOperations: {
+    change: (e:any) => any,//TODO:alias
+    update: (e:any) => any//TODO:alias
+  }
 }
 export interface subel {
   message: string,
@@ -18,5 +23,5 @@ export interface util {
 
 export interface profDetails {
   utils: [util] | [],
-  username:string
+  username: string
 }

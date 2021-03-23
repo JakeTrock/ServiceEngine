@@ -8,7 +8,8 @@ import {
   FormButton
 } from "../data/styles";
 import Form from "@rjsf/core";
-import bcrypt from 'bcrypt';
+// import bcrypt from 'bcryptjs';
+//TODO: install bcryptjs and enable client hashing
 import { subel } from "../data/interfaces";
 // consts
 const saltRounds = 20;
@@ -22,29 +23,21 @@ const defaultConnect = axios.create({
 const AuthPage = ({ match, location, history }) => {
   const [errList, setErrList] = React.useState<[subel] | []>([]);
   const [signup, setSignup] = React.useState(false);
-  const procAcct = async (frm) => {
+  const procAcct = (frm) => {
     if (signup) {
-      const password = await bcrypt.hash(frm.pwd1, saltRounds, (err, hash) => {
-        if (err) {
-          errList.push(err);
-          throw setErrList(errList);
-        }
-        return hash;
-      });
-      const phone = await bcrypt.hash(frm.phone, saltRounds, (err, hash) => {
-        if (err) {
-          errList.push(err);
-          throw setErrList(errList);
-        }
-        return hash;
-      });
+      // const salt = bcrypt.genSaltSync(saltRounds);
+      // const password = bcrypt.hashSync(frm.pwd1, salt);
+      // const phone = bcrypt.hashSync(frm.phone, salt);
+
       return defaultConnect
         .post(("/signup"), {
           params: {
             username: frm.username,
             email: frm.email,
-            password,
-            phone
+            password: frm.password,
+            phone: frm.phone
+            // password,
+            // phone
           }
         })
         .then((itm) => {

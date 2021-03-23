@@ -35,7 +35,6 @@ const Suggestion = styled.div`
 const IntroHolder = styled.div`
   padding: 20px 0;
   font-weight: bold;
-  opacity: 0.2;
   font-family: inherit;
 `;
 const SearchFormHolder = styled.div``;

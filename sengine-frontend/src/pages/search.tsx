@@ -1,16 +1,3 @@
-//TODO: look into sw like this:https://github.com/KnicKnic/WASM-ImageMagick/blob/88ef4c6fb2a11b640669aa06c56df4c4c51566f7/samples/cmdline/sw.js
-/*
-SEO optimize subpages
-what the engines like:
->ppl linking to you with similar text describing the link
->on-page
-  >descriptive title tags
-  >descriptive h1/h2/h3 tags
-  >^these are prioritized if rendered on first contentful paint
-  >fast loadtimes and good lighthouse scores
-  >they dont care about meta tags
-
-*/
 import * as React from "react";
 import { withRouter } from 'react-router-dom';
 import axios from "axios";
@@ -25,7 +12,8 @@ import {
   ResultsHolder,
   SearchInput,
   LgButton,
-  Error
+  Error,
+  FormButton
 } from "../data/styles";
 import { ValidComponent, subel } from "../data/interfaces";
 // consts
@@ -36,6 +24,12 @@ const defaultConnect = axios.create({
     "Content-type": "application/json",
   },
 });
+const uiSchema = {//TODO:implement uischema
+  //https://react-jsonschema-form.readthedocs.io/en/latest/api-reference/uiSchema/
+  title: {
+    classNames: "task-title foo-bar"
+  }
+};
 // markup
 const IndexPage = ({ match, location, history }) => {
   //https://reactrouter.com/web/api/withRouter
@@ -45,6 +39,7 @@ const IndexPage = ({ match, location, history }) => {
   const [showDl, setShowDl] = React.useState(false);
   const [currentComponent, setcurrentComponent] = React.useState<ValidComponent>({
     serviceUUID: "9d8f9sd8f9f8",
+    serviceHash: "v583459mf89348943",
     form: {
       title: "Todo",
       type: "object",
@@ -58,9 +53,13 @@ const IndexPage = ({ match, location, history }) => {
     currentFormData: {
       title: "faketitle",
       done: false
+    },
+    formOperations: {
+      change: (e: any) => { },
+      update: (e: any) => { }
     }
   });
-  const [errList, setErrList] = React.useState<[subel]|[]>([]);
+  const [errList, setErrList] = React.useState<[subel] | []>([]);
   const results = [
     // "timer", "alarm", "clock"
   ];
@@ -70,14 +69,21 @@ const IndexPage = ({ match, location, history }) => {
   } = {};
 
   const sLoader = () => {
-    // if (currentComponent != null) {//TODO: rewrite as js downloader
-    //   const ld = currentComponent.serviceUUID;
-    //   const loaded = Object.keys(LoadedComps);
-    //   if (loaded.indexOf(ld) == -1) {
-    //     LoadedComps[ld] = React.lazy(() => import(`./components/${ld}`));
-    //   }
-    // }
-    //
+    return defaultConnect
+      .post("/getPackage/" + currentComponent.serviceUUID)
+      .then((itm) => {
+        if (itm && itm.data) {
+          const { change, update, form, initformdat } = JSON.parse(itm.data);
+          currentComponent.formOperations.change = change;
+          currentComponent.formOperations.update = update;
+          currentComponent.form = form;
+          currentComponent.currentFormData = initformdat;
+          //TODO:implement sha check
+          setcurrentComponent(currentComponent);
+          sLoader();
+        }
+      })
+      .catch((e) => setErrList(e));
   };
 
   const sendSearch = (term: string) => {
@@ -85,7 +91,7 @@ const IndexPage = ({ match, location, history }) => {
     cdt = Date.now();
     return defaultConnect
       .post("/search/" + term)
-      .catch((error) => alert(error));
+      .catch((e) => setErrList(e));
   };
 
   const genReq = (sid: string) => {
@@ -94,27 +100,30 @@ const IndexPage = ({ match, location, history }) => {
       .post("/query/" + sid)
       .then((itm) => {
         if (itm && itm.data) {
-          setcurrentComponent(JSON.parse(itm.data)); // TODO: is data the right access field?
+          setcurrentComponent(JSON.parse(itm.data));
           sLoader();
         }
       })
-      .catch((error) => {
-        return alert(error);
-      });
+      .catch((e) => setErrList(e));
   };
+  React.useEffect(() => {
+    if (match.params.length > 0) {
+      genReq(match.params.svc);
+      sLoader();
+    }
+  }, []);
 
-  if (match.params) genReq(match.params.svc);
-  sLoader();
   const handleErr = (e) => {
     setErrList(e);
     setShowDl(false);
   };
   const handleChange = (e) => {
-    currentComponent.currentFormData = e;//TODO:could be incorrect
+    currentComponent.currentFormData = currentComponent.formOperations.change(e);
     setcurrentComponent(currentComponent);
   }
   const handleSubmit = (e) => {
-    handleChange(e);
+    currentComponent.currentFormData = currentComponent.formOperations.update(e);
+    setcurrentComponent(currentComponent);
     setShowDl(true);
   };
   return (
@@ -127,6 +136,7 @@ const IndexPage = ({ match, location, history }) => {
         {currentComponent && (
           <ServiceContainer>
             <Form schema={currentComponent.form}
+              uiSchema={uiSchema}
               onChange={handleChange}
               onSubmit={handleSubmit}
               onError={handleErr} />
@@ -160,7 +170,7 @@ const IndexPage = ({ match, location, history }) => {
             &times;
           </LgButton>
         )}
-        <IntroHolder>Type and select your command to start or <a onClick={() => history.push('/auth')}>login</a> to publish a utility</IntroHolder>
+        <IntroHolder>Type your command to start or <FormButton onClick={() => history.push('/auth')}>login</FormButton> to publish a utility</IntroHolder>
       </SearchFormHolder>
       {
         showDl && currentComponent.files.length > 0 && (
