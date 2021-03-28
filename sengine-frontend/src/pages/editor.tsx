@@ -1,5 +1,4 @@
 import * as React from "react";
-import { withRouter } from 'react-router-dom';
 import axios from "axios";
 import {
     Holder,
@@ -119,4 +118,4 @@ const AuthPage = ({ match, location, history }) => {
 };//TODO:make editor drag n drop
 //https://react-jsonschema-form.readthedocs.io/en/latest/usage/widgets/
 
-export default withRouter(AuthPage);
+export default AuthPage;

@@ -12,32 +12,37 @@ what the engines like:
 
 */
 import * as React from "react";
-import { 
+import {
   BrowserRouter as Router,
   Switch,
   Route,
+  withRouter
 } from 'react-router-dom';
-import Search from './search';
-import Dash from './dash';
-import Auth from './auth';
-import Editor from './editor';
+import search from './search';
+import dash from './dash';
+import auth from './auth';
+import editor from './editor';
+const Dash = withRouter(dash);
+const Search = withRouter(search);
+const Auth = withRouter(auth);
+const Editor = withRouter(editor);
 export default function () {
   return (
     <Router>
-        <Switch>
-          <Route path="/dash">
-            <Dash />
-          </Route>
-          <Route path="/editor">
-            <Editor />
-          </Route>
-          <Route path="/auth">
-            <Auth />
-          </Route>
-          <Route path="/">
-            <Search />
-          </Route>
-        </Switch>
+      <Switch>
+        <Route path="/dash">
+          <Dash />
+        </Route>
+        <Route path="/editor">
+          <Editor />
+        </Route>
+        <Route path="/auth">
+          <Auth />
+        </Route>
+        <Route path="/">
+          <Search />
+        </Route>
+      </Switch>
     </Router>
   );
 }

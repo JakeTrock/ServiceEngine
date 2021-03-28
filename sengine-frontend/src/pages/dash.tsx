@@ -1,5 +1,4 @@
 import * as React from "react";
-import { withRouter } from 'react-router-dom';
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import {
@@ -100,4 +99,4 @@ const dashPage = ({ match, location, history }) => {
     );
 };
 
-export default withRouter(dashPage);
+export default dashPage;

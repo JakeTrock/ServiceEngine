@@ -1,5 +1,4 @@
 import * as React from "react";
-import { withRouter } from 'react-router-dom';
 import axios from "axios";
 import jszip from 'jszip';
 import Form from "@rjsf/core";
@@ -24,12 +23,6 @@ const defaultConnect = axios.create({
     "Content-type": "application/json",
   },
 });
-const uiSchema = {//TODO:implement uischema
-  //https://react-jsonschema-form.readthedocs.io/en/latest/api-reference/uiSchema/
-  title: {
-    classNames: "task-title foo-bar"
-  }
-};
 // markup
 const IndexPage = ({ match, location, history }) => {
   //https://reactrouter.com/web/api/withRouter
@@ -39,7 +32,6 @@ const IndexPage = ({ match, location, history }) => {
   const [showDl, setShowDl] = React.useState(false);
   const [currentComponent, setcurrentComponent] = React.useState<ValidComponent>({
     serviceUUID: "9d8f9sd8f9f8",
-    serviceHash: "v583459mf89348943",
     form: {
       title: "Todo",
       type: "object",
@@ -54,10 +46,7 @@ const IndexPage = ({ match, location, history }) => {
       title: "faketitle",
       done: false
     },
-    formOperations: {
-      change: (e: any) => { },
-      update: (e: any) => { }
-    }
+    currentBin: ()=>{}
   });
   const [errList, setErrList] = React.useState<[subel] | []>([]);
   const results = [
@@ -68,16 +57,22 @@ const IndexPage = ({ match, location, history }) => {
     [name: string]: any;
   } = {};
 
+
+  const importObject = { imports: { imported_func: arg => console.log(arg) } };//TODO: how to do output?
+
   const sLoader = () => {
+    //https://developer.mozilla.org/en-US/docs/WebAssembly/Using_the_JavaScript_API
     return defaultConnect
-      .post("/getPackage/" + currentComponent.serviceUUID)
-      .then((itm) => {
+      .post("/load/" + currentComponent.serviceUUID)
+      .then(async (itm) => {
         if (itm && itm.data) {
-          const { change, update, form, initformdat } = JSON.parse(itm.data);
-          currentComponent.formOperations.change = change;
-          currentComponent.formOperations.update = update;
-          currentComponent.form = form;
-          currentComponent.currentFormData = initformdat;
+          const { jsonLoc, binLoc } = JSON.parse(itm.data);
+          currentComponent.form = await axios.get(jsonLoc).then(d => { return d.data });
+          currentComponent.currentFormData = {};
+
+          await WebAssembly.instantiateStreaming(fetch(binLoc), importObject)
+            .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
+
           //TODO:implement sha check
           setcurrentComponent(currentComponent);
           sLoader();
@@ -118,11 +113,11 @@ const IndexPage = ({ match, location, history }) => {
     setShowDl(false);
   };
   const handleChange = (e) => {
-    currentComponent.currentFormData = currentComponent.formOperations.change(e);
+    currentComponent.currentFormData = currentComponent.currentBin({ data: e, complete: false });
     setcurrentComponent(currentComponent);
   }
   const handleSubmit = (e) => {
-    currentComponent.currentFormData = currentComponent.formOperations.update(e);
+    currentComponent.currentFormData = currentComponent.currentBin({ data: e, complete: true });
     setcurrentComponent(currentComponent);
     setShowDl(true);
   };
@@ -136,7 +131,6 @@ const IndexPage = ({ match, location, history }) => {
         {currentComponent && (
           <ServiceContainer>
             <Form schema={currentComponent.form}
-              uiSchema={uiSchema}
               onChange={handleChange}
               onSubmit={handleSubmit}
               onError={handleErr} />
@@ -219,4 +213,4 @@ const IndexPage = ({ match, location, history }) => {
   );
 };
 
-export default withRouter(IndexPage);
+export default IndexPage;

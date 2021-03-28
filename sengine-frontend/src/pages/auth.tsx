@@ -1,5 +1,4 @@
 import * as React from "react";
-import { withRouter } from 'react-router-dom';
 import axios from "axios";
 import {
   Holder,
@@ -10,7 +9,7 @@ import {
 import Form from "@rjsf/core";
 // import bcrypt from 'bcryptjs';
 //TODO: install bcryptjs and enable client hashing
-import { subel } from "../data/interfaces";
+import { subel, usrCreds } from "../data/interfaces";
 // consts
 const saltRounds = 20;
 const defaultConnect = axios.create({
@@ -22,8 +21,15 @@ const defaultConnect = axios.create({
 // markup
 const AuthPage = ({ match, location, history }) => {
   const [errList, setErrList] = React.useState<[subel] | []>([]);
+  const [fdata, setFdata] = React.useState<usrCreds | {}>({});
   const [signup, setSignup] = React.useState(false);
   const procAcct = (frm) => {
+    setFdata({
+      username: frm.username,
+      email: frm.email,
+      password: frm.password,
+      phone: frm.phone
+    })
     if (signup) {
       // const salt = bcrypt.genSaltSync(saltRounds);
       // const password = bcrypt.hashSync(frm.pwd1, salt);
@@ -31,14 +37,7 @@ const AuthPage = ({ match, location, history }) => {
 
       return defaultConnect
         .post(("/signup"), {
-          params: {
-            username: frm.username,
-            email: frm.email,
-            password: frm.password,
-            phone: frm.phone
-            // password,
-            // phone
-          }
+          params: fdata
         })
         .then((itm) => {
           localStorage.setItem("tk", JSON.stringify(itm.data));
@@ -51,10 +50,7 @@ const AuthPage = ({ match, location, history }) => {
     } else {
       return defaultConnect
         .post("/login", {
-          params: {
-            email: frm.email,
-            password: frm.password
-          }
+          params: fdata
         })
         .then((itm) => {
           localStorage.setItem("tk", JSON.stringify(itm.data));
@@ -68,7 +64,7 @@ const AuthPage = ({ match, location, history }) => {
 
   };
 
-  const loginForm = {
+  let loginForm = {
     "title": "Login to Sengine",
     "description": "Welcome back buddy!",
     "type": "object",
@@ -80,17 +76,19 @@ const AuthPage = ({ match, location, history }) => {
       "email": {
         "type": "string",
         "title": "Email",
+        "default":fdata.email||"",
         "minLength": 7
       },
       "password": {
         "type": "string",
         "minLength": 6,
+        "default":fdata.password||"",
         "title": "Password"
       }
     }
   }
 
-  const mkAcctForm = {
+  let mkAcctForm = {
     "title": "Register for Sengine",
     "description": "Statement of transparency: we will never store your phone or password in plaintext on our servers, they will only be used in hash form to verify your identity. To learn more about how hashing works check this out: https://en.wikipedia.org/wiki/Hash_function",
     "type": "object",
@@ -103,29 +101,29 @@ const AuthPage = ({ match, location, history }) => {
     "properties": {
       "username": {
         "type": "string",
+        "default":fdata.username||"",
         "title": "User Name"
       },
       "email": {
         "type": "string",
         "title": "Email",
+        "default":fdata.email||"",
         "minLength": 7
       },
       "password": {
         "type": "string",
         "minLength": 6,
+        "default":fdata.password||"",
         "title": "Password"
       },
       "phone number": {
         "type": "string",
+        "default":fdata.phone||"",
         "title": "Phone Number(never called, just used for account recovery)",
         "minLength": 10
       }
     }
   };
-
-  const handleErr = (e) =>
-    setErrList(e);
-
   return (
     <Holder>
       <img
@@ -135,8 +133,7 @@ const AuthPage = ({ match, location, history }) => {
       <ServiceContainer>
         <FormButton onClick={() => setSignup(!signup)}>{signup ? "Login" : "Sign Up"}</FormButton>
         <Form schema={signup ? mkAcctForm : loginForm}
-          onSubmit={procAcct}
-          onError={handleErr} />
+          onSubmit={procAcct} />
         {errList.length > 0 && (
           <Holder>
             {errList.map((result, index) => {
@@ -154,4 +151,4 @@ const AuthPage = ({ match, location, history }) => {
   );
 };
 
-export default withRouter(AuthPage);
+export default AuthPage;

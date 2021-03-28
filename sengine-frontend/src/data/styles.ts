@@ -81,8 +81,7 @@ const Error = styled.div`
   background: rgba(255, 0, 0, 0.4);
   color: black;
   border-radius: 5px;
-  width: 100%;
-  opacity: 0.4;
+  width: 80%;
   padding: 5px;
   font: inherit;
   font-weight: bold;

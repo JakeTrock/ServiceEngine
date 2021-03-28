@@ -1,1 +1,0 @@
-//https://www.npmjs.com/package/image-to-base64
