@@ -8,7 +8,6 @@ import {
 } from "../data/styles";
 import Form from "@rjsf/core";
 // import bcrypt from 'bcryptjs';
-//TODO: install bcryptjs and enable client hashing
 import { subel, usrCreds } from "../data/interfaces";
 // consts
 const saltRounds = 20;

@@ -1,11 +1,14 @@
 import * as React from "react";
 import axios from "axios";
+import { sha512 } from 'hash-wasm';
 import {
     Holder,
     ServiceContainer,
     Error,
     FormButton,
-    Header
+    Header,
+    InputNorm,
+    FileInput
 } from "../data/styles";
 import Form from "@rjsf/core";
 import { subel } from "../data/interfaces";
@@ -21,7 +24,9 @@ const AuthPage = ({ match, location, history }) => {
     const [errList, setErrList] = React.useState<[subel] | []>([]);
     const [Topen, setTopen] = React.useState(false);
     const [code, setCode] = React.useState("");
-    const [scheme, setScheme] = React.useState({
+    const [opType, setOpType] = React.useState<"textarea" | "canvas" | "video" | "audio" | "files">("textarea");
+    const [bin, setBin] = React.useState<File>(undefined);
+    const [scheme, setScheme] = React.useState<Object>({
         "title": "sample title",
         "description": "make a descriptive description!",
         "type": "object",
@@ -43,17 +48,30 @@ const AuthPage = ({ match, location, history }) => {
         }
     });
 
-    const svcPub = () => {
+    const svcPub = async () => {
+        const binHash = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
         return defaultConnect
             .post("/create", {
                 params: {
                     scheme,
                     code,
+                    binHash,
                     userUUID: JSON.parse(localStorage.getItem("tk")).uuid
                 }
             })
-            .then((itm) => {
-                history.push('/?svc='+itm.uuid);
+            .then(async (itm) => {
+                await defaultConnect
+                    .put(itm.data.upls[0], bin);
+
+                const sch = { type: 'text/json' };
+                const Jblob = new Blob([JSON.stringify({
+                    input: scheme,
+                    output: opType
+                })], sch);
+                var Jfile = new File([Jblob], "scheme.json", sch);
+                await defaultConnect
+                    .put(itm.data.upls[1], Jfile);
+                history.push('/?svc=' + itm.data.message.uuid);
             })
             .catch((error) => {
                 errList.push(error);
@@ -63,7 +81,7 @@ const AuthPage = ({ match, location, history }) => {
 
     const initEd = (uuid) => {
         return defaultConnect
-            .post("/getsvc?"+uuid)
+            .post("/getsvc?" + uuid)
             .then((itm) => {
                 setScheme(itm.data.gui);
             })
@@ -101,15 +119,24 @@ const AuthPage = ({ match, location, history }) => {
                         })}
                     </Holder>
                 )}
-                <FormButton onClick={() => setTopen(!Topen)}>{Topen ? "close source editor" : "open source editor"}</FormButton>
+                <FormButton onClick={() => setTopen(!Topen)}>{Topen ? "close input editor" : "open input editor"}</FormButton>
                 {Topen && <textarea onChange={(e) => setScheme(e.target.value)}>
                     {scheme}
                 </textarea>}
-                <textarea onChange={(e) => setCode(e.target.value)}>
-                    function(e){
-                        //e can be an error, change or submit
-                    }
-                </textarea>
+                <select onChange={(e) => {
+                    //@ts-ignore
+                    setOpType(e.target.value);
+                }}>
+                    <option value="textarea">textarea</option>
+                    <option value="canvas">canvas</option>
+                    <option value="video">video</option>
+                    <option value="audio">audio</option>
+                    <option value="files">files</option>
+                </select>
+                <InputNorm onChange={(e) => setCode(e.target.value)}>
+                    git://xyz.abc/foo/bar.git
+                </InputNorm>
+                <FileInput onChange={(e) => setBin(e.target.files[0])}></FileInput>
                 <FormButton onClick={() => svcPub()}>Publish</FormButton>
 
             </ServiceContainer>

@@ -2,6 +2,8 @@ import * as React from "react";
 import axios from "axios";
 import jszip from 'jszip';
 import Form from "@rjsf/core";
+import { sha512 } from 'hash-wasm';
+
 import {
   Holder,
   ServiceContainer,
@@ -33,22 +35,25 @@ const IndexPage = ({ match, location, history }) => {
   const [currentComponent, setcurrentComponent] = React.useState<ValidComponent>({
     serviceUUID: "9d8f9sd8f9f8",
     form: {
-      title: "Todo",
-      type: "object",
-      required: ["title"],
-      properties: {
-        title: { type: "string", title: "Title", default: "A new task" },
-        done: { type: "boolean", title: "Done?", default: false }
-      }
+      input: {
+        title: "Todo",
+        type: "object",
+        required: ["title"],
+        properties: {
+          title: { type: "string", title: "Title", default: "A new task" },
+          done: { type: "boolean", title: "Done?", default: false }
+        }
+      }, 
+      output: "textarea"
     },
     files: [],
     currentFormData: {
       title: "faketitle",
       done: false
     },
-    currentBin: ()=>{}
+    currentBin: () => { }
   });
-  const [errList, setErrList] = React.useState<[subel] | []>([]);
+  const [errList, setErrList] = React.useState<[any] | []>([]);
   const results = [
     // "timer", "alarm", "clock"
   ];
@@ -57,8 +62,16 @@ const IndexPage = ({ match, location, history }) => {
     [name: string]: any;
   } = {};
 
+  const handleOutput=(o)=>{
+    const p=JSON.parse(o);
+    if(p.type==="f"){//updates form
 
-  const importObject = { imports: { imported_func: arg => console.log(arg) } };//TODO: how to do output?
+    }else if(p.type==="o"){//update output
+
+    }
+  };
+
+  const importObject = { imports: { imported_func: arg => handleOutput(arg) } };//TODO: how to do output?
 
   const sLoader = () => {
     //https://developer.mozilla.org/en-US/docs/WebAssembly/Using_the_JavaScript_API
@@ -69,13 +82,17 @@ const IndexPage = ({ match, location, history }) => {
           const { jsonLoc, binLoc } = JSON.parse(itm.data);
           currentComponent.form = await axios.get(jsonLoc).then(d => { return d.data });
           currentComponent.currentFormData = {};
-
-          await WebAssembly.instantiateStreaming(fetch(binLoc), importObject)
+          const bin=await fetch(binLoc);
+          const hashCheck = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
+          if (hashCheck===itm.data.binHash){
+          await WebAssembly.instantiateStreaming(bin, importObject)
             .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
-
-          //TODO:implement sha check
-          setcurrentComponent(currentComponent);
+            setcurrentComponent(currentComponent);
           sLoader();
+          }else{
+            errList.push("it seems something is wrong with this module. You may want to connect to a different network.");
+            throw setErrList(errList);
+          }
         }
       })
       .catch((e) => setErrList(e));
@@ -92,7 +109,7 @@ const IndexPage = ({ match, location, history }) => {
   const genReq = (sid: string) => {
     if (searchBox) searchBox.value = "";
     return defaultConnect
-      .post("/query/" + sid)
+      .post("/search/" + sid)
       .then((itm) => {
         if (itm && itm.data) {
           setcurrentComponent(JSON.parse(itm.data));
@@ -130,7 +147,7 @@ const IndexPage = ({ match, location, history }) => {
         />
         {currentComponent && (
           <ServiceContainer>
-            <Form schema={currentComponent.form}
+            <Form schema={currentComponent.form.input}
               onChange={handleChange}
               onSubmit={handleSubmit}
               onError={handleErr} />
@@ -167,7 +184,7 @@ const IndexPage = ({ match, location, history }) => {
         <IntroHolder>Type your command to start or <FormButton onClick={() => history.push('/auth')}>login</FormButton> to publish a utility</IntroHolder>
       </SearchFormHolder>
       {
-        showDl && currentComponent.files.length > 0 && (
+        showDl && currentComponent.files.length > 0 && (//TODO:this shouldn't just be the downloader, it should change based on form.output, and should get results from handleOutput
           <Holder>
             {currentComponent.files.length > 1 && <Suggestion onClick={
               async () => {
