@@ -49,7 +49,7 @@ const UserSchema = new Schema(
     currSecToken: {
       type: String,
     },
-    currUsrOp: {//TODO:make it only possible to do one action at a time/cancel
+    currUsrOp: {
       type: String,
     },
     secTokExp: {

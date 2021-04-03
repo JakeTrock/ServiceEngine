@@ -21,66 +21,70 @@ AWS.config.update({ credentials, region: "us-east-1" });
 const s3 = new AWS.S3();
 export default class utilController {
   async createutil(req: Request, res: Response) {
-    //TODO: this should consume an upload for a file and build the wasm
-    const { binHash, srcType, jsonHash } = req.body;
+    const { binHash, srcLoc, description } = req.body;
     const authorId = req.user._id;
     const _id = mongoose.Types.ObjectId();
-    try {
-      const util = removeNullUndef({
-        _id,
-        authorId,
-        binHash,
-        srcType,
-        jsonHash,
-        binLoc: `${authorId}/${_id.toString()}/bin.wasm`,
-        srcLoc: `${authorId}/${_id.toString()}/source.${srcType}`,
-        jsonLoc: `${authorId}/${_id.toString()}/iface.json`,
-      });
-      const upls = [
-        await s3.getSignedUrl("putObject", {
-          Bucket: s3Bucket,
-          Key: util.binLoc,
-          Expires: 60,
-          ContentType: "text",
-          ACL: "public-read",
-        }),
-        await s3.getSignedUrl("putObject", {
-          Bucket: s3Bucket,
-          Key: util.srcLoc,
-          Expires: 60,
-          ContentType: "text",
-          ACL: "public-read",
-        }),
-        await s3.getSignedUrl("putObject", {
-          Bucket: s3Bucket,
-          Key: util.jsonLoc,
-          Expires: 60,
-          ContentType: "text",
-          ACL: "public-read",
-        }),
-      ];
-
-      return util.create(util)
-        .then((p) =>
-          res.status(201).json({
-            success: true,
-            message: upls,
-          })
-        )
-        .catch((err: any) => {
-          logger.error(`Error when saving a util ${util}: ${err}`);
-          return res.status(500).json({ success: false, message: err.message });
+    if (srcLoc || srcLoc.substring(0, 6) === "git://") {
+      try {
+        const util = removeNullUndef({
+          _id,
+          description,
+          authorId,
+          binHash,
+          binLoc: `${authorId}/${_id.toString()}/bin.wasm`,
+          srcLoc,
+          jsonLoc: `${authorId}/${_id.toString()}/iface.json`,
         });
-    } catch (e) {
-      logger.error(`Image upload error: ${e}`);
-      return res.status(500).json({ success: false, message: e.message });
-    }
+        const upls = [
+          await s3.getSignedUrl("putObject", {
+            Bucket: s3Bucket,
+            Key: util.binLoc,
+            Expires: 60,
+            ContentType: "text/wasm",
+            ACL: "public-read",
+          }),
+          await s3.getSignedUrl("putObject", {
+            Bucket: s3Bucket,
+            Key: util.jsonLoc,
+            Expires: 60,
+            ContentType: "text/json",
+            ACL: "public-read",
+          }),
+        ];
+
+        return util
+          .create(util)
+          .then((p) =>
+            res.status(201).json({
+              success: true,
+              message: {
+                uuid: _id,
+                upls,
+              },
+            })
+          )
+          .catch((err: any) => {
+            logger.error(`Error when saving a util ${util}: ${err}`);
+            return res
+              .status(500)
+              .json({ success: false, message: err.message });
+          });
+      } catch (e) {
+        logger.error(`Image upload error: ${e}`);
+        return res.status(500).json({ success: false, message: e.message });
+      }
+    } else
+      return res.status(400).json({
+        success: false,
+        message: "you must present a source code git url for auditing.",
+      });
   }
 
   async saveutil(req: Request, res: Response) {
-    const { binHash, jsonHash, newSrc } = req.body;
+    const { binHash, newJson, newSrc, description } = req.body;
     const { id } = req.params;
-    util.findById({ _id: id })
+    util
+      .findById({ _id: id })
       .then(async (p) => {
         let upls = [];
         if (binHash)
@@ -93,19 +97,7 @@ export default class utilController {
               ACL: "public-read",
             })
           );
-        if (newSrc)
-          upls.push(
-            await s3.getSignedUrl("putObject", {
-              Bucket: s3Bucket,
-              Key: `${p.authorId.toString()}/${p._id.toString()}/source.${
-                p.srcType
-              }`,
-              Expires: 60,
-              ContentType: "text",
-              ACL: "public-read",
-            })
-          );
-        if (jsonHash)
+        if (newJson)
           upls.push(
             await s3.getSignedUrl("putObject", {
               Bucket: s3Bucket,
@@ -116,7 +108,9 @@ export default class utilController {
             })
           );
         return p
-          .update(removeNullUndef({ binHash, jsonHash }), { new: true })
+          .update(removeNullUndef({ binHash, newSrc, description }), {
+            new: true,
+          })
           .orFail(new Error("util not found!"))
           .exec()
           .then(() => res.status(200).json({ success: true, message: upls }))
@@ -135,7 +129,8 @@ export default class utilController {
 
   remixutil(req: Request, res: Response) {
     const { id } = req.params;
-    util.findById(id)
+    util
+      .findById(id)
       .orFail(new Error("util not found!"))
       .exec()
       .then(async (util) => {
@@ -148,10 +143,7 @@ export default class utilController {
             Bucket: s3Bucket,
             Key: util.binLoc,
           }),
-          srcLoc: await s3.getSignedUrl("getObject", {
-            Bucket: s3Bucket,
-            Key: util.srcLoc,
-          }),
+          srcLoc: util.srcLoc,
         };
         return tmp;
       })
@@ -169,7 +161,8 @@ export default class utilController {
 
   getutil(req: Request, res: Response) {
     const { id } = req.params;
-    util.findById(id)
+    util
+      .findById(id)
       .orFail(new Error("util not found!"))
       .exec()
       .then(async (util) => {
@@ -199,7 +192,9 @@ export default class utilController {
 
   search(req: Request, res: Response) {
     const { query } = req.params;
-    util.find({ name: query })
+    /*@ts-ignore */
+    return util.fuzzy(query)
+      .sort({ likes: 1, dislikes: -1 }) //TODO:may not sort
       .exec()
       .then((utils) => {
         if (utils) {
@@ -223,7 +218,8 @@ export default class utilController {
   deleteutil(req: Request, res: Response) {
     const { id } = req.params;
 
-    util.findByIdAndDelete(id)
+    util
+      .findByIdAndDelete(id)
       .orFail(new Error("util not found!"))
       .exec()
       .then((result) =>
@@ -268,7 +264,8 @@ export default class utilController {
           : adl
           ? { $pull: { dislikes: mongoose.Types.ObjectId(id) } }
           : { $push: { dislikes: mongoose.Types.ObjectId(id) } };
-        return util.findByIdAndUpdate(id, pct, { new: true })
+        return util
+          .findByIdAndUpdate(id, pct, { new: true })
           .orFail(new Error("util not found!"))
           .exec()
           .then(() => u.update(uct, { new: true }))

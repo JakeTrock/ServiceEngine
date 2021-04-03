@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import fuzzy from 'mongoose-fuzzy-search';
 import { util } from "../types/types";
 
 const utilSchema = new Schema(
@@ -8,6 +8,10 @@ const utilSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
+    },
+    description: {
+      type: String,
+      required: true,
     },
     binHash: {
       type: String,
@@ -18,14 +22,6 @@ const utilSchema = new Schema(
       required: true,
     },
     srcLoc:{
-      type: String,
-      required: true,
-    },
-    srcType:{
-      type: String,
-      required: true,
-    },
-    jsonHash: {
       type: String,
       required: true,
     },
@@ -50,5 +46,7 @@ const utilSchema = new Schema(
     timestamps: true,
   }
 );
-
+utilSchema.plugin(fuzzy, { fields: {
+  description_tg: 'description'
+} });
 export default mongoose.model<util>("util", utilSchema);

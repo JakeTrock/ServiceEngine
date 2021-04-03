@@ -2041,6 +2041,11 @@ mongodb@3.6.5:
   optionalDependencies:
     saslprep "^1.0.0"
 
+mongoose-fuzzy-search@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/mongoose-fuzzy-search/-/mongoose-fuzzy-search-0.0.4.tgz#320bbedbe851d0868f78197d97da4995731ef424"
+  integrity sha512-OqE88A7KQx3x2bG4kJOyIauvcGXne3S22dQfBbA6JWwcSAhCa7HZqjlQYyL0lINbGfn4NXg/eZvqTzDyqxo8mA==
+
 mongoose-legacy-pluralize@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz#3ba9f91fa507b5186d399fb40854bff18fb563e4"

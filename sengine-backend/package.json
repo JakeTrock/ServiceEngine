@@ -37,6 +37,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "mongoose": "^5.12.2",
+    "mongoose-fuzzy-search": "^0.0.4",
     "morgan": "^1.10.0",
     "winston": "^3.3.3"
   }

@@ -25,11 +25,61 @@ const s3 = new AWS.S3();
 const s3Bucket = process.env.BUCKET_NAME;
 export default class UserController {
   async utilSignup(req: Request, res: Response) {
-    User.create({
-      email: req.body.email.trim(),
-      password: req.body.password.trim(),
-      username: req.body.username.trim().toLowerCase(),
-    })
+    async
+      .waterfall([
+        function (done) {
+          User.create({
+            email: req.body.email.trim(),
+            password: req.body.password.trim(),
+            username: req.body.username.trim().toLowerCase(),
+          })
+            .then((user) => done(null, user))
+            .catch((e) => done(e, null));
+        },
+        function (user, done) {
+          // create the random token
+          crypto.randomBytes(20, (err, buffer) => {
+            const token = buffer.toString("hex");
+            done(err, user, token);
+          });
+        },
+        function (user, token, done) {
+          User.findByIdAndUpdate(
+            { _id: user._id },
+            {
+              currUsrOp: "R",
+              currSecToken: token,
+              secTokExp: new Date(Date.now() + 86400000),
+            },
+            { new: true }
+          )
+            .orFail(new Error("User not found!"))
+            .exec((err, newUser) => {
+              done(err, token, newUser);
+            });
+        },
+        function (token, user, done) {
+          SES.sendEmail({
+            Destination: {
+              ToAddresses: [user.email],
+            },
+            Message: {
+              Body: {
+                Html: {
+                  Charset: "UTF-8",
+                  Data: `To verify your account click the following link or paste it into your browser<br/><br/> https://${req.headers.host}/user/confirm/${token}<br/><br/>If you didn't make this request, then ignore the email and you'll be safe<br/>`,
+                },
+              },
+              Subject: {
+                Charset: "UTF-8",
+                Data: "Password Reset",
+              },
+            },
+            Source: `Sengine <${process.env.LOGIN_USER}>`,
+          });
+        },
+      ])
+      .promise()
       .then(() =>
         res
           .status(201)
@@ -227,7 +277,11 @@ export default class UserController {
         function (user, token, done) {
           User.findByIdAndUpdate(
             { _id: user._id },
-            { currSecToken: token, secTokExp: new Date(Date.now() + 86400000) },
+            {
+              currUsrOp: "R",
+              currSecToken: token,
+              secTokExp: new Date(Date.now() + 86400000),
+            },
             { new: true }
           )
             .orFail(new Error("User not found!"))
@@ -270,10 +324,15 @@ export default class UserController {
   async utilPasswordReset(req: Request, res: Response) {
     const nd = new Date();
     User.findOneAndUpdate(
-      { currSecToken: req.params.token, secTokExp: { $gt: nd } },
+      {
+        currSecToken: req.params.token,
+        currUsrOp: "R",
+        secTokExp: { $gt: nd },
+      },
       {
         password: req.body.password,
         currSecToken: undefined,
+        currUsrOp: undefined,
         secTokExp: undefined,
       }
     )
@@ -327,7 +386,11 @@ export default class UserController {
         function (user, token, done) {
           User.findByIdAndUpdate(
             { _id: user._id },
-            { currSecToken: token, secTokExp: new Date(Date.now() + 86400000) },
+            {
+              currUsrOp: "D",
+              currSecToken: token,
+              secTokExp: new Date(Date.now() + 86400000),
+            },
             { new: true }
           )
             .orFail(new Error("User not found!"))
@@ -371,6 +434,7 @@ export default class UserController {
     const nd = new Date();
     User.findOneAndRemove({
       currSecToken: req.params.token,
+      currUsrOp: "D",
       secTokExp: { $gt: nd },
     })
       .orFail(new Error("User not found!"))
