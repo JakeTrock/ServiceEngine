@@ -88,7 +88,6 @@ const IndexPage = ({ match, location, history }) => {
           await WebAssembly.instantiateStreaming(bin, importObject)
             .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
             setcurrentComponent(currentComponent);
-          sLoader();
           }else{
             errList.push("it seems something is wrong with this module. You may want to connect to a different network.");
             throw setErrList(errList);
