@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc -p tsconfig.json",
-    "dev": "ts-node-dev index.ts"
+    "develop": "ts-node-dev index.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.9",

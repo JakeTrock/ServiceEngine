@@ -1,0 +1,28 @@
+{
+  "name": "ServiceEngine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "client": "cd sengine-frontend && yarn develop",
+    "server": "cd sengine-backend && yarn develop",
+    "prodClient": "cd sengine-frontend && serve -s build -l 3000",
+    "prodServer": "cd sengine-backend && yarn build && yarn start",
+    "develop": "concurrently --kill-others \"npm run server\" \"npm run client\"",
+    "production": "concurrently --kill-others \"npm run prodServer\" \"npm run prodClient\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JakeTrock/ServiceEngine.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JakeTrock/ServiceEngine/issues"
+  },
+  "homepage": "https://github.com/JakeTrock/ServiceEngine#readme",
+  "dependencies": {
+    "concurrently": "^6.0.1"
+  }
+}
