@@ -23,21 +23,23 @@ const AuthPage = ({ match, location, history }) => {
   const [fdata, setFdata] = React.useState<usrCreds | {}>({});
   const [signup, setSignup] = React.useState(false);
   const procAcct = (frm) => {
-    setFdata({
-      username: frm.username,
-      email: frm.email,
-      password: frm.password,
-      phone: frm.phone
-    })
+    console.log(frm)
     if (signup) {
-      // const salt = bcrypt.genSaltSync(saltRounds);
-      // const password = bcrypt.hashSync(frm.pwd1, salt);
-      // const phone = bcrypt.hashSync(frm.phone, salt);
-
+      const { username, email, password, phone } = frm.formData;
+      console.log({
+        username,
+        email,
+        password,
+        phone
+      });
+      setFdata({
+        username,
+        email,
+        password,
+        phone
+      });
       return defaultConnect
-        .post(("/signup"), {
-          params: fdata
-        })
+        .post(("/user/signup"), fdata)
         .then((itm) => {
           localStorage.setItem("tk", JSON.stringify(itm.data));
           history.push('/dash');
@@ -47,10 +49,13 @@ const AuthPage = ({ match, location, history }) => {
           return setErrList(errList);
         });
     } else {
+      const { email, password } = frm.formData;
+      setFdata({
+        email,
+        password
+      });
       return defaultConnect
-        .post("/login", {
-          params: fdata
-        })
+        .post("/user/login", fdata)
         .then((itm) => {
           localStorage.setItem("tk", JSON.stringify(itm.data));
           history.push('/dash');
@@ -75,13 +80,13 @@ const AuthPage = ({ match, location, history }) => {
       "email": {
         "type": "string",
         "title": "Email",
-        "default":fdata.email||"",
+        "default": fdata.email || "",
         "minLength": 7
       },
       "password": {
         "type": "string",
         "minLength": 6,
-        "default":fdata.password||"",
+        "default": fdata.password || "",
         "title": "Password"
       }
     }
@@ -95,32 +100,42 @@ const AuthPage = ({ match, location, history }) => {
       "username",
       "password",
       "email",
-      "phone number"
+      "phone"
     ],
     "properties": {
       "username": {
         "type": "string",
-        "default":fdata.username||"",
+        "default": fdata.username || "",
         "title": "User Name"
       },
       "email": {
         "type": "string",
         "title": "Email",
-        "default":fdata.email||"",
+        "default": fdata.email || "",
         "minLength": 7
       },
       "password": {
         "type": "string",
         "minLength": 6,
-        "default":fdata.password||"",
+        "default": fdata.password || "",
         "title": "Password"
       },
-      "phone number": {
+      "phone": {
         "type": "string",
-        "default":fdata.phone||"",
+        "default": fdata.phone || "",
         "title": "Phone Number(never called, just used for account recovery)",
-        "minLength": 10
       }
+    }
+  };
+  const uiSchema = {
+    "password": {
+      "ui:widget": "password"
+    },
+    "phone": {
+      "inputType": "tel"
+    },
+    "email": {
+      "inputType": "email"
     }
   };
   return (
@@ -132,6 +147,7 @@ const AuthPage = ({ match, location, history }) => {
       <ServiceContainer>
         <FormButton onClick={() => setSignup(!signup)}>{signup ? "Login" : "Sign Up"}</FormButton>
         <Form schema={signup ? mkAcctForm : loginForm}
+          uiSchema={uiSchema}
           onSubmit={procAcct} />
         {errList.length > 0 && (
           <Holder>

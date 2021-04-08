@@ -89,7 +89,7 @@ const IndexPage = ({ match, location, history }) => {
             .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
             setcurrentComponent(currentComponent);
           }else{
-            errList.push("it seems something is wrong with this module. You may want to connect to a different network.");
+            alert("it seems something is wrong with this module. You may want to connect to a different network.");
             throw setErrList(errList);
           }
         }
@@ -101,14 +101,14 @@ const IndexPage = ({ match, location, history }) => {
     if (cdt >= Date.now() - delay) return;
     cdt = Date.now();
     return defaultConnect
-      .post("/search/" + term)
+      .post("/utils/search/" + term)
       .catch((e) => setErrList(e));
   };
 
-  const genReq = (sid: string) => {
+  const getUtil = (sid: string) => {
     if (searchBox) searchBox.value = "";
     return defaultConnect
-      .post("/search/" + sid)
+      .post("/utils/load/" + sid)
       .then((itm) => {
         if (itm && itm.data) {
           setcurrentComponent(JSON.parse(itm.data));
@@ -119,7 +119,7 @@ const IndexPage = ({ match, location, history }) => {
   };
   React.useEffect(() => {
     if (match.params.length > 0) {
-      genReq(match.params.svc);
+      getUtil(match.params.svc);
       sLoader();
     }
   }, []);
@@ -217,7 +217,7 @@ const IndexPage = ({ match, location, history }) => {
           <ResultsHolder>
             {results.map((result, index) => {
               return (
-                <Suggestion key={index} onClick={() => genReq(result)}>
+                <Suggestion key={index} onClick={() => getUtil(result)}>
                   {result}
                 </Suggestion>
               );

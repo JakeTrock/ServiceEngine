@@ -47,17 +47,22 @@ const AuthPage = ({ match, location, history }) => {
             }
         }
     });
-
+    const [uiSchema, setuiSchema] = React.useState<Object>({
+        "password": {
+            "ui:widget": "password"
+        },
+        "email": {
+            "inputType": "email"
+        }
+    });
     const svcPub = async () => {
         const binHash = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
         return defaultConnect
             .post("/create", {
-                params: {
-                    scheme,
-                    code,
-                    binHash,
-                    userUUID: JSON.parse(localStorage.getItem("tk")).uuid
-                }
+                scheme,
+                code,
+                binHash,
+                userUUID: JSON.parse(localStorage.getItem("tk")).uuid
             })
             .then(async (itm) => {
                 await defaultConnect
@@ -66,6 +71,7 @@ const AuthPage = ({ match, location, history }) => {
                 const sch = { type: 'text/json' };
                 const Jblob = new Blob([JSON.stringify({
                     input: scheme,
+                    uiSchema,
                     output: opType
                 })], sch);
                 var Jfile = new File([Jblob], "scheme.json", sch);
@@ -106,6 +112,7 @@ const AuthPage = ({ match, location, history }) => {
             <ServiceContainer>
                 <Header>Preview</Header>
                 <Form schema={scheme}
+                    uiSchema={uiSchema}
                     onError={handleErr} />
                 {errList.length > 0 && (
                     <Holder>
@@ -120,9 +127,14 @@ const AuthPage = ({ match, location, history }) => {
                     </Holder>
                 )}
                 <FormButton onClick={() => setTopen(!Topen)}>{Topen ? "close input editor" : "open input editor"}</FormButton>
-                {Topen && <textarea onChange={(e) => setScheme(e.target.value)}>
-                    {scheme}
-                </textarea>}
+                {Topen && <Holder>
+                    <textarea onChange={(e) => setScheme(e.target.value)}>
+                        {scheme}
+                    </textarea>
+                    <textarea onChange={(e) => setuiSchema(e.target.value)}>
+                        {uiSchema}
+                    </textarea>
+                </Holder>}
                 <select onChange={(e) => {
                     //@ts-ignore
                     setOpType(e.target.value);

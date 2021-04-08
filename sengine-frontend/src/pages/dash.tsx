@@ -34,9 +34,7 @@ const dashPage = ({ match, location, history }) => {
         }
         defaultConnect
             .post(("/getprof"), {
-                params: {
-                    token: jwt
-                }
+                token: jwt
             })
             .then((itm) => setProfDetails(itm.data))
             .catch((error) => {
