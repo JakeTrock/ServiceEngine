@@ -81,7 +81,7 @@ export default class utilController {
   }
 
   async saveutil(req: Request, res: Response) {
-    const { binHash, newJson, newSrc, description } = req.body;
+    const { binHash, newJson, newSrc, title, tags, description } = req.body;
     const { id } = req.params;
     util
       .findById({ _id: id })
@@ -107,10 +107,14 @@ export default class utilController {
               ACL: "public-read",
             })
           );
+        const sptags = tags.split(",");
         return p
-          .update(removeNullUndef({ binHash, newSrc, description }), {
-            new: true,
-          })
+          .update(
+            removeNullUndef({ binHash, newSrc, title, sptags, description }),
+            {
+              new: true,
+            }
+          )
           .orFail(new Error("util not found!"))
           .exec()
           .then(() => res.status(200).json({ success: true, message: upls }))
@@ -191,10 +195,25 @@ export default class utilController {
   }
 
   search(req: Request, res: Response) {
-    const { query } = req.params;
+    const { searchQuery } = req.params;
     /*@ts-ignore */
-    return util.fuzzy(query)
-      .sort({ likes: 1, dislikes: -1 }) //TODO:may not sort
+    return util
+      .fuzzy({
+        title_tg: {
+          searchQuery,
+          weight: 20,
+        },
+        description_tg: {
+          searchQuery,
+          weight: 10,
+        },
+        tags_tg: {
+          searchQuery,
+          weight: 5,
+        },
+      })
+      .select('likes uses dislikes title description _id')
+      .sort({ likes: 1, dislikes: -1 }) //TODO:may not sort correctly
       .exec()
       .then((utils) => {
         if (utils) {

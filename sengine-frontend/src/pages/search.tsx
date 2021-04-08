@@ -40,10 +40,15 @@ const IndexPage = ({ match, location, history }) => {
         type: "object",
         required: ["title"],
         properties: {
-          title: { type: "string", title: "Title", default: "A new task" },
+          email: { type: "string", title: "Title", default: "email" },
           done: { type: "boolean", title: "Done?", default: false }
         }
-      }, 
+      },
+      uiSchema: {
+        "email": {
+          "inputType": "email"
+        }
+      },
       output: "textarea"
     },
     files: [],
@@ -55,18 +60,39 @@ const IndexPage = ({ match, location, history }) => {
   });
   const [errList, setErrList] = React.useState<[any] | []>([]);
   const results = [
-    // "timer", "alarm", "clock"
+    /*{
+      _id:"sdfsdfsdfsdfdf",
+      likes:2
+      dislikes:4
+      uses:8
+      description:"times things"
+      title:"timer"
+    },{
+      _id:"sdfsdfsdfsdfdf",
+      likes:4
+      dislikes:3
+      uses:9
+      description:"tells the time"
+      title:"clock"
+    },{
+      _id:"sdfsdfsdfsdfdf",
+      likes:1
+      dislikes:2
+      uses:7
+      description:"times events"
+      title:"stopwatch"
+    }*/
   ];
 
   const LoadedComps: {
     [name: string]: any;
   } = {};
 
-  const handleOutput=(o)=>{
-    const p=JSON.parse(o);
-    if(p.type==="f"){//updates form
+  const handleOutput = (o) => {
+    const p = JSON.parse(o);
+    if (p.type === "f") {//updates form
 
-    }else if(p.type==="o"){//update output
+    } else if (p.type === "o") {//update output
 
     }
   };
@@ -82,13 +108,13 @@ const IndexPage = ({ match, location, history }) => {
           const { jsonLoc, binLoc } = JSON.parse(itm.data);
           currentComponent.form = await axios.get(jsonLoc).then(d => { return d.data });
           currentComponent.currentFormData = {};
-          const bin=await fetch(binLoc);
+          const bin = await fetch(binLoc);
           const hashCheck = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
-          if (hashCheck===itm.data.binHash){
-          await WebAssembly.instantiateStreaming(bin, importObject)
-            .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
+          if (hashCheck === itm.data.binHash) {
+            await WebAssembly.instantiateStreaming(bin, importObject)
+              .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
             setcurrentComponent(currentComponent);
-          }else{
+          } else {
             alert("it seems something is wrong with this module. You may want to connect to a different network.");
             throw setErrList(errList);
           }
@@ -147,6 +173,7 @@ const IndexPage = ({ match, location, history }) => {
         {currentComponent && (
           <ServiceContainer>
             <Form schema={currentComponent.form.input}
+              uiSchema={currentComponent.form.uiSchema}
               onChange={handleChange}
               onSubmit={handleSubmit}
               onError={handleErr} />
@@ -217,8 +244,10 @@ const IndexPage = ({ match, location, history }) => {
           <ResultsHolder>
             {results.map((result, index) => {
               return (
-                <Suggestion key={index} onClick={() => getUtil(result)}>
-                  {result}
+                <Suggestion key={index} onClick={() => getUtil(result._id)}>
+                  <h4>{result.title}</h4>
+                  <h5>likes: {result.likes}|uses: {result.uses}|dislikes: {result.dislikes}</h5>
+                  <p>{result.description}</p>
                 </Suggestion>
               );
             })}

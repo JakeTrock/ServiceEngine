@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import fuzzy from 'mongoose-fuzzy-search';
+import fuzzy from "mongoose-fuzzy-search";
 import { util } from "../types/types";
 
 const utilSchema = new Schema(
@@ -9,10 +9,20 @@ const utilSchema = new Schema(
       required: true,
       ref: "User",
     },
+    title: {
+      type: String,
+      required: true,
+    },
     description: {
       type: String,
       required: true,
     },
+    tags: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     binHash: {
       type: String,
       required: true,
@@ -21,7 +31,7 @@ const utilSchema = new Schema(
       type: String,
       required: true,
     },
-    srcLoc:{
+    srcLoc: {
       type: String,
       required: true,
     },
@@ -46,7 +56,11 @@ const utilSchema = new Schema(
     timestamps: true,
   }
 );
-utilSchema.plugin(fuzzy, { fields: {
-  description_tg: 'description'
-} });
+utilSchema.plugin(fuzzy, {
+  fields: {
+    title_tg: "title",
+    description_tg: "description",
+    tags_tg: (d) => d.get("tags").join(" "),
+  },
+});
 export default mongoose.model<util>("util", utilSchema);
