@@ -1,7 +1,6 @@
 export interface ValidComponent {
   serviceUUID: string,
   form: any,
-  files: File[],
   currentFormData: any,//TODO:alias
   currentBin: any//Function
 }

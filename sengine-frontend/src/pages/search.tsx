@@ -1,6 +1,5 @@
 import * as React from "react";
 import axios from "axios";
-import jszip from 'jszip';
 import Form from "@rjsf/core";
 import { sha512 } from 'hash-wasm';
 
@@ -16,6 +15,9 @@ import {
   Error,
   FormButton
 } from "../data/styles";
+//import outputs
+import canvasOutput from './outputHandlers/canvas';
+
 import { ValidComponent, subel } from "../data/interfaces";
 // consts
 const delay = 800;
@@ -51,7 +53,6 @@ const IndexPage = ({ match, location, history }) => {
       },
       output: "textarea"
     },
-    files: [],
     currentFormData: {
       title: "faketitle",
       done: false
@@ -59,6 +60,7 @@ const IndexPage = ({ match, location, history }) => {
     currentBin: () => { }
   });
   const [errList, setErrList] = React.useState<[any] | []>([]);
+  let cOutput;//TODO:might need to be state tied
   const results = [
     /*{
       _id:"sdfsdfsdfsdfdf",
@@ -84,23 +86,39 @@ const IndexPage = ({ match, location, history }) => {
     }*/
   ];
 
-  const LoadedComps: {
-    [name: string]: any;
-  } = {};
-
   const handleOutput = (o) => {
     const p = JSON.parse(o);
     if (p.type === "f") {//updates form
-
+      //TODO:how to update form?
     } else if (p.type === "o") {//update output
-
+      cOutput.update(memory);//TODO:would this call work?
     }
   };
+  let memory = new WebAssembly.Memory({ initial: 10, maximum: 800 });//memory(in pages)
+  const importObject = {
+    js: {
+      mem: memory
+    },
+    env: {
+      //TODO:patch these in: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
+      "jsMath": Math,
+// "jsMic":
+// "screengrab"
+// "cameraStill"
+// "cameraVideo"
+// "time"
+// "location"
 
-  const importObject = { imports: { imported_func: arg => handleOutput(arg) } };//TODO: how to do output?
+      //TODO: add time, etc.
+    },
+    imports: {
+      imported_func: arg => handleOutput(arg)
+    }
+  };//TODO: how to do output?
 
   const sLoader = () => {
     //https://developer.mozilla.org/en-US/docs/WebAssembly/Using_the_JavaScript_API
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Memory
     return defaultConnect
       .post("/load/" + currentComponent.serviceUUID)
       .then(async (itm) => {
@@ -114,6 +132,12 @@ const IndexPage = ({ match, location, history }) => {
             await WebAssembly.instantiateStreaming(bin, importObject)
               .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
             setcurrentComponent(currentComponent);
+            switch (currentComponent.form.output) {//TODO:add all
+              case "canvas": {
+                cOutput=canvasOutput
+              } break;
+
+            };
           } else {
             alert("it seems something is wrong with this module. You may want to connect to a different network.");
             throw setErrList(errList);
@@ -210,34 +234,7 @@ const IndexPage = ({ match, location, history }) => {
         <IntroHolder>Type your command to start or <FormButton onClick={() => history.push('/auth')}>login</FormButton> to publish a utility</IntroHolder>
       </SearchFormHolder>
       {
-        showDl && currentComponent.files.length > 0 && (//TODO:this shouldn't just be the downloader, it should change based on form.output, and should get results from handleOutput
-          <Holder>
-            {currentComponent.files.length > 1 && <Suggestion onClick={
-              async () => {
-                let zip = new jszip();
-                await currentComponent.files.map(async (f) => zip.file(f.name, f.arrayBuffer()));
-                const file = await zip.generateAsync({ type: "base64" });
-                const linkSource = `data:application/zip;base64,${file}`;
-                const downloadLink = document.createElement("a");
-                downloadLink.href = linkSource;
-                downloadLink.download = `sengine-${currentComponent.form.title}.zip`;
-                downloadLink.click();
-              }
-            }>
-              [Download all as zip]
-            </Suggestion>}
-            <ResultsHolder>
-              {currentComponent.files.map((result, index) => {
-                const url = (window.URL || window.webkitURL).createObjectURL(result);
-                return (
-                  <Suggestion key={index} download={result.name} href={url}>
-                    {result.name}
-                  </Suggestion>
-                );
-              })}
-            </ResultsHolder>
-          </Holder>
-        )
+        showDl && { cOutput }
       }
       {
         results.length > 0 && (
