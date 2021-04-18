@@ -26,12 +26,6 @@ const AuthPage = ({ match, location, history }) => {
     console.log(frm)
     if (signup) {
       const { username, email, password, phone } = frm.formData;
-      console.log({
-        username,
-        email,
-        password,
-        phone
-      });
       setFdata({
         username,
         email,

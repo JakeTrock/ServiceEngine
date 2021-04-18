@@ -1,7 +1,7 @@
 import * as React from "react";
 
 // markup
-const CanvasOutput = () => {
+const AudioOutput = () => {
     const [byteArray, setByteArray] = React.useState<Uint8ClampedArray>();
     const cv = React.useRef(null);
     let ctx;
@@ -18,4 +18,4 @@ const CanvasOutput = () => {
     );
 };
 
-export default CanvasOutput;
+export default AudioOutput;

@@ -3,7 +3,7 @@ import jszip from 'jszip';
 import { Holder, ResultsHolder, Suggestion } from "../../data/styles";
 
 // markup
-const canvasOutput = () => {
+const FilesOutput = () => {
     const [files, setFiles] = React.useState<File[]>();
 
     const update = (mem) => {
@@ -39,4 +39,4 @@ const canvasOutput = () => {
     );
 };
 
-export default canvasOutput;
+export default FilesOutput;
