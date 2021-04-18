@@ -22,4 +22,6 @@ router.post('/dislike/:id', isAuthenticated, async (req: Request, res) => utils.
 
 router.post('/search/:query', isAuthenticated, async (req: Request, res) => utils.search(req, res));
 
+router.post('/report', isAuthenticated, async (req: Request, res) => utils.report(req, res));
+
 export default router;

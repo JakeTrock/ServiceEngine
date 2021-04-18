@@ -3,7 +3,6 @@ import express from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import utilRoutes from './routes/utils';
-import reportRoutes from './routes/reports';
 import initLogger from './config/logger';
 import db from './config/database';
 import userRoutes from './routes/users';
@@ -22,7 +21,6 @@ app.use(express.urlencoded({extended: true}));
 
 app.use('/user', userRoutes);
 app.use('/utils', utilRoutes);
-app.use('/report', reportRoutes);
 
 db.then(async () => {
     logger.info('Successfully Connected to MongoDB');

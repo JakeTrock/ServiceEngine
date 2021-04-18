@@ -9,6 +9,7 @@ import { util as utilType, NewRequest as Request } from "../types/types";
 import initLogger from "../config/logger";
 import User from "../models/user";
 import { removeNullUndef } from "../config/helpers";
+import utilReport from "../models/utilReport";
 
 const logger = initLogger("Controllerutils");
 
@@ -250,6 +251,49 @@ export default class utilController {
       .catch((err) => {
         logger.error(`Error when deleting a util with utilId ${id}: ${err}`);
         return res.status(500).json({ success: false, message: err.message });
+      });
+  }
+
+  async report(req: Request, res: Response) {
+    const { reason, util } = req.body;
+    const reportedBy = req.user._id;
+    utilReport
+      .findOne({
+        reportedBy,
+        util,
+      })
+      .then((p) => {
+        if (p) {
+          return res.status(400).json({
+            success: false,
+            message: "you have already reported this util",
+          });
+        } else {
+          utilReport
+            .create({
+              reportedBy,
+              reason,
+              util,
+            })
+            .then(() =>
+              res
+                .status(201)
+                .json({
+                  success: true,
+                  message: "Successfully submitted report",
+                })
+            )
+            .catch((err) => {
+              if (err.message.toLowerCase().includes("validation"))
+                return res
+                  .status(400)
+                  .json({ success: false, message: err.message });
+              logger.error(
+                `Error saving util report for util ${util} by user ${reportedBy} with error: ${err}`
+              );
+              return res.status(500).json({ success: false, message: err });
+            });
+        }
       });
   }
 
