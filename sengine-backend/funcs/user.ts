@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 import initLogger from "../config/logger";
 // import s3 from '../core/s3';
 import User from "../models/user";
-import { IUser, NewRequest as Request } from "../types/types";
+import { IUser, NewRequest as Request } from "../config/types";
 import util from "../models/util";
 
 const logger = initLogger("ControllerUser");

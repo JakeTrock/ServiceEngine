@@ -1,7 +1,7 @@
 export interface ValidComponent {
   serviceUUID: string,
   form: any,
-  currentFormData: any,//TODO:alias
+  permissions:String[],
   currentBin: any//Function
 }
 export interface subel {

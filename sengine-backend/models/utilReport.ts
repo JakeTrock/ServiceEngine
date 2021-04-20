@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { utilReport } from '../types/types';
+import { utilReport } from '../config/types';
 
 const utilReportSchema = new Schema({
    reportedBy: {

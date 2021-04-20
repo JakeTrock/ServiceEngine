@@ -3,7 +3,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 
 import initLogger from "../config/logger";
-import { IUser, comparePasswordFunction } from "../types/types";
+import { IUser, comparePasswordFunction } from "../config/types";
 
 const logger = initLogger("UserModel");
 const passwordRegex = /^(?=.[A-Za-z])(?=.\d)[A-Za-z\d]*$/;

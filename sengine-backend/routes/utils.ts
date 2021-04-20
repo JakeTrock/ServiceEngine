@@ -1,6 +1,6 @@
 import express from 'express';
 import utilController from '../funcs/utils';
-import { NewRequest as Request } from '../types/types';
+import { NewRequest as Request } from '../config/types';
 import { isAuthenticated } from '../config/helpers';
 
 const router = express.Router();

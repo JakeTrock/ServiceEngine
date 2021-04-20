@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import fuzzy from "mongoose-fuzzy-search";
-import { util } from "../types/types";
+import { util } from "../config/types";
 
 const utilSchema = new Schema(
   {
@@ -18,6 +18,12 @@ const utilSchema = new Schema(
       required: true,
     },
     tags: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+    permissions: [
       {
         type: String,
         required: true,

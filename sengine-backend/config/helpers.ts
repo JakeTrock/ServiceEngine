@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
-import { IUser } from '../types/types';
+import { IUser } from './types';
 
 export const removeNullUndef = (obj: any) => {
   Object.keys(obj).forEach((key) => {

@@ -5,7 +5,7 @@ import { Response } from "express";
 
 import * as AWS from "aws-sdk";
 import util from "../models/util";
-import { util as utilType, NewRequest as Request } from "../types/types";
+import { util as utilType, NewRequest as Request } from "../config/types";
 import initLogger from "../config/logger";
 import User from "../models/user";
 import { removeNullUndef } from "../config/helpers";
@@ -80,6 +80,8 @@ export default class utilController {
         message: "you must present a source code git url for auditing.",
       });
   }
+   
+  //TODO:allow user to apply for permissions upgrades
 
   async saveutil(req: Request, res: Response) {
     const { binHash, newJson, newSrc, title, tags, description } = req.body;
@@ -180,6 +182,7 @@ export default class utilController {
             Bucket: s3Bucket,
             Key: util.binLoc,
           }),
+          permissions:util.permissions
         };
         return tmp;
       })

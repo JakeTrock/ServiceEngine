@@ -23,6 +23,10 @@ export type IUser = Document & {
 
 export type util = Document & {
   authorId: mongoose.Schema.Types.ObjectId;
+  title: String;
+  description: String;
+  tags: String[];
+  permissions: String[];
   binHash: String;
   binLoc: String;
   srcLoc: String;

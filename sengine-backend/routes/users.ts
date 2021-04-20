@@ -1,7 +1,7 @@
 import express from 'express';
 import UserController from '../funcs/user';
 import { isAuthenticated } from '../config/helpers';
-import { NewRequest as Request } from '../types/types';
+import { NewRequest as Request } from '../config/types';
 
 const router = express.Router();
 const userController = new UserController();

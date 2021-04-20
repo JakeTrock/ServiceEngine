@@ -60,12 +60,13 @@ const IndexPage = ({ match, location, history }) => {
           "inputType": "email"
         }
       },
+      currentFormData: {
+        title: "faketitle",
+        done: false
+      },
       output: "textarea"
     },
-    currentFormData: {
-      title: "faketitle",
-      done: false
-    },
+    permissions: [],
     currentBin: () => { }
   });
   const [errList, setErrList] = React.useState<[any] | []>([]);
@@ -95,29 +96,51 @@ const IndexPage = ({ match, location, history }) => {
     }*/
   ];
 
+
+
   const sx = () => {//from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
     let ss = {};
     [JSON, Intl, Map, Math, Number, String, Array].map(b =>
       Object.getOwnPropertyNames(b).map((p, i) => ss["js_" + p] = b[p]));
-    const mdFunc=(mdConstr)=>{
-      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    const mdFunc = (mdConstr) => {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         return navigator.mediaDevices.getUserMedia(mdConstr).then((stream) => {
           return stream;
         });
       }
     };
-    ss["js_getCam"]=(videoConstr=true)=>{
-      mdFunc({video:videoConstr});
+    const netFunc = (url, mth, nwkParams) => {
+      nwkParams["method"] = mth;
+      return fetch(url, nwkParams)
+        .then(d => { return d })
+        .catch(e => { return e.message });
     };
-    ss["js_getAud"]=(audConstr=true)=>{
-      mdFunc({audio:audConstr});
+    const restrictedFuncs = {//https://developer.mozilla.org/en-US/docs/Web/API
+      "getCam": (videoConstr = true) => {
+        mdFunc({ video: videoConstr });
+      },
+      "getAud": (audConstr = true) => {
+        mdFunc({ audio: audConstr });
+      },
+      "getVidAud": (videoConstr = true, audConstr = true) => {
+        mdFunc({
+          video: videoConstr,
+          audio: audConstr
+        });
+      },
+      "getNet": (url, nwkParams = {}) => {
+        if (nwkParams.hasOwnProperty("headers")) delete nwkParams["headers"];
+        if (nwkParams.hasOwnProperty("body")) delete nwkParams["body"];
+        netFunc(url, "GET", nwkParams);
+      },
+      "sendNet": (url, rqType, nwkParams = {}) => {
+        if (rqType === "POST" || rqType === "PUT" || rqType == "DELETE")
+          netFunc(url, rqType, nwkParams);
+      }
     };
-    ss["js_getVidAud"]=(videoConstr=true,audConstr=true)=>{
-      mdFunc({
-        video:videoConstr,
-        audio:audConstr
-      });
-    };
+    currentComponent.permissions.forEach(p => {
+      ss["js_" + p] = restrictedFuncs[p];
+    });
     return ss;
   }
 
@@ -149,7 +172,7 @@ const IndexPage = ({ match, location, history }) => {
         if (itm && itm.data) {
           const { jsonLoc, binLoc } = JSON.parse(itm.data);
           currentComponent.form = await axios.get(jsonLoc).then(d => { return d.data });
-          currentComponent.currentFormData = {};
+          currentComponent.permissions = itm.data.permissions;
           const bin = await fetch(binLoc);
           const hashCheck = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
           if (hashCheck === itm.data.binHash) {
@@ -242,11 +265,11 @@ const IndexPage = ({ match, location, history }) => {
     setShowDl(false);
   };
   const handleChange = (e) => {
-    currentComponent.currentFormData = currentComponent.currentBin({ data: e, complete: false });
+    currentComponent.form.currentFormData = currentComponent.currentBin({ data: e, complete: false });
     setcurrentComponent(currentComponent);
   }
   const handleSubmit = (e) => {
-    currentComponent.currentFormData = currentComponent.currentBin({ data: e, complete: true });
+    currentComponent.form.currentFormData = currentComponent.currentBin({ data: e, complete: true });
     setcurrentComponent(currentComponent);
     setShowDl(true);
   };
