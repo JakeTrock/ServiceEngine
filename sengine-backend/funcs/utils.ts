@@ -83,6 +83,10 @@ export default class utilController {
    
   //TODO:allow user to apply for permissions upgrades
 
+  //TODO:create a route to calculate possible cost for external compute
+
+  //TODO:allow user to run an external compute
+
   async saveutil(req: Request, res: Response) {
     const { binHash, newJson, newSrc, title, tags, description } = req.body;
     const { id } = req.params;

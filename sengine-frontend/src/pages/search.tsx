@@ -115,6 +115,17 @@ const IndexPage = ({ match, location, history }) => {
         .then(d => { return d })
         .catch(e => { return e.message });
     };
+    const screenCap = (opt) => {
+      let captureStream = null;
+      try {
+        if (navigator.mediaDevices.hasOwnProperty("getDisplayMedia"))
+          captureStream = await navigator.mediaDevices.getDisplayMedia(opt);
+        else throw new Error("browser not supported. Try Chrome");
+      } catch (err) {
+        console.error("Error: " + err);
+      }
+      return captureStream;
+    };
     const restrictedFuncs = {//https://developer.mozilla.org/en-US/docs/Web/API
       "getCam": (videoConstr = true) => {
         mdFunc({ video: videoConstr });
@@ -136,6 +147,44 @@ const IndexPage = ({ match, location, history }) => {
       "sendNet": (url, rqType, nwkParams = {}) => {
         if (rqType === "POST" || rqType === "PUT" || rqType == "DELETE")
           netFunc(url, rqType, nwkParams);
+      },
+      "getCurrentPos": () => {
+        const opt = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        };
+        const sfun = (pos) => {
+          return pos.coords;
+        };
+        const efun = (e) => {
+          return e.message;
+        };
+        return navigator.geolocation.getCurrentPosition(sfun, efun, opt);
+      },
+      "getClipboard": () => {
+        return navigator.clipboard.readText()
+          .then(ct => { return ct })
+          .catch(e => { return e.message });
+      },
+      "setClipboard": (t) => {
+        return navigator.clipboard.writeText(t)
+          .then(() => { return true })
+          .catch(() => { return false });
+      },
+      "getScreen": () => {
+        const mdp = {
+          video: true,
+          audio: false
+        };
+        screenCap(mdp);
+      },
+      "GetScreenAudio": () => {
+        const mdp = {
+          video: true,
+          audio: true
+        };
+        screenCap(mdp);
       }
     };
     currentComponent.permissions.forEach(p => {
