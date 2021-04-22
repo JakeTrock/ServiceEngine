@@ -115,7 +115,7 @@ const IndexPage = ({ match, location, history }) => {
         .then(d => { return d })
         .catch(e => { return e.message });
     };
-    const screenCap = (opt) => {
+    const screenCap = async (opt) => {
       let captureStream = null;
       try {
         if (navigator.mediaDevices.hasOwnProperty("getDisplayMedia"))
@@ -191,7 +191,7 @@ const IndexPage = ({ match, location, history }) => {
       ss["js_" + p] = restrictedFuncs[p];
     });
     return ss;
-  }
+  };
 
   const handleOutput = (o) => {
     const p = JSON.parse(o);
@@ -264,7 +264,7 @@ const IndexPage = ({ match, location, history }) => {
       .catch((e) => setErrList(e));
   };
 
-  const getOutput(otname: String) => {
+  const getOutput = (otname: String) => {
     switch (otname) {
       case "textarea": {
         return TextOutput;
