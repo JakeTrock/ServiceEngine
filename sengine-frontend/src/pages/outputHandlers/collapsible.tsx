@@ -7,7 +7,7 @@ const Collapsible = (props) => {
 
     return (
         <Holder>
-            <h5 onClick={() => setActive(!active)}>{active ? "⯈" : "⯆"}</h5>
+            <h5 onClick={() => setActive(!active)}>{active ? "⯆" : "⯈"}</h5>
             {active && props.children}
         </Holder>
     );

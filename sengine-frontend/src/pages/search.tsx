@@ -102,94 +102,96 @@ const IndexPage = ({ match, location, history }) => {
     let ss = {};
     [JSON, Intl, Map, Math, Number, String, Array].map(b =>
       Object.getOwnPropertyNames(b).map((p, i) => ss["js_" + p] = b[p]));
-    const mdFunc = (mdConstr) => {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        return navigator.mediaDevices.getUserMedia(mdConstr).then((stream) => {
-          return stream;
-        });
-      }
-    };
-    const netFunc = (url, mth, nwkParams) => {
-      nwkParams["method"] = mth;
-      return fetch(url, nwkParams)
-        .then(d => { return d })
-        .catch(e => { return e.message });
-    };
-    const screenCap = async (opt) => {
-      let captureStream = null;
-      try {
-        if (navigator.mediaDevices.hasOwnProperty("getDisplayMedia"))
-          captureStream = await navigator.mediaDevices.getDisplayMedia(opt);
-        else throw new Error("browser not supported. Try Chrome");
-      } catch (err) {
-        console.error("Error: " + err);
-      }
-      return captureStream;
-    };
-    const restrictedFuncs = {//https://developer.mozilla.org/en-US/docs/Web/API
-      "getCam": (videoConstr = true) => {
-        mdFunc({ video: videoConstr });
-      },
-      "getAud": (audConstr = true) => {
-        mdFunc({ audio: audConstr });
-      },
-      "getVidAud": (videoConstr = true, audConstr = true) => {
-        mdFunc({
-          video: videoConstr,
-          audio: audConstr
-        });
-      },
-      "getNet": (url, nwkParams = {}) => {
-        if (nwkParams.hasOwnProperty("headers")) delete nwkParams["headers"];
-        if (nwkParams.hasOwnProperty("body")) delete nwkParams["body"];
-        netFunc(url, "GET", nwkParams);
-      },
-      "sendNet": (url, rqType, nwkParams = {}) => {
-        if (rqType === "POST" || rqType === "PUT" || rqType == "DELETE")
-          netFunc(url, rqType, nwkParams);
-      },
-      "getCurrentPos": () => {
-        const opt = {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        };
-        const sfun = (pos) => {
-          return pos.coords;
-        };
-        const efun = (e) => {
-          return e.message;
-        };
-        return navigator.geolocation.getCurrentPosition(sfun, efun, opt);
-      },
-      "getClipboard": () => {
-        return navigator.clipboard.readText()
-          .then(ct => { return ct })
+    if (currentComponent) {
+      const mdFunc = (mdConstr) => {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          return navigator.mediaDevices.getUserMedia(mdConstr).then((stream) => {
+            return stream;
+          });
+        }
+      };
+      const netFunc = (url, mth, nwkParams) => {
+        nwkParams["method"] = mth;
+        return fetch(url, nwkParams)
+          .then(d => { return d })
           .catch(e => { return e.message });
-      },
-      "setClipboard": (t) => {
-        return navigator.clipboard.writeText(t)
-          .then(() => { return true })
-          .catch(() => { return false });
-      },
-      "getScreen": () => {
-        const mdp = {
-          video: true,
-          audio: false
-        };
-        screenCap(mdp);
-      },
-      "GetScreenAudio": () => {
-        const mdp = {
-          video: true,
-          audio: true
-        };
-        screenCap(mdp);
-      }
-    };
-    currentComponent.permissions.forEach(p => {
-      ss["js_" + p] = restrictedFuncs[p];
-    });
+      };
+      const screenCap = async (opt) => {
+        let captureStream = null;
+        try {
+          if (navigator.mediaDevices.hasOwnProperty("getDisplayMedia"))
+            captureStream = await navigator.mediaDevices.getDisplayMedia(opt);
+          else throw new Error("browser not supported. Try Chrome");
+        } catch (err) {
+          console.error("Error: " + err);
+        }
+        return captureStream;
+      };
+      const restrictedFuncs = {//https://developer.mozilla.org/en-US/docs/Web/API
+        "getCam": (videoConstr = true) => {
+          mdFunc({ video: videoConstr });
+        },
+        "getAud": (audConstr = true) => {
+          mdFunc({ audio: audConstr });
+        },
+        "getVidAud": (videoConstr = true, audConstr = true) => {
+          mdFunc({
+            video: videoConstr,
+            audio: audConstr
+          });
+        },
+        "getNet": (url, nwkParams = {}) => {
+          if (nwkParams.hasOwnProperty("headers")) delete nwkParams["headers"];
+          if (nwkParams.hasOwnProperty("body")) delete nwkParams["body"];
+          netFunc(url, "GET", nwkParams);
+        },
+        "sendNet": (url, rqType, nwkParams = {}) => {
+          if (rqType === "POST" || rqType === "PUT" || rqType == "DELETE")
+            netFunc(url, rqType, nwkParams);
+        },
+        "getCurrentPos": () => {
+          const opt = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          };
+          const sfun = (pos) => {
+            return pos.coords;
+          };
+          const efun = (e) => {
+            return e.message;
+          };
+          return navigator.geolocation.getCurrentPosition(sfun, efun, opt);
+        },
+        "getClipboard": () => {
+          return navigator.clipboard.readText()
+            .then(ct => { return ct })
+            .catch(e => { return e.message });
+        },
+        "setClipboard": (t) => {
+          return navigator.clipboard.writeText(t)
+            .then(() => { return true })
+            .catch(() => { return false });
+        },
+        "getScreen": () => {
+          const mdp = {
+            video: true,
+            audio: false
+          };
+          screenCap(mdp);
+        },
+        "GetScreenAudio": () => {
+          const mdp = {
+            video: true,
+            audio: true
+          };
+          screenCap(mdp);
+        }
+      };
+      if (currentComponent.permissions) currentComponent.permissions.forEach(p => {
+        ss["js_" + p] = restrictedFuncs[p];
+      });
+    }
     return ss;
   };
 
@@ -232,7 +234,6 @@ const IndexPage = ({ match, location, history }) => {
               case "canvas": {
                 cOutput = canvasOutput
               } break;
-
             };
           } else {
             alert("it seems something is wrong with this module. You may want to connect to a different network.");
@@ -290,19 +291,22 @@ const IndexPage = ({ match, location, history }) => {
   }
 
   React.useEffect(() => {
-    const jwt = jwtDecode(JSON.parse(localStorage.getItem("tk")).token); //searches local storage for jwt key
-    if ((jwt.exp || 0) * 1000 < Date.now()) {
-      return logout();
+    const tkn = JSON.parse(localStorage.getItem("tk"));
+    if (tkn) {
+      const jwt = jwtDecode(tkn.token); //searches local storage for jwt key
+      if ((jwt.exp || 0) * 1000 < Date.now()) {
+        return logout();
+      }
+      defaultConnect
+        .post(("/user/getprof"), {
+          token: jwt
+        })
+        .then((itm) => setUserToken(itm.data))
+        .catch((error) => {
+          errList.push(error);
+          return setErrList(errList);
+        });
     }
-    defaultConnect
-      .post(("/user/getprof"), {
-        token: jwt
-      })
-      .then((itm) => setUserToken(itm.data))
-      .catch((error) => {
-        errList.push(error);
-        return setErrList(errList);
-      });
     if (match.params.length > 0) {
       getUtil(match.params.svc);
       sLoader();
@@ -353,7 +357,7 @@ const IndexPage = ({ match, location, history }) => {
             {() => getOutput(currentComponent.form.output)}
           </ServiceContainer>
         )}
-        {errList.length > 0 && (
+        {/*TODO:best course of action? im thinking a corner dialog*/errList.length > 0 && (
           <Holder>
             {errList.map((result, index) => {
               return (
@@ -383,12 +387,13 @@ const IndexPage = ({ match, location, history }) => {
         )}
         <IntroHolder>Type your command to start</IntroHolder>
       </SearchFormHolder>
-      <Collapsible>
-        {userToken && currentComponent && <Holder>
+      {userToken && currentComponent && <Holder>
+        <h6>Report utility</h6>
+        <Collapsible>
           <textarea ref={reportUtil}></textarea>
           <FormButton onClick={() => reportUtil()}>report</FormButton>
-        </Holder>}
-      </Collapsible>
+        </Collapsible>
+      </Holder>}
       {
         showDl && { cOutput }
       }
