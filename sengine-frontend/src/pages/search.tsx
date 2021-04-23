@@ -96,7 +96,19 @@ const IndexPage = ({ match, location, history }) => {
     }*/
   ];
 
-
+  React.useEffect(() => {
+    const vkey = Object.keys(currentComponent.form.currentFormData);
+    let hobj = {};
+    if (currentComponent) {
+      hobj["svc"] = currentComponent.serviceUUID;
+      if (vkey.length) {
+        vkey.forEach(function (key) {
+          hobj[key] = currentComponent.form.currentFormData[key];
+        });
+      }
+      history.push(hobj)
+    }
+  }, [currentComponent])
 
   const sx = () => {//from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
     let ss = {};
@@ -128,6 +140,10 @@ const IndexPage = ({ match, location, history }) => {
         return captureStream;
       };
       const restrictedFuncs = {//https://developer.mozilla.org/en-US/docs/Web/API
+        "updateForm": (newContents) => {
+          currentComponent.form.currentFormData = newContents;
+          setcurrentComponent(currentComponent);
+        },
         "getCam": (videoConstr = true) => {
           mdFunc({ video: videoConstr });
         },
@@ -188,7 +204,7 @@ const IndexPage = ({ match, location, history }) => {
           screenCap(mdp);
         }
       };
-      if (currentComponent.permissions) currentComponent.permissions.forEach(p => {
+      currentComponent.permissions.concat(["updateForm"]).forEach(p => {
         ss["js_" + p] = restrictedFuncs[p];
       });
     }
@@ -196,12 +212,7 @@ const IndexPage = ({ match, location, history }) => {
   };
 
   const handleOutput = (o) => {
-    const p = JSON.parse(o);
-    if (p.type === "f") {//updates form
-      //TODO:how to update form?
-    } else if (p.type === "o") {//update output
-      cOutput.update(memory);//TODO:would this call work?
-    }
+    cOutput.update(o);//TODO:would this call work?
   };
   let memory = new WebAssembly.Memory({ initial: 10, maximum: 800 });//memory(in pages)
   const importObject = {
@@ -308,8 +319,18 @@ const IndexPage = ({ match, location, history }) => {
         });
     }
     if (match.params.length > 0) {
-      getUtil(match.params.svc);
-      sLoader();
+      if (match.params.length > 1) {
+        getUtil(match.params.svc);
+        sLoader();
+      } else {
+        getUtil(match.params.svc);
+        let cvls = match.params;
+        delete cvls["svc"];
+        sLoader().then(() => {
+          currentComponent.form.currentFormData = cvls;
+          setcurrentComponent(currentComponent);
+        });
+      }
     }
   }, []);
 
@@ -347,15 +368,26 @@ const IndexPage = ({ match, location, history }) => {
         />
         {userToken ? <h5>{userToken.username}</h5> : <FormButton onClick={() => history.push('/auth')}>login</FormButton>}
         {currentComponent && (
-          <ServiceContainer>
-            <Form schema={currentComponent.form.input}
-              uiSchema={currentComponent.form.uiSchema}
-              onChange={handleChange}
-              onSubmit={handleSubmit}
-              onError={handleErr} />
-            <hr></hr>
-            {() => getOutput(currentComponent.form.output)}
-          </ServiceContainer>
+          <Holder>
+            <ServiceContainer>
+              <Form schema={currentComponent.form.input}
+                uiSchema={currentComponent.form.uiSchema}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+                onError={handleErr} />
+              <hr></hr>
+              {() => getOutput(currentComponent.form.output)}
+            </ServiceContainer>
+            <h6>Share utility</h6>
+            <Collapsible>
+              <input value={window.location.href}></input>
+            </Collapsible>
+            <h6>Report utility</h6>
+            {userToken && <Collapsible>
+              <textarea ref={reportUtil}></textarea>
+              <FormButton onClick={() => reportUtil()}>report</FormButton>
+            </Collapsible>}
+          </Holder>
         )}
         {/*TODO:best course of action? im thinking a corner dialog*/errList.length > 0 && (
           <Holder>
@@ -387,13 +419,6 @@ const IndexPage = ({ match, location, history }) => {
         )}
         <IntroHolder>Type your command to start</IntroHolder>
       </SearchFormHolder>
-      {userToken && currentComponent && <Holder>
-        <h6>Report utility</h6>
-        <Collapsible>
-          <textarea ref={reportUtil}></textarea>
-          <FormButton onClick={() => reportUtil()}>report</FormButton>
-        </Collapsible>
-      </Holder>}
       {
         showDl && { cOutput }
       }
