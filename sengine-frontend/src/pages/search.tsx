@@ -2,6 +2,8 @@ import * as React from "react";
 import axios from "axios";
 import Form from "@rjsf/core";
 import { sha512 } from 'hash-wasm';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {
   Holder,
@@ -12,7 +14,6 @@ import {
   ResultsHolder,
   SearchInput,
   LgButton,
-  Error,
   FormButton
 } from "../data/styles";
 //import outputs
@@ -42,7 +43,6 @@ const IndexPage = ({ match, location, history }) => {
   const reportBox = React.useRef(null);
   const searchBox = React.useRef(null);
   const [userToken, setUserToken] = React.useState();
-  const [showDl, setShowDl] = React.useState(false);
   const [currentComponent, setcurrentComponent] = React.useState<ValidComponent>({
     serviceUUID: "9d8f9sd8f9f8",
     form: {
@@ -69,7 +69,6 @@ const IndexPage = ({ match, location, history }) => {
     permissions: [],
     currentBin: () => { }
   });
-  const [errList, setErrList] = React.useState<[any] | []>([]);
   let cOutput;//TODO:might need to be state tied
   const results = [
     /*{
@@ -106,7 +105,7 @@ const IndexPage = ({ match, location, history }) => {
           hobj[key] = currentComponent.form.currentFormData[key];
         });
       }
-      history.push(hobj)
+      history.push(hobj);
     }
   }, [currentComponent])
 
@@ -247,12 +246,11 @@ const IndexPage = ({ match, location, history }) => {
               } break;
             };
           } else {
-            alert("it seems something is wrong with this module. You may want to connect to a different network.");
-            throw setErrList(errList);
+            throw "it seems something is wrong with this module. You may want to connect to a different network.";
           }
         }
       })
-      .catch((e) => setErrList(e));
+      .catch((e) => toast(e));
   };
 
   const sendSearch = (term: string) => {
@@ -260,7 +258,7 @@ const IndexPage = ({ match, location, history }) => {
     cdt = Date.now();
     return defaultConnect
       .post("/utils/search/" + term)
-      .catch((e) => setErrList(e));
+      .catch((e) => toast(e));
   };
 
   const getUtil = (sid: string) => {
@@ -273,28 +271,16 @@ const IndexPage = ({ match, location, history }) => {
           sLoader();
         }
       })
-      .catch((e) => setErrList(e));
+      .catch((e) => toast(e));
   };
 
-  const getOutput = (otname: String) => {
-    switch (otname) {
-      case "textarea": {
-        return TextOutput;
-      } break;
-      case "canvas": {
-        return CanvasOutput;
-      } break;
-      case "video": {
-        return VideoOutput;
-      } break;
-      case "audio": {
-        return AudioOutput;
-      } break;
-      case "files": {
-        return FilesOutput;
-      } break;
-    }
-  }
+  const outputs={
+    "textarea": TextOutput,
+    "canvas": CanvasOutput,
+    "video":VideoOutput,
+    "audio": AudioOutput,
+    "files": FilesOutput
+  };
 
   const logout = () => {
     localStorage.removeItem("tk");
@@ -313,10 +299,7 @@ const IndexPage = ({ match, location, history }) => {
           token: jwt
         })
         .then((itm) => setUserToken(itm.data))
-        .catch((error) => {
-          errList.push(error);
-          return setErrList(errList);
-        });
+        .catch((e) => toast(e));
     }
     if (match.params.length > 0) {
       if (match.params.length > 1) {
@@ -334,10 +317,7 @@ const IndexPage = ({ match, location, history }) => {
     }
   }, []);
 
-  const handleErr = (e) => {
-    setErrList(e);
-    setShowDl(false);
-  };
+  const handleErr = (e) => toast(e);
   const handleChange = (e) => {
     currentComponent.form.currentFormData = currentComponent.currentBin({ data: e, complete: false });
     setcurrentComponent(currentComponent);
@@ -345,7 +325,6 @@ const IndexPage = ({ match, location, history }) => {
   const handleSubmit = (e) => {
     currentComponent.form.currentFormData = currentComponent.currentBin({ data: e, complete: true });
     setcurrentComponent(currentComponent);
-    setShowDl(true);
   };
 
   const reportUtil = () => defaultConnect
@@ -354,13 +333,11 @@ const IndexPage = ({ match, location, history }) => {
       reason: reportBox.current.value
     })
     .then((itm) => setUserToken(itm.data))
-    .catch((error) => {
-      errList.push(error);
-      return setErrList(errList);
-    });
+    .catch((e) => toast(e));
 
   return (
     <Holder>
+      <ToastContainer />
       <SearchFormHolder>
         <img
           alt="ServiceEngine Logo"
@@ -376,7 +353,7 @@ const IndexPage = ({ match, location, history }) => {
                 onSubmit={handleSubmit}
                 onError={handleErr} />
               <hr></hr>
-              {() => getOutput(currentComponent.form.output)}
+              {() => outputs[currentComponent.form.output]}
             </ServiceContainer>
             <h6>Share utility</h6>
             <Collapsible>
@@ -389,18 +366,6 @@ const IndexPage = ({ match, location, history }) => {
             </Collapsible>}
           </Holder>
         )}
-        {/*TODO:best course of action? im thinking a corner dialog*/errList.length > 0 && (
-          <Holder>
-            {errList.map((result, index) => {
-              return (
-                <Error key={index}>
-                  {result.message}
-                  {result.stack && <Error>{result.stack}</Error>}
-                </Error>
-              );
-            })}
-          </Holder>
-        )}
         {currentComponent == null ? (
           <SearchInput
             ref={searchBox}
@@ -409,21 +374,14 @@ const IndexPage = ({ match, location, history }) => {
           />
         ) : (
           <LgButton
-            onClick={() => {
-              setcurrentComponent(null);
-              setShowDl(false);
-            }}
+            onClick={() => setcurrentComponent(null)}
           >
             &times;
           </LgButton>
         )}
-        <IntroHolder>Type your command to start</IntroHolder>
       </SearchFormHolder>
       {
-        showDl && { cOutput }
-      }
-      {
-        results.length > 0 && (
+        results.length > 0 ? (
           <ResultsHolder>
             {results.map((result, index) => {
               return (
@@ -435,7 +393,7 @@ const IndexPage = ({ match, location, history }) => {
               );
             })}
           </ResultsHolder>
-        )
+        ) : <IntroHolder>Type your command to start</IntroHolder>
       }
     </Holder>
   );

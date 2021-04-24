@@ -4,13 +4,13 @@ import { sha512 } from 'hash-wasm';
 import {
     Holder,
     ServiceContainer,
-    Error,
     FormButton,
     Header,
     InputNorm,
-    FileInput
 } from "../data/styles";
 import Form from "@rjsf/core";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { subel } from "../data/interfaces";
 // consts
 const defaultConnect = axios.create({
@@ -21,7 +21,6 @@ const defaultConnect = axios.create({
 });
 // markup
 const AuthPage = ({ match, location, history }) => {
-    const [errList, setErrList] = React.useState<[subel] | []>([]);
     const [Topen, setTopen] = React.useState(false);
     const [code, setCode] = React.useState("");
     const [opType, setOpType] = React.useState<"textarea" | "canvas" | "video" | "audio" | "files">("textarea");
@@ -79,10 +78,7 @@ const AuthPage = ({ match, location, history }) => {
                     .put(itm.data.upls[1], Jfile);
                 history.push('/?svc=' + itm.data.message.uuid);
             })
-            .catch((error) => {
-                errList.push(error);
-                return setErrList(errList);
-            });
+            .catch((e) => toast(e));
     };
 
     const initEd = (uuid) => {
@@ -91,20 +87,19 @@ const AuthPage = ({ match, location, history }) => {
             .then((itm) => {
                 setScheme(itm.data.gui);
             })
-            .catch((error) => {
-                errList.push(error);
-                return setErrList(errList);
-            });
+            .catch((e) => toast(e));
     };
 
-    if (match.params) initEd(match.params.uuid);
+    //TODO: editor needs design concepts/overhaul
+    React.useEffect(() => {
+        if (match.params) initEd(match.params.uuid);
+    }, []);
 
-
-    const handleErr = (e) =>
-        setErrList(e);
+    const handleErr = (e) => toast(e);
 
     return (
         <Holder>
+            <ToastContainer />
             <FormButton href="/">« dashboard
                 <img
                     alt="ServiceEngine Logo"
@@ -116,18 +111,6 @@ const AuthPage = ({ match, location, history }) => {
                 <Form schema={scheme}
                     uiSchema={uiSchema}
                     onError={handleErr} />
-                {errList.length > 0 && (
-                    <Holder>
-                        {errList.map((result, index) => {
-                            return (
-                                <Error key={index}>
-                                    {result.message}
-                                    {result.stack && <Error>{result.stack}</Error>}
-                                </Error>
-                            );
-                        })}
-                    </Holder>
-                )}
                 <FormButton onClick={() => setTopen(!Topen)}>{Topen ? "close input editor" : "open input editor"}</FormButton>
                 {Topen && <Holder>
                     <textarea onChange={(e) => setScheme(e.target.value)}>
@@ -150,7 +133,7 @@ const AuthPage = ({ match, location, history }) => {
                 <InputNorm onChange={(e) => setCode(e.target.value)}>
                     git://xyz.abc/foo/bar.git
                 </InputNorm>
-                <FileInput onChange={(e) => setBin(e.target.files[0])}></FileInput>
+                {/* <FileInput onChange={(e) => setBin(e.target.files[0])}></FileInput> */}
                 <FormButton onClick={() => svcPub()}>Publish</FormButton>
 
             </ServiceContainer>

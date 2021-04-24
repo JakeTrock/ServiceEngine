@@ -74,22 +74,6 @@ const LgButton = styled.a`
   }
 `;
 
-const Error = styled.div`
-  font: inherit;
-  display: inline-block;
-  margin: 0.5rem 1rem;
-  background: rgba(255, 0, 0, 0.4);
-  color: black;
-  border-radius: 5px;
-  width: 80%;
-  padding: 5px;
-  font: inherit;
-  font-weight: bold;
-  font-size: 0.8em;
-  border: 1px solid red;
-  outline: none;
-`;
-
 const InputNorm = styled.input`
   width: 50%;
   border: none;
@@ -117,17 +101,6 @@ const FormButton = styled.a`
   }
 `;
 
-const FileInput = styled.input`
-  border: none;
-  font: inherit;
-  font-weight: bold;
-  font-size: 15px;
-  border-bottom: 1.5px solid #000;
-  &:hover {
-    border-bottom: 3px solid #000;
-  }
-`;
-
 const Header = styled.h1`
   color: #000;
   font: inherit;
@@ -152,9 +125,7 @@ export {
   ResultsHolder,
   SearchInput,
   LgButton,
-  Error,
   FormButton,
-  FileInput,
   Header,
   Small,
   InputNorm
