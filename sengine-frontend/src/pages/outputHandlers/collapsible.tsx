@@ -6,10 +6,10 @@ const Collapsible = (props) => {
     const [active, setActive] = React.useState<Boolean>(false);
 
     return (
-        <Holder>
+        <div>
             <h5 onClick={() => setActive(!active)}>{active ? "⯆" : "⯈"}</h5>
             {active && props.children}
-        </Holder>
+        </div>
     );
 };
 

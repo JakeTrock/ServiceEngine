@@ -1,6 +1,13 @@
+export interface form {
+    input: Object,
+    uiSchema: Object,
+    currentFormData: Object,
+    output: String
+}
+
 export interface ValidComponent {
   serviceUUID: string,
-  form: any,
+  form: form,
   permissions:String[],
   currentBin: any//Function
 }

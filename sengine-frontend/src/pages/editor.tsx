@@ -11,7 +11,9 @@ import {
 import Form from "@rjsf/core";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { subel } from "../data/interfaces";
+import MonacoEditor from 'react-monaco-editor';
+import TabsContainer from "./outputHandlers/tabs/tabview";
+import { form } from "../data/interfaces";
 // consts
 const defaultConnect = axios.create({
     baseURL: "http://localhost:3000",
@@ -19,46 +21,41 @@ const defaultConnect = axios.create({
         "Content-type": "application/json",
     },
 });
+const options = {
+    selectOnLineNumbers: true
+};
 // markup
 const AuthPage = ({ match, location, history }) => {
-    const [Topen, setTopen] = React.useState(false);
     const [code, setCode] = React.useState("");
-    const [opType, setOpType] = React.useState<"textarea" | "canvas" | "video" | "audio" | "files">("textarea");
-    const [bin, setBin] = React.useState<File>(undefined);
-    const [scheme, setScheme] = React.useState<Object>({
-        "title": "sample title",
-        "description": "make a descriptive description!",
-        "type": "object",
-        "required": [
-            "email",
-            "password"
-        ],
-        "properties": {
-            "email": {
-                "type": "string",
-                "title": "Email",
-                "minLength": 7
-            },
-            "password": {
-                "type": "string",
-                "minLength": 6,
-                "title": "Password"
+    const [langType, setLangType] = React.useState<"textarea" | "canvas" | "video" | "audio" | "files">("textarea");
+    const [bin, setBin] = React.useState<File>(undefined);//TODO:add compilation
+    const [iface, setInterface] = React.useState<form>({
+        input: {
+            title: "Todo",
+            type: "object",
+            required: ["title"],
+            properties: {
+                email: { type: "string", title: "Title", default: "email" },
+                done: { type: "boolean", title: "Done?", default: false }
             }
-        }
-    });
-    const [uiSchema, setuiSchema] = React.useState<Object>({
-        "password": {
-            "ui:widget": "password"
         },
-        "email": {
-            "inputType": "email"
-        }
+        uiSchema: {
+            "email": {
+                "inputType": "email"
+            }
+        },
+        currentFormData: {
+            title: "faketitle",
+            done: false
+        },
+        output: "textarea"
     });
     const svcPub = async () => {
         const binHash = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
         return defaultConnect
             .post("/create", {
-                scheme,
+                iface,
+                langType,//TODO:add support
                 code,
                 binHash,
                 userUUID: JSON.parse(localStorage.getItem("tk")).uuid
@@ -68,11 +65,7 @@ const AuthPage = ({ match, location, history }) => {
                     .put(itm.data.upls[0], bin);
 
                 const sch = { type: 'text/json' };
-                const Jblob = new Blob([JSON.stringify({
-                    input: scheme,
-                    uiSchema,
-                    output: opType
-                })], sch);
+                const Jblob = new Blob([JSON.stringify(iface)], sch);
                 var Jfile = new File([Jblob], "scheme.json", sch);
                 await defaultConnect
                     .put(itm.data.upls[1], Jfile);
@@ -85,15 +78,23 @@ const AuthPage = ({ match, location, history }) => {
         return defaultConnect
             .post("/getsvc?" + uuid)
             .then((itm) => {
-                setScheme(itm.data.gui);
+                //TODO: make a better init script sys
             })
             .catch((e) => toast(e));
     };
 
+    const setSource = (newValue, e) => {
+        setCode(newValue);
+    }
+
+    const setIFace = (newValue, e) => {
+        setInterface(newValue);
+    }
+
     //TODO: editor needs design concepts/overhaul
-    React.useEffect(() => {
-        if (match.params) initEd(match.params.uuid);
-    }, []);
+
+    if (match && match.params) initEd(match.params.uuid);
+
 
     const handleErr = (e) => toast(e);
 
@@ -108,32 +109,47 @@ const AuthPage = ({ match, location, history }) => {
             </FormButton>
             <ServiceContainer>
                 <Header>Preview</Header>
-                <Form schema={scheme}
-                    uiSchema={uiSchema}
+                <Form schema={iface.input}
+                    uiSchema={iface.uiSchema}
                     onError={handleErr} />
-                <FormButton onClick={() => setTopen(!Topen)}>{Topen ? "close input editor" : "open input editor"}</FormButton>
-                {Topen && <Holder>
-                    <textarea onChange={(e) => setScheme(e.target.value)}>
-                        {scheme}
-                    </textarea>
-                    <textarea onChange={(e) => setuiSchema(e.target.value)}>
-                        {uiSchema}
-                    </textarea>
-                </Holder>}
-                <select onChange={(e) => {
-                    //@ts-ignore
-                    setOpType(e.target.value);
-                }}>
-                    <option value="textarea">textarea</option>
-                    <option value="canvas">canvas</option>
-                    <option value="video">video</option>
-                    <option value="audio">audio</option>
-                    <option value="files">files</option>
-                </select>
-                <InputNorm onChange={(e) => setCode(e.target.value)}>
-                    git://xyz.abc/foo/bar.git
-                </InputNorm>
-                {/* <FileInput onChange={(e) => setBin(e.target.files[0])}></FileInput> */}
+                <Holder>
+                    <TabsContainer>
+                        <div label="Settings and Security">
+                            <select onChange={(e) => {
+                                //@ts-ignore
+                                setLangType(e.target.value);
+                            }}>
+                                <option value="typescript">typescript</option>
+                                <option value="csharp">c#</option>
+                                <option value="rust">rust</option>
+                                <option value="cpp">c++</option>
+                            </select>
+                            Nothing to see here, this tab is <em>extinct</em>!
+                        </div>
+                        <div label="Code">
+                            <MonacoEditor
+                                width="100%"
+                                height="50em"
+                                language={langType}
+                                theme="vs-light"
+                                value={code}
+                                options={options}
+                                onChange={setSource}
+                            />
+                        </div>
+                        <div label="Interface">
+                            <MonacoEditor
+                                width="100%"
+                                height="50em"
+                                language="json"
+                                theme="vs-light"
+                                value={JSON.stringify(iface)}
+                                options={options}
+                                onChange={setIFace}
+                            />
+                        </div>
+                    </TabsContainer>
+                </Holder>
                 <FormButton onClick={() => svcPub()}>Publish</FormButton>
 
             </ServiceContainer>

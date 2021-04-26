@@ -96,16 +96,18 @@ const IndexPage = ({ match, location, history }) => {
   ];
 
   React.useEffect(() => {
-    const vkey = Object.keys(currentComponent.form.currentFormData);
-    let hobj = {};
-    if (currentComponent) {
-      hobj["svc"] = currentComponent.serviceUUID;
-      if (vkey.length) {
-        vkey.forEach(function (key) {
-          hobj[key] = currentComponent.form.currentFormData[key];
-        });
+    if (currentComponent && currentComponent.form && currentComponent.form.currentFormData) {
+      const vkey = Object.keys(currentComponent.form.currentFormData);
+      let hobj = {};
+      if (currentComponent) {
+        hobj["svc"] = currentComponent.serviceUUID;
+        if (vkey.length) {
+          vkey.forEach(function (key) {
+            hobj[key] = currentComponent.form.currentFormData[key];
+          });
+        }
+        history.push(hobj);
       }
-      history.push(hobj);
     }
   }, [currentComponent])
 
@@ -274,10 +276,10 @@ const IndexPage = ({ match, location, history }) => {
       .catch((e) => toast(e));
   };
 
-  const outputs={
+  const outputs = {
     "textarea": TextOutput,
     "canvas": CanvasOutput,
-    "video":VideoOutput,
+    "video": VideoOutput,
     "audio": AudioOutput,
     "files": FilesOutput
   };
@@ -355,15 +357,20 @@ const IndexPage = ({ match, location, history }) => {
               <hr></hr>
               {() => outputs[currentComponent.form.output]}
             </ServiceContainer>
+            
             <h6>Share utility</h6>
             <Collapsible>
               <input value={window.location.href}></input>
             </Collapsible>
-            <h6>Report utility</h6>
-            {userToken && <Collapsible>
-              <textarea ref={reportUtil}></textarea>
-              <FormButton onClick={() => reportUtil()}>report</FormButton>
-            </Collapsible>}
+
+            {userToken &&
+              <div>
+                <h6>Report utility</h6>
+                <Collapsible>
+                  <textarea ref={reportUtil}></textarea>
+                  <FormButton onClick={() => reportUtil()}>report</FormButton>
+                </Collapsible>
+              </div>}
           </Holder>
         )}
         {currentComponent == null ? (
@@ -393,7 +400,7 @@ const IndexPage = ({ match, location, history }) => {
               );
             })}
           </ResultsHolder>
-        ) : <IntroHolder>Type your command to start</IntroHolder>
+        ) : (currentComponent == null && <IntroHolder>Type your command to start</IntroHolder>)
       }
     </Holder>
   );
