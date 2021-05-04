@@ -19,9 +19,11 @@ import {
 //import outputs
 import canvasOutput from './outputHandlers/canvas';
 
-import { ValidComponent, subel } from "../data/interfaces";
+import { ValidComponent, subel, util } from "../data/interfaces";
 import jwtDecode from "jwt-decode";
 import Collapsible from "./outputHandlers/collapsible";
+
+//import output types
 import CanvasOutput from "./outputHandlers/canvas";
 import TextOutput from "./outputHandlers/text";
 import FilesOutput from "./outputHandlers/files";
@@ -42,11 +44,12 @@ const IndexPage = ({ match, location, history }) => {
   let cdt = Date.now();
   const reportBox = React.useRef(null);
   const searchBox = React.useRef(null);
-  const [userToken, setUserToken] = React.useState();
+  const [userToken, setUserToken] = React.useState<any>();
+  //state variable that contains the current program data
   const [currentComponent, setcurrentComponent] = React.useState<ValidComponent>({
-    serviceUUID: "9d8f9sd8f9f8",
-    form: {
-      input: {
+    serviceUUID: "9d8f9sd8f9f8",//uuid of current service
+    form: {//the current form GUI
+      input: {//gui functional properties
         title: "Todo",
         type: "object",
         required: ["title"],
@@ -55,52 +58,56 @@ const IndexPage = ({ match, location, history }) => {
           done: { type: "boolean", title: "Done?", default: false }
         }
       },
-      uiSchema: {
+      uiSchema: {//gui visual properties
         "email": {
           "inputType": "email"
         }
       },
-      currentFormData: {
+      currentFormData: {//current gui value content
         title: "faketitle",
         done: false
       },
-      output: "textarea"
+      output: "textarea"//the type of output field that will be rendering
     },
-    permissions: [],
-    currentBin: () => { }
+    permissions: [],//list of restricted browser apis that this app has access to
+    currentBin: () => { }//the current binary function that serves as the backend to the gui
   });
   let cOutput;//TODO:might need to be state tied
-  const results = [
-    /*{
-      _id:"sdfsdfsdfsdfdf",
-      likes:2
-      dislikes:4
-      uses:8
-      description:"times things"
-      title:"timer"
-    },{
-      _id:"sdfsdfsdfsdfdf",
-      likes:4
-      dislikes:3
-      uses:9
-      description:"tells the time"
-      title:"clock"
-    },{
-      _id:"sdfsdfsdfsdfdf",
-      likes:1
-      dislikes:2
-      uses:7
-      description:"times events"
-      title:"stopwatch"
-    }*/
-  ];
 
-  React.useEffect(() => {
+  //variable containing the current search suggestions
+  const [results, setResults] = React.useState<util[]>(
+    /* [
+       {
+         _id:"sdfsdfsdfsdfdf",
+         likes:2
+         dislikes:4
+         uses:8
+         description:"times things"
+         title:"timer"
+       },{
+         _id:"sdfsdfsdfsdfdf",
+         likes:4
+         dislikes:3
+         uses:9
+         description:"tells the time"
+         title:"clock"
+       },{
+         _id:"sdfsdfsdfsdfdf",
+         likes:1
+         dislikes:2
+         uses:7
+         description:"times events"
+         title:"stopwatch"
+       }
+     ]*/
+  );
+
+  React.useEffect(() => {//appends current form values to url so they can be shared
     if (currentComponent && currentComponent.form && currentComponent.form.currentFormData) {
       const vkey = Object.keys(currentComponent.form.currentFormData);
       let hobj = {};
       if (currentComponent) {
-        hobj["svc"] = currentComponent.serviceUUID;
+        hobj["svc"] = currentComponent.serviceUUID;//set current service uuid in url too so that the service is preserved
         if (vkey.length) {
           vkey.forEach(function (key) {
             hobj[key] = currentComponent.form.currentFormData[key];
@@ -111,8 +118,10 @@ const IndexPage = ({ match, location, history }) => {
     }
   }, [currentComponent])
 
-  const sx = () => {//from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
+  const loadExterns = () => {//from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
     let ss = {};
+    //allow using the builtin basic browser apis without permissions, they can be called from the binary using js_xyz
+    //for example, sin would be js_sin
     [JSON, Intl, Map, Math, Number, String, Array].map(b =>
       Object.getOwnPropertyNames(b).map((p, i) => ss["js_" + p] = b[p]));
     if (currentComponent) {
@@ -123,13 +132,15 @@ const IndexPage = ({ match, location, history }) => {
           });
         }
       };
+      //function which handles network api
       const netFunc = (url, mth, nwkParams) => {
         nwkParams["method"] = mth;
         return fetch(url, nwkParams)
           .then(d => { return d })
           .catch(e => { return e.message });
       };
-      const screenCap = async (opt) => {
+      //function that handles screengrab api(chrome)
+      const screenCap = async (opt) => {//TODO:check if user is using chrome
         let captureStream = null;
         try {
           if (navigator.mediaDevices.hasOwnProperty("getDisplayMedia"))
@@ -140,33 +151,38 @@ const IndexPage = ({ match, location, history }) => {
         }
         return captureStream;
       };
+      //restricted functions that you need to petition for
       const restrictedFuncs = {//https://developer.mozilla.org/en-US/docs/Web/API
-        "updateForm": (newContents) => {
+        "updateForm": (newContents) => {//updates the current form contents with new contents from program
           currentComponent.form.currentFormData = newContents;
           setcurrentComponent(currentComponent);
         },
-        "getCam": (videoConstr = true) => {
+        "getCam": (videoConstr = true) => {//gets a webcam stream from the user(with their permission)
           mdFunc({ video: videoConstr });
         },
-        "getAud": (audConstr = true) => {
+        "getAud": (audConstr = true) => {//gets an audio stream from the user(with their permission)
           mdFunc({ audio: audConstr });
         },
         "getVidAud": (videoConstr = true, audConstr = true) => {
+          //gets a hybrid video/audio stream from the user(with their permission)
           mdFunc({
             video: videoConstr,
             audio: audConstr
           });
         },
         "getNet": (url, nwkParams = {}) => {
+          //network function that only allows get requests
           if (nwkParams.hasOwnProperty("headers")) delete nwkParams["headers"];
           if (nwkParams.hasOwnProperty("body")) delete nwkParams["body"];
           netFunc(url, "GET", nwkParams);
         },
         "sendNet": (url, rqType, nwkParams = {}) => {
-          if (rqType === "POST" || rqType === "PUT" || rqType == "DELETE")
+          //network function that allows put/post/patch/delete requests
+          if (rqType === "POST" || rqType === "PUT" || rqType === "PATCH" || rqType == "DELETE")
             netFunc(url, rqType, nwkParams);
         },
         "getCurrentPos": () => {
+          //gets the current gps coordinates of the user with the geolocation api
           const opt = {
             enableHighAccuracy: true,
             timeout: 5000,
@@ -181,16 +197,19 @@ const IndexPage = ({ match, location, history }) => {
           return navigator.geolocation.getCurrentPosition(sfun, efun, opt);
         },
         "getClipboard": () => {
+          //gets the current clipboard contents of the user
           return navigator.clipboard.readText()
             .then(ct => { return ct })
             .catch(e => { return e.message });
         },
         "setClipboard": (t) => {
+          //sets the current clipboard contents of the user
           return navigator.clipboard.writeText(t)
             .then(() => { return true })
             .catch(() => { return false });
         },
         "getScreen": () => {
+          //gets the user's screen(chrome)
           const mdp = {
             video: true,
             audio: false
@@ -198,6 +217,7 @@ const IndexPage = ({ match, location, history }) => {
           screenCap(mdp);
         },
         "GetScreenAudio": () => {
+          //gets the user's screen+audio(chrome)
           const mdp = {
             video: true,
             audio: true
@@ -205,6 +225,7 @@ const IndexPage = ({ match, location, history }) => {
           screenCap(mdp);
         }
       };
+      //add all restricted functions, updateform is in there, but it is added every time to prevent errors
       currentComponent.permissions.concat(["updateForm"]).forEach(p => {
         ss["js_" + p] = restrictedFuncs[p];
       });
@@ -212,41 +233,51 @@ const IndexPage = ({ match, location, history }) => {
     return ss;
   };
 
-  const handleOutput = (o) => {
+  const handleOutput = (o) => {//update the output component with the given data
     cOutput.update(o);//TODO:would this call work?
   };
+
+
+  //component webassembly paramaters
   let memory = new WebAssembly.Memory({ initial: 10, maximum: 800 });//memory(in pages)
   const importObject = {
     js: {
       mem: memory
     },
-    env: sx(),
+    env: loadExterns(),//imported functions
     imports: {
       imported_func: arg => handleOutput(arg)
     }
   };//TODO: how to do output?
 
-  const sLoader = () => {
+  const sLoader = (cmpID: string) => {
     //https://developer.mozilla.org/en-US/docs/WebAssembly/Using_the_JavaScript_API
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Memory
     return defaultConnect
-      .post("/load/" + currentComponent.serviceUUID)
+      .post("/utils/load/" + cmpID)
       .then(async (itm) => {
         if (itm && itm.data) {
-          const { jsonLoc, binLoc } = JSON.parse(itm.data);
-          currentComponent.form = await axios.get(jsonLoc).then(d => { return d.data });
-          currentComponent.permissions = itm.data.permissions;
+          const { jsonLoc, binLoc, permissions, binHash, _id } = JSON.parse(itm.data);
+          //get and set current binary backend
           const bin = await fetch(binLoc);
           const hashCheck = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
-          if (hashCheck === itm.data.binHash) {
+          //check integrity of the current binary
+          if (hashCheck === binHash) {
+            //set current form to the form stored in s3
+            const form = await axios.get(jsonLoc).then(d => { return d.data });
+
+            let currentBin;
+            //load current binary
             await WebAssembly.instantiateStreaming(bin, importObject)
-              .then(obj => currentComponent.currentBin = obj.instance.exports.exported_func);
-            setcurrentComponent(currentComponent);
-            switch (currentComponent.form.output) {//TODO:add all
-              case "canvas": {
-                cOutput = canvasOutput
-              } break;
-            };
+              .then(obj => currentBin = obj.instance.exports.exported_func);
+
+            //set all module values
+            setcurrentComponent({
+              serviceUUID: _id,
+              form,
+              permissions,
+              currentBin
+            });
           } else {
             throw "it seems something is wrong with this module. You may want to connect to a different network.";
           }
@@ -255,27 +286,28 @@ const IndexPage = ({ match, location, history }) => {
       .catch((e) => toast(e));
   };
 
+
+  //sends search query, returns list of related utilities
   const sendSearch = (term: string) => {
     if (cdt >= Date.now() - delay) return;
     cdt = Date.now();
     return defaultConnect
       .post("/utils/search/" + term)
-      .catch((e) => toast(e));
-  };
-
-  const getUtil = (sid: string) => {
-    if (searchBox) searchBox.current.value = "";
-    return defaultConnect
-      .post("/utils/load/" + sid)
-      .then((itm) => {
-        if (itm && itm.data) {
-          setcurrentComponent(JSON.parse(itm.data));
-          sLoader();
+      .then(utlist => {
+        if (utlist && utlist.data) {
+          setResults(utlist.data.results);
         }
       })
       .catch((e) => toast(e));
   };
 
+
+  const getUtil = (sid: string) => {
+    if (searchBox) searchBox.current.value = "";
+    return sLoader(sid);
+  };
+
+  //dictionary of all possible output types
   const outputs = {
     "textarea": TextOutput,
     "canvas": CanvasOutput,
@@ -284,13 +316,17 @@ const IndexPage = ({ match, location, history }) => {
     "files": FilesOutput
   };
 
+  //logs out the current user, reloads page
   const logout = () => {
     localStorage.removeItem("tk");
     window.location.reload();
   }
 
+  //runs when the page loads
   React.useEffect(() => {
+
     const tkn = JSON.parse(localStorage.getItem("tk"));
+    //checks if user is logged in, if so then set the user object
     if (tkn) {
       const jwt = jwtDecode(tkn.token); //searches local storage for jwt key
       if ((jwt.exp || 0) * 1000 < Date.now()) {
@@ -303,32 +339,38 @@ const IndexPage = ({ match, location, history }) => {
         .then((itm) => setUserToken(itm.data))
         .catch((e) => toast(e));
     }
+    //set the current util/util with custom params if the user supplies it in the url
     if (match.params.length > 0) {
       if (match.params.length > 1) {
         getUtil(match.params.svc);
-        sLoader();
       } else {
-        getUtil(match.params.svc);
-        let cvls = match.params;
-        delete cvls["svc"];
-        sLoader().then(() => {
-          currentComponent.form.currentFormData = cvls;
-          setcurrentComponent(currentComponent);
-        });
+        getUtil(match.params.svc)
+          .then(() => {
+            let cvls = match.params;
+            delete cvls["svc"];
+            currentComponent.form.currentFormData = cvls;
+            setcurrentComponent(currentComponent);
+          });
       }
     }
   }, []);
 
+  //handle form error
   const handleErr = (e) => toast(e);
+
+  //handle form change
   const handleChange = (e) => {
     currentComponent.form.currentFormData = currentComponent.currentBin({ data: e, complete: false });
     setcurrentComponent(currentComponent);
   }
+
+  //handle form submit
   const handleSubmit = (e) => {
     currentComponent.form.currentFormData = currentComponent.currentBin({ data: e, complete: true });
     setcurrentComponent(currentComponent);
   };
 
+  //report a util if logged in
   const reportUtil = () => defaultConnect
     .post(("/utils/report"), {
       util: currentComponent.serviceUUID,
@@ -357,7 +399,7 @@ const IndexPage = ({ match, location, history }) => {
               <hr></hr>
               {() => outputs[currentComponent.form.output]}
             </ServiceContainer>
-            
+
             <h6>Share utility</h6>
             <Collapsible>
               <input value={window.location.href}></input>

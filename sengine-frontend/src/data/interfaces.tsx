@@ -1,14 +1,14 @@
 export interface form {
-    input: Object,
-    uiSchema: Object,
-    currentFormData: Object,
-    output: String
+  input: Object,
+  uiSchema: Object,
+  currentFormData: Object,
+  output: string
 }
 
 export interface ValidComponent {
   serviceUUID: string,
   form: form,
-  permissions:String[],
+  permissions: string[],
   currentBin: any//Function
 }
 export interface subel {
@@ -16,11 +16,12 @@ export interface subel {
   stack: any | null//TODO:alias
 }
 export interface util {
-  name: string,
-  uuid: string,
-  uses: number,
+  _id: string,
   likes: number,
-  dislikes: number
+  dislikes: number,
+  uses: number,
+  description: string,
+  title: string
 }
 
 export interface profDetails {
