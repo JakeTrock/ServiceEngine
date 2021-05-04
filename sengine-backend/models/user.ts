@@ -1,103 +1,118 @@
-import mongoose, { Schema, Document } from "mongoose";
-import express from "express";
-import bcrypt from "bcrypt";
+const { Sequelize, Model, DataTypes } = require("sequelize");
+const sequelize = new Sequelize("sqlite::memory:");
 
 import initLogger from "../config/logger";
-import { IUser, comparePasswordFunction } from "../config/types";
+import utilSchema from "./util";
 
 const logger = initLogger("UserModel");
-const passwordRegex = /^(?=.[A-Za-z])(?=.\d)[A-Za-z\d]*$/;
-
-const UserSchema = new Schema(
+class UserSchema extends Model {}
+UserSchema.init(
   {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     email: {
-      type: String,
-      required: [true, "No email provided"],
-      unique: [true, "The email you provided was not unique"],
-      match: [
-        /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/,
-        "The email you provided was not correctly typed",
-      ],
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No email provided",
+      },
+      unique: {
+        args: true,
+        msg: "The email you provided was not unique",
+      },
+      is: {
+        args: /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/,
+        msg: "The email you provided was not correctly typed",
+      },
     },
     username: {
-      type: String,
-      required: [true, "Username is required"],
-      unique: [true, "Username already exists"],
-      minlength: [2, "Username must be at least 2 characters"],
-      maxlength: [20, "Username cannot be more than 20 characters"],
-      match: [
-        /^[a-zA-Z0-9_.]*$/,
-        "Username is improperly formatted(must be only characters a-z,0-9,period and underscore)",
-      ],
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "Username is required",
+      },
+      unique: {
+        args: true,
+        msg: "Username already exists",
+      },
+      min: {
+        args: 2,
+        msg: "Username must be at least 2 characters",
+      },
+      max: {
+        args: 20,
+        msg: "Username cannot be more than 20 characters",
+      },
+      is: {
+        args: /^[a-zA-Z0-9_.]*$/,
+        msg:
+          "Username is improperly formatted(must be only characters a-z,0-9,period and underscore)",
+      },
     },
     password: {
-      type: String,
-      required: [true, "Password is required"],
-      minlength: [6, "Password length must be at least 6 characters"],
-      maxlength: [50, "Password has a maximum length of 50 characters"],
-      match: [
-        /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]*$/,
-        "Password must contain at least one upper case character, one lower case character, and one number",
-      ],
-      select: false,
-      trim: true,
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "Password is required",
+      },
     },
     phone: {
-      type: String,
-      required: [true, "No phone provided"],
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No phone provided",
+      },
     },
     currSecToken: {
-      type: String,
+      type: DataTypes.STRING,
     },
     currUsrOp: {
-      type: String,
+      type: DataTypes.STRING,
     },
     secTokExp: {
-      type: Date,
+      type: DataTypes.STRING,
     },
     utils: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "util",
+        type: DataTypes.UUID,
+        references: {
+          model: utilSchema,
+          key: "id",
+          deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+        },
       },
     ],
     likes: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "util",
+        type: DataTypes.UUID,
+        references: {
+          model: utilSchema,
+          key: "id",
+          deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+        },
       },
     ],
     dislikes: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "util",
+        type: DataTypes.UUID,
+        references: {
+          model: utilSchema,
+          key: "id",
+          deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+        },
       },
     ],
   },
   {
+    sequelize,
+    modelName: "User",
     timestamps: true,
   }
 );
 
-UserSchema.pre("save", function save(next) {
-  const user = this as IUser;
-  if (!user.isModified("password")) {
-    return next();
-  }
-  return bcrypt.genSalt(10, (err, salt) => {
-    if (err) {
-      logger.error(`Error while generating salt with bcrypt: ${err}`);
-      return next(err);
-    }
-    return bcrypt.hash(user.password, salt, (err1: mongoose.Error, hash) => {
-      if (err1) {
-        logger.error(`Error while hashing a password with bcrypt: ${err1}`);
-        return next(err1);
-      }
-      user.password = hash;
-      return next();
-    });
-  });
-});
+utilSchema.hasMany(UserSchema);
 
-export default mongoose.model<IUser>("User", UserSchema);
+export default UserSchema;

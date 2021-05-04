@@ -1,7 +1,5 @@
 import { NextFunction, Response } from "express";
 
-import async from "async";
-
 import crypto from "crypto";
 import * as AWS from "aws-sdk";
 import jwt from "jsonwebtoken";
@@ -9,8 +7,7 @@ import bcrypt from "bcrypt";
 import initLogger from "../config/logger";
 // import s3 from '../core/s3';
 import User from "../models/user";
-import { IUser, NewRequest as Request } from "../config/types";
-import util from "../models/util";
+import utilSchema from "../models/util";
 
 const logger = initLogger("ControllerUser");
 const credentials = {
@@ -23,42 +20,48 @@ const SES = new AWS.SES();
 
 const s3 = new AWS.S3();
 const s3Bucket = process.env.BUCKET_NAME;
+
+const hash = (pass, isPwd) => {
+  const pwd = pass.trim();
+  return bcrypt.genSalt(10, (err, salt) => {
+    if (err) {
+      logger.error(`Error while generating salt with bcrypt: ${err}`);
+      return err.message;
+    } else if (
+      (isPwd && pwd.match(/^(?=.[A-Za-z])(?=.\d)[A-Za-z\d]*$/)) ||
+      pwd.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
+    ) {
+      return bcrypt.hash(pwd, salt, (err1: Error, hash) => {
+        if (err1) {
+          logger.error(`Error while hashing with bcrypt: ${err1}`);
+          return err1.message;
+        }
+        return hash;
+      });
+    } else
+      return new Error(
+        "Password must contain at least one upper case character, one lower case character, and one number"
+      );
+  });
+};
+
 export default class UserController {
-  async utilSignup(req: Request, res: Response) {
-    async
-      .waterfall([
-        function (done) {
-          User.create({
-            email: req.body.email.trim(),
-            password: req.body.password.trim(),
-            username: req.body.username.trim().toLowerCase(),
-          })
-            .then((user) => done(null, user))
-            .catch((e) => done(e, null));
-        },
-        function (user, done) {
-          // create the random token
-          crypto.randomBytes(20, (err, buffer) => {
-            const token = buffer.toString("hex");
-            done(err, user, token);
-          });
-        },
-        function (user, token, done) {
-          User.findByIdAndUpdate(
-            { _id: user._id },
-            {
-              currUsrOp: "R",
-              currSecToken: token,
-              secTokExp: new Date(Date.now() + 86400000),
-            },
-            { new: true }
-          )
-            .orFail(new Error("User not found!"))
-            .exec((err, newUser) => {
-              done(err, token, newUser);
-            });
-        },
-        function (token, user, done) {
+  async Signup(req: Request, res: Response) {
+    const { username, email, password, phone } = req.body;
+    crypto.randomBytes(20, async (err, buffer) => {
+      const token = buffer.toString("hex");
+      const pw = await hash(password, true);
+      const ph = await hash(phone, false);
+      User.create({
+        email: email.trim(),
+        password: pw,
+        phone: ph,
+        username: username.trim().toLowerCase(),
+        currUsrOp: "R",
+        currSecToken: token,
+        secTokExp: new Date(Date.now() + 86400000),
+      })
+        .then((user) =>
           SES.sendEmail({
             Destination: {
               ToAddresses: [user.email],
@@ -76,31 +79,29 @@ export default class UserController {
               },
             },
             Source: `Sengine <${process.env.LOGIN_USER}>`,
-          });
-        },
-      ])
-      .promise()
-      .then(() =>
-        res
-          .status(201)
-          .json({ success: true, message: "Successfully signed up." })
-      )
-      .catch((err) => {
-        if (err) {
-          logger.error(`Error when saving a user: ${err}`);
-          return res.status(400).json({ success: false, message: err.message });
-        }
-      });
+          }).promise()
+        )
+        .then(() =>
+          res
+            .status(201)
+            .json({ success: true, message: "Successfully signed up." })
+        )
+        .catch((err) => {
+          if (err) {
+            logger.error(`Error when saving a user: ${err}`);
+            return res
+              .status(400)
+              .json({ success: false, message: err.message });
+          }
+        });
+    });
   }
 
-  async utilLogin(req: Request, res: Response) {
+  Login(req: Request, res: Response) {
     const { email, password } = req.body;
-
     User.findOne({
       email,
     })
-      .select("+password")
-      .orFail(new Error("User not found!"))
       .then((user) =>
         bcrypt
           .compare(password, user.password)
@@ -142,51 +143,44 @@ export default class UserController {
       );
   }
 
-  async getLikedutils(req: Request, res: Response) {
+  getLikedutils(req: Request, res: Response) {
     const { username } = req.user;
-    try {
-      const usr = await User.findOne({ username })
-        .orFail(new Error("User not found!"))
-        .populate([{ path: "likes", model: "util" }]);
-
-      return res.status(200).json({ success: true, message: usr.likes });
-    } catch (error) {
-      logger.error(
-        `Error getting user by username: ${username} with error: ${error}`
-      );
-      return res.status(500).json({ success: false, message: error.message });
-    }
+    User.findOne({ username })
+      .then((usr) => {
+        return res.status(200).json({ success: true, message: usr.likes });
+      })
+      .catch((e) => {
+        logger.error(
+          `Error getting user by username: ${username} with error: ${e}`
+        );
+        return res.status(500).json({ success: false, message: e.message });
+      });
   }
 
-  async getUserutils(req: Request, res: Response) {
+  getUserutils(req: Request, res: Response) {
     const { username } = req.params;
-    try {
-      const usr = await User.findOne({ username })
-        .orFail(new Error("User not found!"))
-        .populate([{ path: "utils", model: "util" }]);
 
-      return res.status(200).json({ success: true, message: usr.likes });
-    } catch (error) {
-      logger.error(
-        `Error getting user by username: ${username} with error: ${error}`
-      );
-      return res.status(500).json({ success: false, message: error.message });
-    }
+    User.findOne({ username })
+      .then((usr) => {
+        return res.status(200).json({ success: true, message: usr.utils });
+      })
+      .catch((e) => {
+        logger.error(
+          `Error getting user by username: ${username} with error: ${e}`
+        );
+        return res.status(500).json({ success: false, message: e.message });
+      });
   }
 
-  async updateProp(req: Request, res: Response) {
+  updateProp(req: Request, res: Response) {
     const { prop } = req.params;
+    const { _id } = req.user;
     if (prop === "phone" || prop === "username" || prop === "email") {
-      const email = req.body[prop].trim();
-      const phone = req.body.phone.trim();
-
-      if (email === req.user.email)
-        return res
-          .status(400)
-          .json({ success: true, message: `${prop} is the same as requested` });
-      return User.findById(req.user._id)
+      const prp = req.body[prop].trim();
+      return User.findOne(_id)
         .then(async (u) => {
           if (prop === "email") {
+            const phone = req.body.phone.trim();
             const bc = await bcrypt.compare(phone, u.phone);
             if (bc) {
               return u;
@@ -201,9 +195,7 @@ export default class UserController {
         })
         .then((u) =>
           u
-            .update({ email }, { runValidators: true })
-            .orFail(new Error("User not found!"))
-            .exec()
+            .update({ prp })
             .then(() =>
               res.status(200).json({
                 success: true,
@@ -211,18 +203,12 @@ export default class UserController {
               })
             )
             .catch((error) => {
-              if (error.codeName === "DuplicateKey")
-                return res
-                  .status(400)
-                  .json({ success: false, message: `${prop} already exists` });
-              if (error.message.includes("Validation"))
-                return res
-                  .status(400)
-                  .json({ success: false, message: error.message });
               logger.error(
-                `Error updating ${prop} to ${email} for user ${req.user._id} with error ${error}`
+                `Error updating ${prop} to ${prp} for user ${_id} with error ${error}`
               );
-              return res.status(500).json({ success: false, message: error });
+              return res
+                .status(500)
+                .json({ success: false, message: error.message });
             })
         );
     } else {
@@ -233,19 +219,18 @@ export default class UserController {
     }
   }
 
-  async checkToken(req: Request, res: Response) {
+  checkToken(req: Request, res: Response) {
     const nd = new Date();
+    const { token } = req.params;
     User.findOne({
-      currSecToken: req.params.token,
-      secTokExp: { $gt: nd },
+      currSecToken: token,
+      secTokExp: { $gte: nd },
     })
-      .orFail(new Error("User not found!"))
-      .exec()
       .then(() =>
         res.status(200).json({
           success: true,
           message: "Valid reset token",
-          token: req.params.token,
+          token: token,
         })
       )
       .catch(() =>
@@ -256,45 +241,24 @@ export default class UserController {
       );
   }
 
-  async utilResetPassword(req: Request, res: Response) {
-    async.waterfall(
-      [
-        function (done) {
-          User.findOne({
+  //TODO: make email func
+  askResetPassword(req: Request, res: Response) {
+    crypto.randomBytes(20, (err, buffer) => {
+      const token = buffer.toString("hex");
+      User.update(
+        {
+          currUsrOp: "R",
+          currSecToken: token,
+          secTokExp: new Date(Date.now() + 86400000),
+        },
+        {
+          returning: true,
+          where: {
             email: req.body.email,
-          })
-            .orFail(new Error("User not found!"))
-            .exec((err, user) => {
-              if (user) {
-                done(err, user);
-              } else {
-                done("User not found.");
-              }
-            });
-        },
-        function (user, done) {
-          // create the random token
-          crypto.randomBytes(20, (err, buffer) => {
-            const token = buffer.toString("hex");
-            done(err, user, token);
-          });
-        },
-        function (user, token, done) {
-          User.findByIdAndUpdate(
-            { _id: user._id },
-            {
-              currUsrOp: "R",
-              currSecToken: token,
-              secTokExp: new Date(Date.now() + 86400000),
-            },
-            { new: true }
-          )
-            .orFail(new Error("User not found!"))
-            .exec((err, newUser) => {
-              done(err, token, newUser);
-            });
-        },
-        function (token, user, done) {
+          },
+        }
+      )
+        .then((user) =>
           SES.sendEmail({
             Destination: {
               ToAddresses: [user.email],
@@ -312,36 +276,40 @@ export default class UserController {
               },
             },
             Source: `Sengine <${process.env.LOGIN_USER}>`,
-          })
-            .promise()
-            .then(() =>
-              res
-                .status(200)
-                .json({ success: true, message: "Sent password reset email" })
-            )
-            .catch((err) => done(err));
-        },
-      ],
-      (err) => res.status(500).json({ success: false, message: err })
-    );
+          }).promise()
+        )
+        .then(() =>
+          res
+            .status(200)
+            .json({ success: true, message: "Sent password reset email" })
+        )
+        .catch((err) =>
+          res.status(500).json({ success: false, message: err.message })
+        );
+    });
   }
 
-  async utilPasswordReset(req: Request, res: Response) {
+  ResetPassword(req: Request, res: Response) {
     const nd = new Date();
-    User.findOneAndUpdate(
-      {
-        currSecToken: req.params.token,
-        currUsrOp: "R",
-        secTokExp: { $gt: nd },
-      },
-      {
-        password: req.body.password,
-        currSecToken: undefined,
-        currUsrOp: undefined,
-        secTokExp: undefined,
-      }
-    )
-      .orFail(new Error("User not found!"))
+    hash(req.body.password, true)
+      .then((hash) =>
+        User.update(
+          {
+            password: hash,
+            currSecToken: undefined,
+            currUsrOp: undefined,
+            secTokExp: undefined,
+          },
+          {
+            returning: true,
+            where: {
+              currSecToken: req.params.token,
+              currUsrOp: "R",
+              secTokExp: { $gt: nd },
+            },
+          }
+        )
+      )
       .then((u) => {
         if (!u) {
           return res.status(400).json({
@@ -355,55 +323,28 @@ export default class UserController {
         }
       })
       .catch((err) => {
-        if (err) {
-          if (err.name.includes("ValidationError"))
-            return res
-              .status(400)
-              .json({ success: false, message: err.message });
-          logger.error(`Error resetting password with error ${err} `);
-          return res.status(500).json({ success: false, message: err });
-        }
+        logger.error(`Error resetting password with error ${err} `);
+        return res.status(500).json({ success: false, message: err.message });
       });
   }
-  async utilAcctDelete(req: Request, res: Response) {
-    async.waterfall(
-      [
-        function (done) {
-          User.findOne({
+
+  askAcctDelete(req: Request, res: Response) {
+    crypto.randomBytes(20, (err, buffer) => {
+      const token = buffer.toString("hex");
+      User.findByIdAndUpdate(
+        {
+          currUsrOp: "D",
+          currSecToken: token,
+          secTokExp: new Date(Date.now() + 86400000),
+        },
+        {
+          returning: true,
+          where: {
             email: req.body.email,
-          })
-            .orFail(new Error("User not found!"))
-            .exec((err, user) => {
-              if (user) {
-                done(err, user);
-              } else {
-                done("User not found.");
-              }
-            });
-        },
-        function (user, done) {
-          // create the random token
-          crypto.randomBytes(20, (err, buffer) => {
-            const token = buffer.toString("hex");
-            done(err, user, token);
-          });
-        },
-        function (user, token, done) {
-          User.findByIdAndUpdate(
-            { _id: user._id },
-            {
-              currUsrOp: "D",
-              currSecToken: token,
-              secTokExp: new Date(Date.now() + 86400000),
-            },
-            { new: true }
-          )
-            .orFail(new Error("User not found!"))
-            .exec((err, newUser) => {
-              done(err, token, newUser);
-            });
-        },
-        function (token, user, done) {
+          },
+        }
+      )
+        .then((user) =>
           SES.sendEmail({
             Destination: {
               ToAddresses: [user.email],
@@ -422,27 +363,36 @@ export default class UserController {
             },
             Source: `Sengine <${process.env.LOGIN_USER}>`,
           })
-            .promise()
-            .then(() =>
-              res
-                .status(200)
-                .json({ success: true, message: "Sent deletion email" })
-            )
-            .catch((err) => done(err));
-        },
-      ],
-      (err) => res.status(500).json({ success: false, message: err })
-    );
+        )
+        .then(() =>
+          res
+            .status(200)
+            .json({ success: true, message: "Sent deletion email" })
+        )
+        .catch((err) =>
+          res.status(500).json({ success: false, message: err.message })
+        );
+    });
   }
 
-  async utilDeleteAcct(req: Request, res: Response) {
+  AcctDelete(req: Request, res: Response) {
     const nd = new Date();
-    User.findOneAndRemove({
-      currSecToken: req.params.token,
-      currUsrOp: "D",
-      secTokExp: { $gt: nd },
+    User.destroy({
+      returning: true,
+      where: {
+        currSecToken: req.params.token,
+        currUsrOp: "D",
+        secTokExp: { $gt: nd },
+      },
     })
-      .orFail(new Error("User not found!"))
+      .then((usr) =>
+        utilSchema.destroy({
+          returning: true,
+          where: {
+            authorId: usr._id,
+          },
+        })
+      )
       .then((u) => {
         if (!u) {
           return res.status(400).json({
@@ -452,19 +402,13 @@ export default class UserController {
         } else {
           res.status(200).json({
             success: true,
-            message: "Account terminated. Adios amigo...",
+            message: "Removed your account.",
           });
         }
       })
       .catch((err) => {
-        if (err) {
-          if (err.name.includes("ValidationError"))
-            return res
-              .status(400)
-              .json({ success: false, message: err.message });
-          logger.error(`Error resetting password with error ${err} `);
-          return res.status(500).json({ success: false, message: err });
-        }
+        logger.error(`Error resetting password with error ${err} `);
+        return res.status(500).json({ success: false, message: err.message });
       });
   }
 }

@@ -1,11 +1,9 @@
 import * as dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import { Sequelize } from 'sequelize';
 
 dotenv.config();
-const mongoURL = process.env.MONGO_URL;
+const pgURL = process.env.PG_URL;
 
-export default mongoose.connect(mongoURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-});
+const sequelize = new Sequelize(pgURL);
+
+export default sequelize;

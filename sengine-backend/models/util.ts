@@ -1,72 +1,114 @@
-import mongoose, { Schema } from "mongoose";
-import fuzzy from "mongoose-fuzzy-search";
-import { util } from "../config/types";
+const { Sequelize, Model, DataTypes } = require("sequelize");
+const sequelize = new Sequelize("sqlite::memory:");
 
-const utilSchema = new Schema(
+import UserSchema from "./user";
+class utilSchema extends Model {}
+utilSchema.init(
   {
-    authorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: "User",
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
+    authorId: {
+      type: DataTypes.UUID,
+      references: {
+        model: UserSchema,
+        key: "_id",
+        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+      },
+      allowNull: {
+        args: false,
+        msg: "No authorid provided",
+      },
+    },
+    forkChain: [
+      {
+        type: DataTypes.UUID,
+        references: {
+          model: UserSchema,
+          key: "_id",
+          deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+        },
+        allowNull: {
+          args: false,
+          msg: "No authorid provided",
+        },
+      },
+    ],
     title: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No title provided",
+      },
     },
     description: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No description provided",
+      },
     },
     tags: [
       {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
       },
     ],
     permissions: [
       {
-        type: String,
-        required: true,
+        type: DataTypes.STRING,
       },
     ],
     binHash: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No binhash provided",
+      },
     },
     binLoc: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No binary location provided",
+      },
     },
     srcLoc: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No source location provided",
+      },
     },
     jsonLoc: {
-      type: String,
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No schema provided",
+      },
     },
     uses: {
-      type: Number,
+      type: DataTypes.NUMBER,
       default: 0,
     },
     likes: {
-      type: Number,
+      type: DataTypes.NUMBER,
       default: 0,
     },
     dislikes: {
-      type: Number,
+      type: DataTypes.NUMBER,
       default: 0,
     },
   },
   {
+    sequelize,
+    modelName: "Util",
     timestamps: true,
   }
 );
-utilSchema.plugin(fuzzy, {
-  fields: {
-    title_tg: "title",
-    description_tg: "description",
-    tags_tg: (d) => d.get("tags").join(" "),
-  },
-});
-export default mongoose.model<util>("util", utilSchema);
+
+UserSchema.hasMany(utilSchema);
+
+export default utilSchema;

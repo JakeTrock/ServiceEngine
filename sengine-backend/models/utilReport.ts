@@ -1,24 +1,58 @@
-import mongoose, { Schema } from 'mongoose';
-import { utilReport } from '../config/types';
+const { Sequelize, Model, DataTypes } = require("sequelize");
+const sequelize = new Sequelize("sqlite::memory:");
 
-const utilReportSchema = new Schema({
-   reportedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: [true, 'Report author ID is required']
+import UserSchema from "./user";
+import utilSchema from "./util";
+
+class utilReportSchema extends Model {}
+utilReportSchema.init(
+  {
+    _id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    reason: { 
-        type: 'string',
-        required: [true, 'Reason is required']
+    reportedBy: {
+      type: DataTypes.UUID,
+      references: {
+        model: UserSchema,
+        key: "_id",
+        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+      },
+      allowNull: {
+        args: false,
+        msg: "No user provided",
+      },
+    },
+    reason: {
+      type: DataTypes.STRING,
+      allowNull: {
+        args: false,
+        msg: "No description provided",
+      },
     },
     util: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'util',
-        required: [true, 'Report util ID is required']
-    }
-},
-{
+      type: DataTypes.UUID,
+      references: {
+        model: utilSchema,
+        key: "_id",
+        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+      },
+      allowNull: {
+        args: false,
+        msg: "No util provided",
+      },
+    },
+  },
+  {
+    sequelize,
+    modelName: "utilReport",
     timestamps: true,
-});
+  }
+);
 
-export default mongoose.model<utilReport>('utilReport', utilReportSchema);
+UserSchema.hasMany(utilReportSchema);
+
+utilSchema.hasMany(utilReportSchema);
+
+export default utilReportSchema;
