@@ -22,23 +22,33 @@ const defaultConnect = axios.create({
 
 // markup
 const dashPage = ({ match, location, history }) => {
+    //stores relevant user details
     const [profDetails, setProfDetails] = React.useState<profDetails>({
         utils: [],
         username: ""
     });
-    const getDetails = () => {
-        const jwt = jwtDecode(JSON.parse(localStorage.getItem("tk")).token); //searches local storage for jwt key
-        if ((jwt.exp || 0) * 1000 < Date.now()) {
-            return logout();
-        }
-        defaultConnect
-            .post(("/getprof"), {
-                token: jwt
-            })
-            .then((itm) => setProfDetails(itm.data))
-            .catch((e) => toast(e));
-    };
 
+    //load user from stored token when page loads
+    React.useEffect(() => {
+        const tkn = JSON.parse(localStorage.getItem("tk"));
+        if (tkn) {
+            const jwt = jwtDecode(tkn.token); //searches local storage for jwt key
+            if ((jwt.exp || 0) * 1000 < Date.now()) {
+                return logout();
+            }
+            defaultConnect
+                .post(("/getprof"), {
+                    token: jwt
+                })
+                .then((itm) => setProfDetails({
+                    utils: itm.data.utils,
+                    username: itm.data.username
+                }))
+                .catch((e) => toast(e));
+        }
+    }, []);
+
+    //logs out and reloads
     const logout = () => {
         localStorage.removeItem("tk");
         window.location.reload();
