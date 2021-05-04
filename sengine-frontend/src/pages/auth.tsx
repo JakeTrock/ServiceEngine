@@ -20,8 +20,9 @@ const defaultConnect = axios.create({
 const AuthPage = ({ match, location, history }) => {
   const [fdata, setFdata] = React.useState<usrCreds | {}>({});
   const [signup, setSignup] = React.useState(false);
+  //send a request to login or signup
   const procAcct = (frm) => {
-    if (signup) {
+    if (signup) {//signs user up
       const { username, email, password, phone } = frm.formData;
       setFdata({
         username,
@@ -36,7 +37,7 @@ const AuthPage = ({ match, location, history }) => {
           history.push('/dash');
         })
         .catch((e) => toast(e));
-    } else {
+    } else {//logs user in
       const { email, password } = frm.formData;
       setFdata({
         email,
@@ -52,6 +53,7 @@ const AuthPage = ({ match, location, history }) => {
     }
   };
 
+  //form content for logging in
   let loginForm = {
     "title": "Login to Sengine",
     "description": "Welcome back buddy!",
@@ -76,6 +78,7 @@ const AuthPage = ({ match, location, history }) => {
     }
   }
 
+  //form content for making an account
   let mkAcctForm = {
     "title": "Register for Sengine",
     "description": "Statement of transparency: we will never store your phone or password in plaintext on our servers, they will only be used in hash form to verify your identity. To learn more about how hashing works check this out: https://en.wikipedia.org/wiki/Hash_function",
@@ -111,6 +114,7 @@ const AuthPage = ({ match, location, history }) => {
       }
     }
   };
+  //styling for both forms
   const uiSchema = {
     "password": {
       "ui:widget": "password"
