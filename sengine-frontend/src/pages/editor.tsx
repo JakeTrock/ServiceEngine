@@ -21,14 +21,16 @@ const defaultConnect = axios.create({
         "Content-type": "application/json",
     },
 });
+//monacco options
 const options = {
     selectOnLineNumbers: true
 };
 // markup
 const AuthPage = ({ match, location, history }) => {
     const [code, setCode] = React.useState("");
-    const [langType, setLangType] = React.useState<"textarea" | "canvas" | "video" | "audio" | "files">("textarea");
+    const [langType, setLangType] = React.useState<"typescript" | "csharp" | "rust" | "cpp">("rust");
     const [bin, setBin] = React.useState<File>(undefined);//TODO:add compilation
+    //stores all GUI details of the utility being worked on
     const [iface, setInterface] = React.useState<form>({
         input: {
             title: "Todo",
@@ -50,6 +52,7 @@ const AuthPage = ({ match, location, history }) => {
         },
         output: "textarea"
     });
+    //uploads and publishes the current service
     const svcPub = async () => {
         const binHash = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
         return defaultConnect
@@ -74,27 +77,38 @@ const AuthPage = ({ match, location, history }) => {
             .catch((e) => toast(e));
     };
 
-    const initEd = (uuid) => {
+    //initialize the editor
+    const initEd = async (uuid) => {
         return defaultConnect
             .post("/getsvc?" + uuid)
-            .then((itm) => {
-                //TODO: make a better init script sys
+            .then(async (itm) => {
+                const { jsonLoc, srcLoc, binLoc, langType } = JSON.parse(itm.data);
+                const form = await axios.get(jsonLoc).then(d => { return d.data });
+                const code = await axios.get(srcLoc).then(d => { return d.data });//TODO: multifile projects with source .zip files?
+                // const bin = await fetch(binLoc);//TODO: how to get the file and set it?
+                setInterface(form);
+                setCode(code);
+                // setBin(bin);
+                setLangType(langType);
             })
             .catch((e) => toast(e));
     };
 
+    //runs when the source is changed
     const setSource = (newValue, e) => {
         setCode(newValue);
+        //TODO:live-compile here
     }
 
+    //runs when interface code is changed
     const setIFace = (newValue, e) => {
         setInterface(newValue);
     }
 
     //TODO: editor needs design concepts/overhaul
-
-    if (match && match.params) initEd(match.params.uuid);
-
+    React.useEffect(() => {
+        if (match && match.params) initEd(match.params.uuid);
+    }, []);
 
     const handleErr = (e) => toast(e);
 
@@ -124,7 +138,6 @@ const AuthPage = ({ match, location, history }) => {
                                 <option value="rust">rust</option>
                                 <option value="cpp">c++</option>
                             </select>
-                            Nothing to see here, this tab is <em>extinct</em>!
                         </div>
                         <div label="Code">
                             <MonacoEditor
@@ -155,7 +168,7 @@ const AuthPage = ({ match, location, history }) => {
             </ServiceContainer>
         </Holder>
     );
-};//TODO:make editor drag n drop
+};//TODO:make GUI editor drag n drop like asp form designer
 //https://react-jsonschema-form.readthedocs.io/en/latest/usage/widgets/
 
 export default AuthPage;
