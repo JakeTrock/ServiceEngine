@@ -22,10 +22,12 @@ import search from './search';
 import dash from './dash';
 import auth from './auth';
 import editor from './editor';
+//import all subpages
 const Dash = withRouter(dash);
 const Search = withRouter(search);
 const Auth = withRouter(auth);
 const Editor = withRouter(editor);
+//composite pages into monopage app
 export default function () {
   return (
     <Router>
