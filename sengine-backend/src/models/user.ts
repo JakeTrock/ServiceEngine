@@ -1,10 +1,8 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
 const sequelize = new Sequelize("sqlite::memory:");
 
-import initLogger from "../config/logger";
 import utilSchema from "./util";
 
-const logger = initLogger("UserModel");
 class UserSchema extends Model {}
 UserSchema.init(
   {

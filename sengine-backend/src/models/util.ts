@@ -1,7 +1,7 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
 const sequelize = new Sequelize("sqlite::memory:");
-
 import UserSchema from "./user";
+
 class utilSchema extends Model {}
 utilSchema.init(
   {

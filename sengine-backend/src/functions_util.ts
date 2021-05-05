@@ -11,11 +11,12 @@ import utilReport from "./models/utilReport";
 import utilSchema from "./models/util";
 import User from "./models/user";
 import { UUIDV4 } from "sequelize/types";
+import { IRemix, IUtil } from "./config/interfaces";
 
 const s3Bucket = process.env.BUCKET_NAME;
 const credentials = {
-  accessKeyId: process.env.AWS_ACCESS,
-  secretAccessKey: process.env.AWS_SECRET,
+  accessKeyId: process.env.AWS_ACCESS || "",
+  secretAccessKey: process.env.AWS_SECRET || "",
 };
 AWS.config.update({ credentials, region: "us-east-1" });
 const s3 = new AWS.S3();
@@ -23,59 +24,67 @@ const s3 = new AWS.S3();
 export const createUtil: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
-  const { binHash, srcLoc, description, tags, title } = JSON.parse(event.body);
-  const authorId = Authenticate(event)._id;
-  const _id = UUIDV4;
-  if (srcLoc) {
-    try {
-      const util = removeNullUndef({
-        _id,
-        title,
-        tags: tags.split(","),
-        description,
-        authorId,
-        binHash,
-        binLoc: `${authorId}/${_id.toString()}/bin.wasm`,
-        srcLoc: `${authorId}/${_id.toString()}/src.zip`,
-        jsonLoc: `${authorId}/${_id.toString()}/iface.json`,
-      });
-      const upls = [
-        await s3.getSignedUrl("putObject", {
-          Bucket: s3Bucket,
-          Key: util.binLoc,
-          Expires: 60,
-          ContentType: "text/wasm",
-          ACL: "public-read",
-        }),
-        await s3.getSignedUrl("putObject", {
-          Bucket: s3Bucket,
-          Key: util.srcLoc,
-          Expires: 60,
-          ContentType: "application/zip",
-          ACL: "public-read",
-        }),
-        await s3.getSignedUrl("putObject", {
-          Bucket: s3Bucket,
-          Key: util.jsonLoc,
-          Expires: 60,
-          ContentType: "text/json",
-          ACL: "public-read",
-        }),
-      ];
+  if (event.body) {
+    const { binHash, srcLoc, description, tags, title } = JSON.parse(
+      event.body
+    );
+    return Authenticate(event)
+      .then(async (usr) => {
+        const authorId = usr._id;
+        const _id = UUIDV4;
+        if (srcLoc) {
+          try {
+            const util = removeNullUndef({
+              _id,
+              title,
+              tags: tags.split(","),
+              description,
+              authorId,
+              binHash,
+              binLoc: `${authorId}/${_id.toString()}/bin.wasm`,
+              srcLoc: `${authorId}/${_id.toString()}/src.zip`,
+              jsonLoc: `${authorId}/${_id.toString()}/iface.json`,
+            });
+            const upls = [
+              await s3.getSignedUrl("putObject", {
+                Bucket: s3Bucket,
+                Key: util.binLoc,
+                Expires: 60,
+                ContentType: "text/wasm",
+                ACL: "public-read",
+              }),
+              await s3.getSignedUrl("putObject", {
+                Bucket: s3Bucket,
+                Key: util.srcLoc,
+                Expires: 60,
+                ContentType: "application/zip",
+                ACL: "public-read",
+              }),
+              await s3.getSignedUrl("putObject", {
+                Bucket: s3Bucket,
+                Key: util.jsonLoc,
+                Expires: 60,
+                ContentType: "text/json",
+                ACL: "public-read",
+              }),
+            ];
 
-      return utilSchema
-        .create(util)
-        .then(() =>
-          return200({
-            uuid: _id,
-            upls,
-          })
-        )
-        .catch((err: Error) => err500(err, "Error when saving a util"));
-    } catch (e) {
-      err500(e, "System upload error");
-    }
-  }
+            return utilSchema
+              .create(util)
+              .then(() =>
+                return200({
+                  uuid: _id,
+                  upls,
+                })
+              )
+              .catch((err: Error) => err500(err, "Error when saving a util"));
+          } catch (e) {
+            err500(e, "System upload error");
+          }
+        }
+      })
+      .catch((e) => err400(e));
+  } else err400("no information provided");
 };
 
 //TODO:allow user to apply for permissions upgrades
@@ -87,122 +96,128 @@ export const createUtil: APIGatewayProxyHandlerV2 = async (
 export const saveUtil: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
-  const { binHash, newJson, newSrc, title, tags, description } = JSON.parse(
-    event.body
-  );
-  const { id } = event.queryStringParameters;
-  return utilSchema
-    .findOne({ _id: id })
-    .then(async (p: utilSchema) => {
-      let upls: string[] = [];
-      if (newSrc || binHash) {
-        upls.push(
-          await s3.getSignedUrl("putObject", {
-            Bucket: s3Bucket,
-            Key: `${p.authorId.toString()}/${p._id.toString()}/bin.wasm`,
-            Expires: 60,
-            ContentType: "text",
-            ACL: "public-read",
-          })
-        );
-        upls.push(
-          await s3.getSignedUrl("putObject", {
-            Bucket: s3Bucket,
-            Key: `${p.authorId.toString()}/${p._id.toString()}/bin.wasm`,
-            Expires: 60,
-            ContentType: "text",
-            ACL: "public-read",
-          })
-        );
-      }
-      if (newJson) {
-        upls.push(
-          await s3.getSignedUrl("putObject", {
-            Bucket: s3Bucket,
-            Key: `${p.authorId.toString()}/${p._id.toString()}/iface.json`,
-            Expires: 60,
-            ContentType: "text",
-            ACL: "public-read",
-          })
-        );
-      }
-      return p
-        .update(
-          removeNullUndef({
-            binHash,
-            title,
-            tags: tags.split(","),
-            description,
-          }),
-          {
-            returning: true,
-          }
-        )
-        .then(() => return200(upls))
-        .catch((err: Error) => err500(err, "Error when updating util"));
-    })
-    .catch((err: Error) => err500(err, "Error when updating util"));
+  if (event.body && event.queryStringParameters) {
+    const { binHash, newJson, newSrc, title, tags, description } = JSON.parse(
+      event.body
+    );
+    const { id } = event.queryStringParameters;
+    return utilSchema
+      .findOne({ _id: id })
+      .then(async (p: utilSchema) => {
+        let upls: string[] = [];
+        if (newSrc || binHash) {
+          upls.push(
+            await s3.getSignedUrl("putObject", {
+              Bucket: s3Bucket,
+              Key: `${p.authorId.toString()}/${p._id.toString()}/bin.wasm`,
+              Expires: 60,
+              ContentType: "text",
+              ACL: "public-read",
+            })
+          );
+          upls.push(
+            await s3.getSignedUrl("putObject", {
+              Bucket: s3Bucket,
+              Key: `${p.authorId.toString()}/${p._id.toString()}/bin.wasm`,
+              Expires: 60,
+              ContentType: "text",
+              ACL: "public-read",
+            })
+          );
+        }
+        if (newJson) {
+          upls.push(
+            await s3.getSignedUrl("putObject", {
+              Bucket: s3Bucket,
+              Key: `${p.authorId.toString()}/${p._id.toString()}/iface.json`,
+              Expires: 60,
+              ContentType: "text",
+              ACL: "public-read",
+            })
+          );
+        }
+        return p
+          .update(
+            removeNullUndef({
+              binHash,
+              title,
+              tags: tags.split(","),
+              description,
+            }),
+            {
+              returning: true,
+            }
+          )
+          .then(() => return200(upls))
+          .catch((err: Error) => err500(err, "Error when updating util"));
+      })
+      .catch((err: Error) => err500(err, "Error when updating util"));
+  } else err400("no information provided");
 };
 
 export const remixUtil: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
-  const { id } = event.queryStringParameters;
-  return utilSchema
-    .findOne({ _id: id })
-    .then(async (util: utilSchema) => {
-      const tmp = {
-        jsonLoc: await s3.getSignedUrl("getObject", {
-          Bucket: s3Bucket,
-          Key: util.jsonLoc,
-        }),
-        binLoc: await s3.getSignedUrl("getObject", {
-          Bucket: s3Bucket,
-          Key: util.binLoc,
-        }),
-        srcLoc: await s3.getSignedUrl("getObject", {
-          Bucket: s3Bucket,
-          Key: util.srcLoc,
-        }),
-      };
-      return {
-        metadata: util,
-        files: tmp,
-      };
-    })
-    .then((result) => return200(result))
-    .catch((err: Error) => err500(err, "Error when getting dev download"));
+  if (event.queryStringParameters) {
+    const { id } = event.queryStringParameters;
+    return utilSchema
+      .findOne({ _id: id })
+      .then(async (util: utilSchema) => {
+        const tmp = {
+          jsonLoc: await s3.getSignedUrl("getObject", {
+            Bucket: s3Bucket,
+            Key: util.jsonLoc,
+          }),
+          binLoc: await s3.getSignedUrl("getObject", {
+            Bucket: s3Bucket,
+            Key: util.binLoc,
+          }),
+          srcLoc: await s3.getSignedUrl("getObject", {
+            Bucket: s3Bucket,
+            Key: util.srcLoc,
+          }),
+        };
+        return {
+          metadata: util,
+          files: tmp,
+        };
+      })
+      .then((result: IRemix) => return200(result))
+      .catch((err: Error) => err500(err, "Error when getting dev download"));
+  } else err400("Missing query string");
 };
 
 export const getUtil: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
-  const { id } = event.queryStringParameters;
-  return utilSchema
-    .findOne({ _id: id })
-    .then(async (util: utilSchema) => {
-      const tmp = {
-        jsonLoc: await s3.getSignedUrl("getObject", {
-          Bucket: s3Bucket,
-          Key: util.jsonLoc,
-        }),
-        binLoc: await s3.getSignedUrl("getObject", {
-          Bucket: s3Bucket,
-          Key: util.binLoc,
-        }),
-        uuid: util._id,
-        likes: util.likes,
-        dislikes: util.dislikes,
-        uses: util.uses,
-        binhash: util.binhash,
-        permissions: util.permissions,
-      };
-      return tmp;
-    })
-    .then((result) => return200(result))
-    .catch((err: Error) =>
-      err500(err, `Error when getting pkg download ${id}`)
-    );
+  if (event.queryStringParameters) {
+    const { id } = event.queryStringParameters;
+    return utilSchema
+      .findOne({ _id: id })
+      .then(async (util: utilSchema) => {
+        const tmp = {
+          jsonLoc: await s3.getSignedUrl("getObject", {
+            Bucket: s3Bucket,
+            Key: util.jsonLoc,
+          }),
+          binLoc: await s3.getSignedUrl("getObject", {
+            Bucket: s3Bucket,
+            Key: util.binLoc,
+          }),
+          uuid: util._id,
+          likes: util.likes,
+          dislikes: util.dislikes,
+          uses: util.uses,
+          binhash: util.binhash,
+          permissions: util.permissions,
+        };
+        return tmp;
+      })
+      .then((result: IUtil) => return200(result))
+      .catch((err: Error) =>
+        err500(err, `Error when getting pkg download ${id}`)
+      );
+  } else err400("Missing query string");
 };
 
 export const search: APIGatewayProxyHandlerV2 = async (
@@ -259,49 +274,59 @@ export const search: APIGatewayProxyHandlerV2 = async (
 export const deleteUtil: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
-  const { id } = event.queryStringParameters;
+  if (event.queryStringParameters) {
+    const { id } = event.queryStringParameters;
 
-  return utilSchema
-    .destroy({
-      where: {
-        _id: id,
-      },
-    })
-    .then(() => return200("Successfully deleted util."))
-    .catch((err: Error) =>
-      err500(err, `Error when deleting a util with utilId ${id}`)
-    );
+    return utilSchema
+      .destroy({
+        where: {
+          _id: id,
+        },
+      })
+      .then(() => return200("Successfully deleted util."))
+      .catch((err: Error) =>
+        err500(err, `Error when deleting a util with utilId ${id}`)
+      );
+  } else err400("Missing query string");
 };
 
 export const report: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
-  const { reason, util } = JSON.parse(event.body);
-  const reportedBy = Authenticate(event)._id;
-  return utilReport
-    .findOne({
-      reportedBy,
-      util,
-    })
-    .then((p: utilReport) => {
-      if (p) {
-        return err400("you have already reported this util");
-      } else {
-        return utilReport
-          .create({
-            reportedBy,
-            reason,
-            util,
-          })
-          .then(() => return200("Successfully submitted report"))
-          .catch((err: Error) =>
-            err500(
-              err,
-              `Error saving util report for util ${util} by user ${reportedBy}`
-            )
-          );
-      }
-    });
+  if (event.body) {
+    const { reason, util } = JSON.parse(event.body);
+    return Authenticate(event)
+      .then((usr: User) => {
+        if (usr._id) {
+          const reportedBy = usr._id;
+          return utilReport
+            .findOne({
+              reportedBy,
+              util,
+            })
+            .then((p: utilReport) => {
+              if (p) {
+                return err400("you have already reported this util");
+              } else {
+                return utilReport
+                  .create({
+                    reportedBy,
+                    reason,
+                    util,
+                  })
+                  .then(() => return200("Successfully submitted report"))
+                  .catch((err: Error) =>
+                    err500(
+                      err,
+                      `Error saving util report for util ${util} by user ${reportedBy}`
+                    )
+                  );
+              }
+            });
+        }
+      })
+      .catch((e) => err400(e));
+  } else return err400("no submission data provided");
 };
 
 export const likeUtil: APIGatewayProxyHandlerV2 = async (
@@ -317,32 +342,35 @@ export const dislikeUtil: APIGatewayProxyHandlerV2 = async (
 };
 
 const ldHelper = (event: APIGatewayProxyEventV2, ld: boolean) => {
-  const { id } = event.queryStringParameters;
-
-  return Authenticate(event).then((u: User) => {
-    const adl = u.likes.map((x) => x.toString()).includes(id);
-    const pct = ld
-      ? adl
-        ? { $inc: { likes: -1 } }
-        : { $inc: { likes: 1 } }
-      : adl
-      ? { $inc: { dislikes: -1 } }
-      : { $inc: { dislikes: 1 } };
-    const uct = ld
-      ? adl
-        ? { $pull: { likes: id } }
-        : { $push: { likes: id } }
-      : adl
-      ? { $pull: { dislikes: id } }
-      : { $push: { dislikes: id } };
-    return utilSchema
-      .update(pct, {
-        where: { _id: id },
+  if (event.queryStringParameters) {
+    const { id } = event.queryStringParameters;
+    return Authenticate(event)
+      .then((u: User) => {
+        const adl = u.likes.includes(id);
+        const pct = ld
+          ? adl
+            ? { $inc: { likes: -1 } }
+            : { $inc: { likes: 1 } }
+          : adl
+          ? { $inc: { dislikes: -1 } }
+          : { $inc: { dislikes: 1 } };
+        const uct = ld
+          ? adl
+            ? { $pull: { likes: id } }
+            : { $push: { likes: id } }
+          : adl
+          ? { $pull: { dislikes: id } }
+          : { $push: { dislikes: id } };
+        return utilSchema
+          .update(pct, {
+            where: { _id: id },
+          })
+          .then(() => u.update(uct))
+          .then(() => return200(""))
+          .catch((err: Error) =>
+            err500(err, `Error while dis/liking a util ${id}`)
+          );
       })
-      .then(() => u.update(uct))
-      .then(() => return200(""))
-      .catch((err: Error) =>
-        err500(err, `Error while dis/liking a util ${id}`)
-      );
-  });
+      .catch((e) => err400(e));
+  } else return err400("no data provided");
 };

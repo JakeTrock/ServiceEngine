@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 import User from "../models/user";
 import { IUser } from "./interfaces";
 
@@ -58,21 +58,28 @@ export const return200 = (m: object | String) => {
   };
 };
 
-export const Authenticate = (event: APIGatewayProxyEventV2) => {
-  const authHeader = event.headers.authorization;
-  if (authHeader) {
-    return jwt.verify(authHeader, process.env.JWT_SECRET, (err, out) => {
-      if (err) err400(err.message);
-      return User.findOne({ _id: out._id })
-        .then((ex: IUser) => {
-          if (ex) {
-            return ex;
-          }
-          return err400("Unauthenticated");
-        })
-        .catch((e: Error) => logError(e));
-    });
-  } else {
-    return err400("Missing token");
-  }
-};
+export const Authenticate = (event: APIGatewayProxyEventV2): Promise<User> =>
+  new Promise((resolve, reject) => {
+    const authHeader = event.headers.authorization;
+    if (authHeader) {
+      const jwsecret = process.env.JWT_SECRET || "23rc8280rnm238x";
+      return jwt.verify(authHeader, jwsecret, (err, o) => {
+        const out = o as User;
+        if (err) reject(err.message);
+        else if (out && out._id) {
+          return User.findOne({ _id: out._id })
+            .then((ex: IUser) => {
+              if (ex) {
+                return resolve(ex);
+              }
+              return reject("Unauthenticated");
+            })
+            .catch((e: Error) => reject(e));
+        } else {
+          reject("blank token error");
+        }
+      });
+    } else {
+      return reject("Missing token");
+    }
+  });

@@ -35,3 +35,12 @@ export interface IReport {
   reason: string;
   util: string;
 }
+
+export interface IRemix {
+  metadata: IUtil;
+  files: {
+    jsonLoc: string;
+    binLoc: string;
+    srcLoc: string;
+  };
+}
