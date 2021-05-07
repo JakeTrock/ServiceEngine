@@ -1,18 +1,9 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import * as jwt from "jsonwebtoken";
 import User from "../models/user";
-import { IUser } from "./interfaces";
+import { IhttpResult } from "./interfaces";
 
-export const removeNullUndef = (obj: any) => {
-  Object.keys(obj).forEach((key) => {
-    if (obj[key] == undefined || obj[key] == null || obj[key] == []) {
-      delete obj[key];
-    }
-  });
-  return obj;
-};
-
-export const logError = (e: Error | string, descriptor = "") => {
+export const logError = (e: Error | string, descriptor = ""): void => {
   console.log(
     Date.now().toString() + " : " + descriptor + " : " + (typeof e == "object")
       ? e.toString()
@@ -20,7 +11,7 @@ export const logError = (e: Error | string, descriptor = "") => {
   );
 };
 
-export const err400 = (e: Error | string, descriptor = "") => {
+export const err400 = (e: Error | string, descriptor = ""): IhttpResult => {
   // logError(e, descriptor);
   //we prolly shouldnt log validation errors
   return {
@@ -34,7 +25,7 @@ export const err400 = (e: Error | string, descriptor = "") => {
   };
 };
 
-export const err500 = (e: Error | string, descriptor = "") => {
+export const err500 = (e: Error | string, descriptor = ""): IhttpResult => {
   logError(e, descriptor);
   return {
     statusCode: 500,
@@ -47,13 +38,13 @@ export const err500 = (e: Error | string, descriptor = "") => {
   };
 };
 
-export const return200 = (m: object | String) => {
+export const return200 = (m: string): IhttpResult => {
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       success: true,
-      message: typeof m == "object" ? m.toString() : m,
+      message: m,
     }),
   };
 };
@@ -65,10 +56,10 @@ export const Authenticate = (event: APIGatewayProxyEventV2): Promise<User> =>
       const jwsecret = process.env.JWT_SECRET || "23rc8280rnm238x";
       return jwt.verify(authHeader, jwsecret, (err, o) => {
         const out = o as User;
-        if (err) reject(err.message);
+        if (err) return reject(err.message);
         else if (out && out._id) {
-          return User.findOne({ _id: out._id })
-            .then((ex: IUser) => {
+          return User.findOne({ where: { _id: out._id } })
+            .then((ex: User | null) => {
               if (ex) {
                 return resolve(ex);
               }

@@ -12,7 +12,7 @@ import {
   logError,
   return200,
 } from "./config/helpers";
-import { IUser } from "./config/interfaces";
+import UserSchema from "./models/user";
 
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS || "",
@@ -29,8 +29,11 @@ const hash = (pass: string, isPwd: boolean) => {
       logError(`Error while generating salt with bcrypt: ${err}`);
       return err.message;
     } else if (
-      (isPwd && pwd.match(/^(?=.[A-Za-z])(?=.\d)[A-Za-z\d]*$/)) ||
-      pwd.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
+      (isPwd &&
+        pwd.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/)) ||
+      pwd.match(
+        /^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/
+      )
     ) {
       return bcrypt.hash(pwd, salt, (err1: Error, hash) => {
         if (err1) {
@@ -41,7 +44,7 @@ const hash = (pass: string, isPwd: boolean) => {
       });
     } else
       return new Error(
-        "Password must contain at least one upper case character, one lower case character, and one number"
+        "Password must be at least 8 characters, contain at least 1 uppercase letter, 1 lowercase letter, and 1 number, Can contain special characters"
       );
   });
 };
@@ -63,7 +66,7 @@ export const signup: APIGatewayProxyHandlerV2 = async (
       currSecToken: token,
       secTokExp: new Date(Date.now() + 86400000),
     })
-      .then((user: IUser) =>
+      .then((user: UserSchema) =>
         SES.sendEmail({
           Destination: {
             ToAddresses: [user.email],
@@ -94,44 +97,56 @@ export const login: APIGatewayProxyHandlerV2 = async (
   if (event.body) {
     const { email, password } = JSON.parse(event.body);
     return User.findOne({
-      email,
+      where: { email },
     })
-      .then((user: IUser) =>
-        bcrypt
-          .compare(password, user.password)
-          .then((match: boolean) => {
-            if (match) {
-              const { username, _id } = user;
-              return jwt.sign(
-                {
-                  username,
-                  email,
-                  _id,
-                },
-                process.env.JWT_SECRET || "23rc8280rnm238x",
-                { expiresIn: "20d" },
-                (err: Error | null, tk: String | undefined) => {
+      .then(async (user: UserSchema | null) => {
+        if (user) {
+          return bcrypt
+            .compare(password, user.password)
+            .then(async (match: boolean) => {
+              if (match) {
+                const { username, _id } = user;
+                try {
+                  const tk = await jwt.sign(
+                    {
+                      username,
+                      email,
+                      _id,
+                    },
+                    process.env.JWT_SECRET || "23rc8280rnm238x",
+                    { expiresIn: "20d" }
+                  );
+                  return return200(
+                    JSON.stringify({
+                      token: tk,
+                    })
+                  );
+                } catch (err) {
                   if (err) return err400(err, "jwt error");
-                  return return200({
-                    token: tk,
-                  });
                 }
-              );
-            }
-            return err400("Incorrect password");
-          })
-          .catch((err: Error) => err500(err, "bcrypt error"))
-      )
+              }
+              return err400("Incorrect password");
+            })
+            .catch((err: Error) => err500(err, "bcrypt error"));
+        } else return err400("user not found with this email");
+      })
       .catch((e: Error) => err500(e.message, "user fetch error"));
   } else return err400("no submission data provided");
+};
+
+const fetchAllHelper = async (prp: string[] | undefined) => {
+  if (prp)
+    await prp.map((_id: string) => utilSchema.findOne({ where: { _id } }));
+  return prp;
 };
 
 export const getUserLiked: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
   return Authenticate(event)
-    .then((usr: User) => {
-      return return200(usr.likes);
+    .then(async (usr: User) => {
+      const tmp = await fetchAllHelper(usr.likes);
+      return return200(JSON.stringify(tmp));
     })
     .catch((e) => err400(e));
 };
@@ -140,8 +155,9 @@ export const getUserUtils: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
   return Authenticate(event)
-    .then((usr: User) => {
-      return return200(usr.utils);
+    .then(async (usr: User) => {
+      const tmp = await fetchAllHelper(usr.utils);
+      return return200(JSON.stringify(tmp));
     })
     .catch((e) => err400(e));
 };
@@ -150,8 +166,12 @@ export const getCurrent: APIGatewayProxyHandlerV2 = async (
   event: APIGatewayProxyEventV2
 ) => {
   return Authenticate(event)
-    .then((usr: User) => {
-      return return200(usr);
+    .then(async (usr) => {
+      const tmp1 = await fetchAllHelper(usr.likes);
+      const tmp2 = await fetchAllHelper(usr.utils);
+      usr.likes = tmp1;
+      usr.utils = tmp2;
+      return return200(JSON.stringify(usr));
     })
     .catch((e) => err400(e));
 };
@@ -199,8 +219,10 @@ export const checkToken: APIGatewayProxyHandlerV2 = async (
     const nd = new Date();
     const { token } = event.queryStringParameters;
     return User.findOne({
-      currSecToken: token,
-      secTokExp: { $gte: nd },
+      where: {
+        currSecToken: token,
+        secTokExp: { $gte: nd },
+      },
     })
       .then(() => return200("Valid reset token"))
       .catch(() => err400("Token is invalid or has expired."));
@@ -226,10 +248,10 @@ export const askResetPassword: APIGatewayProxyHandlerV2 = async (
         },
       }
     )
-      .then((user: User) =>
+      .then(() =>
         SES.sendEmail({
           Destination: {
-            ToAddresses: [user.email],
+            ToAddresses: [email],
           },
           Message: {
             Body: {
@@ -277,7 +299,7 @@ export const ResetPassword: APIGatewayProxyHandlerV2 = async (
           }
         )
       )
-      .then((u: User) => {
+      .then((u) => {
         if (!u) {
           return err400("Password reset token is invalid or has expired.");
         } else {
@@ -294,7 +316,7 @@ export const askAcctDelete: APIGatewayProxyHandlerV2 = async (
   if (event.body) {
     const { email } = JSON.parse(event.body);
     const token = await crypto.randomBytes(20).toString("hex");
-    return User.findByIdAndUpdate(
+    return User.update(
       {
         currUsrOp: "D",
         currSecToken: token,
@@ -307,10 +329,10 @@ export const askAcctDelete: APIGatewayProxyHandlerV2 = async (
         },
       }
     )
-      .then((user: User) =>
+      .then(() =>
         SES.sendEmail({
           Destination: {
-            ToAddresses: [user.email],
+            ToAddresses: [email],
           },
           Message: {
             Body: {
@@ -338,27 +360,27 @@ export const AcctDelete: APIGatewayProxyHandlerV2 = async (
   if (event.queryStringParameters) {
     const nd = new Date();
     const { token } = event.queryStringParameters;
-    return User.destroy({
-      returning: true,
+    return User.findOne({
       where: {
         currSecToken: token,
         currUsrOp: "D",
         secTokExp: { $gt: nd },
       },
     })
-      .then((usr: User) =>
-        utilSchema.destroy({
-          returning: true,
-          where: {
-            authorId: usr._id,
-          },
-        })
-      )
-      .then((u: User) => {
-        if (!u) {
-          return err400("Deletion token is invalid or has expired.");
-        }
-        return return200("Removed your account.");
+      .then(async (usr) => {
+        if (usr) {
+          await utilSchema
+            .destroy({
+              where: {
+                authorId: usr._id,
+              },
+            })
+            .then(() => usr.destroy());
+          return return200("Removed your account.");
+        } else
+          return err400(
+            "User not found. Deletion token is invalid or has expired."
+          );
       })
       .catch((err: Error) => err500(err, "Error resetting password"));
   } else return err400("missing token");
