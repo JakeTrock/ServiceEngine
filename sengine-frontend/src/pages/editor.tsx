@@ -14,6 +14,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import MonacoEditor from 'react-monaco-editor';
 import TabsContainer from "./outputHandlers/tabs/tabview";
 import { form } from "../data/interfaces";
+import TabbedEditor from "./outputHandlers/tabs/multitabeditor";
+import JSZip from "jszip";
+import extToLang from "../data/extToLang";
 // consts
 const defaultConnect = axios.create({
     baseURL: "http://localhost:3000",
@@ -27,9 +30,10 @@ const options = {
 };
 // markup
 const AuthPage = ({ match, location, history }) => {
-    const [code, setCode] = React.useState("");
     const [langType, setLangType] = React.useState<"typescript" | "csharp" | "rust" | "cpp">("rust");
     const [bin, setBin] = React.useState<File>(undefined);//TODO:add compilation
+    const [scripts, setScripts] = React.useState<string[]>([""]);
+    const [scnames, setScnames] = React.useState<string[]>(["main.rs"]);
     //stores all GUI details of the utility being worked on
     const [iface, setInterface] = React.useState<form>({
         input: {
@@ -59,14 +63,24 @@ const AuthPage = ({ match, location, history }) => {
             .post("/create", {
                 iface,
                 langType,//TODO:add support
-                code,
                 binHash,
                 userUUID: JSON.parse(localStorage.getItem("tk")).uuid
             })
             .then(async (itm) => {
+                //upload the binary
                 await defaultConnect
                     .put(itm.data.upls[0], bin);
+                //zip+upload the code
+                var srcArch = new JSZip();
+                scripts.forEach((s, i) => {
+                    srcArch.file(scnames[i], s);
+                });
+                await srcArch.generateAsync({ type: "blob" })
+                    .then((content) =>
+                        defaultConnect
+                            .put(itm.data.upls[1], new File([content], "src.zip", { type: "application/zip" })));
 
+                //upload the gui scheme    
                 const sch = { type: 'text/json' };
                 const Jblob = new Blob([JSON.stringify(iface)], sch);
                 var Jfile = new File([Jblob], "scheme.json", sch);
@@ -84,10 +98,25 @@ const AuthPage = ({ match, location, history }) => {
             .then(async (itm) => {
                 const { jsonLoc, srcLoc, binLoc, langType } = JSON.parse(itm.data);
                 const form = await axios.get(jsonLoc).then(d => { return d.data });
-                const code = await axios.get(srcLoc).then(d => { return d.data });//TODO: multifile projects with source .zip files?
+                const code = await axios.get(srcLoc).then(d => { return d.data });
                 // const bin = await fetch(binLoc);//TODO: how to get the file and set it?
+
+                //unzip sources and put them in array
+                let fnames = [];
+                let fcontents = [];
+
+                JSZip.loadAsync(code).then((zip) => {
+                    Object.keys(zip.files).forEach((filename) => {
+                        fnames.push(filename);
+                        zip.files[filename].async('string')
+                            .then((fdata) => fcontents.push(fdata))
+                    })
+                });
+                setScnames(fnames);
+                setScripts(fcontents);
+
+
                 setInterface(form);
-                setCode(code);
                 // setBin(bin);
                 setLangType(langType);
             })
@@ -95,8 +124,7 @@ const AuthPage = ({ match, location, history }) => {
     };
 
     //runs when the source is changed
-    const setSource = (newValue, e) => {
-        setCode(newValue);
+    const compileSrc = (newValue, e) => {
         //TODO:live-compile here
     }
 
@@ -140,15 +168,13 @@ const AuthPage = ({ match, location, history }) => {
                             </select>
                         </div>
                         <div label="Code">
-                            <MonacoEditor
-                                width="100%"
-                                height="50em"
-                                language={langType}
-                                theme="vs-light"
-                                value={code}
-                                options={options}
-                                onChange={setSource}
-                            />
+                            <TabbedEditor
+                                mcopt={options}
+                                applySrc={compileSrc}
+                                scnames={scnames}
+                                setScnames={setScnames}
+                                sccontent={scripts}
+                                setSccontent={setScripts} />
                         </div>
                         <div label="Interface">
                             <MonacoEditor
