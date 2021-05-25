@@ -6,15 +6,18 @@ export interface form {
 }
 
 export interface ValidComponent {
+  fart:(poop:number)=>Promise<String>;
   serviceUUID: string,
   form: form,
   permissions: string[],
   currentBin: any//Function
 }
+
 export interface subel {
   message: string,
   stack: any | null//TODO:alias
 }
+
 export interface util {
   _id: string,
   likes: number,
@@ -32,6 +35,5 @@ export interface profDetails {
 export interface usrCreds {
   username: string | null,
   email: string,
-  password: string,
-  phone: string | null
+  password: string
 }

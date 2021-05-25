@@ -23,12 +23,11 @@ const AuthPage = ({ match, location, history }) => {
   //send a request to login or signup
   const procAcct = (frm) => {
     if (signup) {//signs user up
-      const { username, email, password, phone } = frm.formData;
+      const { username, email, password} = frm.formData;
       setFdata({
         username,
         email,
-        password,
-        phone
+        password
       });
       return defaultConnect
         .post(("/user/signup"), fdata)
@@ -81,13 +80,12 @@ const AuthPage = ({ match, location, history }) => {
   //form content for making an account
   let mkAcctForm = {
     "title": "Register for Sengine",
-    "description": "Statement of transparency: we will never store your phone or password in plaintext on our servers, they will only be used in hash form to verify your identity. To learn more about how hashing works check this out: https://en.wikipedia.org/wiki/Hash_function",
+    "description": "Registration for ServiceEngine",
     "type": "object",
     "required": [
       "username",
       "password",
-      "email",
-      "phone"
+      "email"
     ],
     "properties": {
       "username": {
@@ -106,11 +104,6 @@ const AuthPage = ({ match, location, history }) => {
         "minLength": 6,
         "default": fdata.password || "",
         "title": "Password"
-      },
-      "phone": {
-        "type": "string",
-        "default": fdata.phone || "",
-        "title": "Phone Number(never called, just used for account recovery)",
       }
     }
   };
@@ -118,9 +111,6 @@ const AuthPage = ({ match, location, history }) => {
   const uiSchema = {
     "password": {
       "ui:widget": "password"
-    },
-    "phone": {
-      "inputType": "tel"
     },
     "email": {
       "inputType": "email"
