@@ -1,15 +1,16 @@
-import { NextFunction, Response } from "express";
+import { Request, Response } from "express";
 
 import crypto from "crypto";
 import * as AWS from "aws-sdk";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import initLogger from "../config/logger";
 // import s3 from '../core/s3';
 import User from "../models/user";
 import utilSchema from "../models/util";
+import { err400, err500, prpcheck } from "../config/helpers";
+import UserSchema from "../models/user";
+import RequestUsr from "../config/types";
 
-const logger = initLogger("ControllerUser");
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS,
   secretAccessKey: process.env.AWS_SECRET,
@@ -21,277 +22,318 @@ const SES = new AWS.SES();
 const s3 = new AWS.S3();
 const s3Bucket = process.env.BUCKET_NAME;
 
-const hash = (pass, isPwd) => {
-  const pwd = pass.trim();
-  return bcrypt.genSalt(10, (err, salt) => {
-    if (err) {
-      logger.error(`Error while generating salt with bcrypt: ${err}`);
-      return err.message;
-    } else if (
-      (isPwd && pwd.match(/^(?=.[A-Za-z])(?=.\d)[A-Za-z\d]*$/)) ||
-      pwd.match(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/)
-    ) {
-      return bcrypt.hash(pwd, salt, (err1: Error, hash) => {
-        if (err1) {
-          logger.error(`Error while hashing with bcrypt: ${err1}`);
-          return err1.message;
-        }
-        return hash;
-      });
-    } else
-      return new Error(
-        "Password must contain at least one upper case character, one lower case character, and one number"
-      );
+const sendMessage = (message: string, link: string, recipient: string) =>
+  SES.sendEmail({
+    Destination: {
+      ToAddresses: [recipient],
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: `To ${message} click the following link or paste it into your browser<br/><br/> ${link}<br/><br/>If you didn't make this RequestUsr, then ignore the email and you'll be safe<br/>`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: message,
+      },
+    },
+    Source: `Sengine <${process.env.LOGIN_USER}>`,
+  }).promise();
+
+const hash = (pass: string, isPwd: boolean): Promise<String> =>
+  new Promise((resolve, reject) => {
+    const pwd = pass.trim();
+    return bcrypt.genSalt(10, (err: Error, salt) => {
+      if (err) {
+        return reject(err);
+      } else if (
+        (isPwd &&
+          pwd.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/)) ||
+        pwd.match(
+          /^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/
+        )
+      ) {
+        return bcrypt.hash(pwd, salt, (err1: Error, hash) => {
+          if (err1) {
+            return reject(err1);
+          }
+          return resolve(hash);
+        });
+      } else
+        return reject(
+          new Error(
+            "Password must be at least 8 characters, contain at least 1 uppercase letter, 1 lowercase letter, and 1 number, Can contain special characters"
+          )
+        );
+    });
   });
-};
 
 export default class UserController {
   async Signup(req: Request, res: Response) {
-    const { username, email, password, phone } = req.body;
-    crypto.randomBytes(20, async (err, buffer) => {
-      const token = buffer.toString("hex");
-      const pw = await hash(password, true);
-      const ph = await hash(phone, false);
-      User.create({
-        email: email.trim(),
-        password: pw,
-        phone: ph,
-        username: username.trim().toLowerCase(),
-        currUsrOp: "R",
+    const { username, email, password } = req.body;
+    if (prpcheck(email) || prpcheck(username) || prpcheck(password))
+      return err400(res, "missing properties");
+
+    const token = await crypto.randomBytes(20).toString("hex");
+    const pw = await hash(password, true);
+    const emtrim = email.trim();
+    const unametrim = username.trim().toLowerCase();
+
+    if (emtrim.match(/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/))
+      return err400(res, "The email you provided was not correctly typed");
+
+    if (
+      unametrim.length > 20 ||
+      unametrim.length < 2 ||
+      unametrim.match(/^[a-zA-Z0-9_.]*$/)
+    )
+      return err400(
+        res,
+        "Username is improperly formatted(must be >2 and <20 characters in length, only characters a-z,0-9,period and underscore)"
+      );
+
+    const createParams = {
+      email: emtrim,
+      password: pw,
+      username: unametrim,
+      currUsrOp: "C",
+      currSecToken: token,
+      secTokExp: new Date(Date.now() + 86400000),
+    };
+    return User.create(createParams)
+      .then(() =>
+        sendMessage(
+          "verify your account",
+          `https://${process.env.HOST}/user/confirm/${token}`,
+          emtrim
+        )
+      )
+      .then(() =>
+        res
+          .status(200)
+          .json({ success: true, message: "Successfully signed up." })
+      )
+      .catch((err) => err500(res, err, "Internal server error saving a user"));
+  }
+
+  Confirm(req: Request, res: Response) {
+    const nd = new Date();
+    const { token } = req.query;
+    if (prpcheck(token as string)) return err400(res, "No Token given");
+    const updParams = {
+      currSecToken: undefined,
+      currUsrOp: undefined,
+      secTokExp: undefined,
+    };
+    const findParams = {
+      where: {
         currSecToken: token,
-        secTokExp: new Date(Date.now() + 86400000),
+        currUsrOp: "C",
+        secTokExp: { $gt: nd },
+      },
+    };
+
+    return User.update(updParams, findParams)
+      .then((user) => {
+        if (user[0] == 0)
+          return err400(res, "no user found for this registration link");
+        else
+          return res
+            .status(200)
+            .json({ success: true, message: "confirmed account status" });
       })
-        .then((user) =>
-          SES.sendEmail({
-            Destination: {
-              ToAddresses: [user.email],
-            },
-            Message: {
-              Body: {
-                Html: {
-                  Charset: "UTF-8",
-                  Data: `To verify your account click the following link or paste it into your browser<br/><br/> https://${req.headers.host}/user/confirm/${token}<br/><br/>If you didn't make this request, then ignore the email and you'll be safe<br/>`,
-                },
-              },
-              Subject: {
-                Charset: "UTF-8",
-                Data: "Password Reset",
-              },
-            },
-            Source: `Sengine <${process.env.LOGIN_USER}>`,
-          }).promise()
-        )
-        .then(() =>
-          res
-            .status(201)
-            .json({ success: true, message: "Successfully signed up." })
-        )
-        .catch((err) => {
-          if (err) {
-            logger.error(`Error when saving a user: ${err}`);
-            return res
-              .status(400)
-              .json({ success: false, message: err.message });
-          }
-        });
-    });
+      .catch((err) => err500(res, err, "Internal server error saving a user"));
   }
 
   Login(req: Request, res: Response) {
     const { email, password } = req.body;
-    User.findOne({
-      email,
-    })
-      .then((user) =>
-        bcrypt
-          .compare(password, user.password)
-          .then((match) => {
-            if (match) {
-              const { username, _id } = user;
-              return jwt.sign(
-                {
-                  username,
-                  email,
-                  _id,
-                },
-                process.env.JWT_SECRET,
-                {},
-                (err, tk: String) => {
-                  if (err)
-                    res
-                      .status(400)
-                      .json({ success: false, message: err.message });
-                  res.status(200).json({
+    if (prpcheck(email) || prpcheck(password))
+      return err400(res, "Missing email/password");
+    const getParams = {
+      where: {
+        email,
+      },
+      attributes: ["currUsrOp", "username", "password", "_id"],
+    };
+    return User.findOne(getParams)
+      .then(async (user) => {
+        if (user) {
+          if (user.currUsrOp === "C")
+            return err400(
+              res,
+              "this account is not yet validated. please check your email."
+            );
+          const { username, _id, password } = user;
+          return bcrypt
+            .compare(password, password)
+            .then(async (match: boolean) => {
+              if (match && user) {
+                try {
+                  const tk = await jwt.sign(
+                    {
+                      username,
+                      email,
+                      _id,
+                    },
+                    process.env.JWT_SECRET || "23rc8280rnm238x",
+                    { expiresIn: "20d" }
+                  );
+                  return res.status(200).json({
                     success: true,
                     message: {
                       token: tk,
                     },
                   });
+                } catch (err) {
+                  return err400(res, "jwt validation error");
                 }
-              );
-            }
-            return res
-              .status(400)
-              .json({ success: false, message: "Incorrect password" });
-          })
-          .catch((err) =>
-            res.status(500).json({ success: false, message: err.message })
-          )
-      )
-      .catch((e) =>
-        res.status(500).json({ success: false, message: e.message })
-      );
+              }
+              return err400(res, "Incorrect password");
+            })
+            .catch((err: Error) => err500(res, err, "bcrypt error"));
+        } else return err400(res, "user not found with this email");
+      })
+      .catch((err) => err500(res, err, "Internal server error getting a user"));
   }
 
-  getLikedutils(req: Request, res: Response) {
-    const { username } = req.user;
-    User.findOne({ username })
-      .then((usr) => {
-        return res.status(200).json({ success: true, message: usr.likes });
-      })
-      .catch((e) => {
-        logger.error(
-          `Error getting user by username: ${username} with error: ${e}`
-        );
-        return res.status(500).json({ success: false, message: e.message });
+  private fetchAllHelper = async (prp: string[] | undefined) => {
+    if (prp)
+      await prp.map(async (_id: string) => {
+        const getParams = {
+          where: { _id },
+        };
+        return await utilSchema.findOne(getParams);
       });
+    return prp;
+  };
+
+  async getLikedutils(req: RequestUsr, res: Response) {
+    const { likes } = req.user;
+    try {
+      const tmp = await this.fetchAllHelper(likes);
+      return res.status(200).json({ success: false, message: tmp });
+    } catch (e) {
+      return err500(res, e, "Internal server error Getting Liked utils");
+    }
   }
 
   getUserutils(req: Request, res: Response) {
     const { username } = req.params;
-
-    User.findOne({ username })
-      .then((usr) => {
-        return res.status(200).json({ success: true, message: usr.utils });
+    const findParams = { where: { username } };
+    return User.findOne(findParams)
+      .then(async (usr) => {
+        if (!usr || !usr.utils) return err400(res, "Error getting user");
+        const tmp = await this.fetchAllHelper(usr.utils);
+        return res.status(200).json({ success: false, message: tmp });
       })
-      .catch((e) => {
-        logger.error(
-          `Error getting user by username: ${username} with error: ${e}`
-        );
-        return res.status(500).json({ success: false, message: e.message });
-      });
+      .catch((e) => err500(res, e, "Internal server error getting user util"));
   }
 
-  updateProp(req: Request, res: Response) {
+  async getCurrent(req: RequestUsr, res: Response) {
+    const usr = req.user;
+    if (!usr) return err400(res, "Error getting user");
+    try {
+      const tmp1 = await this.fetchAllHelper(usr.likes);
+      const tmp2 = await this.fetchAllHelper(usr.utils);
+      usr.likes = tmp1;
+      usr.utils = tmp2;
+    } catch (e) {
+      return err500(res, e, "Internal server error getting curent user");
+    }
+    return res.status(200).json({ success: false, message: usr });
+  }
+
+  updateProp(req: RequestUsr, res: Response) {
+    const reqBod = req.body;
     const { prop } = req.params;
     const { _id } = req.user;
-    if (prop === "phone" || prop === "username" || prop === "email") {
-      const prp = req.body[prop].trim();
-      return User.findOne(_id)
-        .then(async (u) => {
-          if (prop === "email") {
-            const phone = req.body.phone.trim();
-            const bc = await bcrypt.compare(phone, u.phone);
-            if (bc) {
-              return u;
-            } else {
-              throw res
-                .status(400)
-                .json({ success: false, message: `Invalid ${prop}` });
-            }
-          } else {
-            return u;
-          }
-        })
-        .then((u) =>
-          u
-            .update({ prp })
-            .then(() =>
-              res.status(200).json({
-                success: true,
-                message: `Successfully updated ${prop}`,
-              })
-            )
-            .catch((error) => {
-              logger.error(
-                `Error updating ${prop} to ${prp} for user ${_id} with error ${error}`
-              );
-              return res
-                .status(500)
-                .json({ success: false, message: error.message });
-            })
-        );
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "property to update must be a phone, email or username.",
+    if (prpcheck(prop)) return err400(res, "missing type of item to update");
+
+    if (prop === "username" || prop === "email") {
+      const prp = reqBod[prop].trim();
+
+      const updParams = {
+        prp,
+      };
+      const findParams = { where: { _id } };
+
+      return User.update(updParams, findParams).then((u) => {
+        if (u[0] == 0) return err400(res, "No user found to update");
+        return res.status(200).json({
+          success: true,
+          message: `Successfully updated ${prop}`,
+        });
       });
+    } else {
+      return err400(res, "property to update must be email or username.");
     }
   }
 
-  checkToken(req: Request, res: Response) {
+  checkToken(req: RequestUsr, res: Response) {
     const nd = new Date();
     const { token } = req.params;
-    User.findOne({
-      currSecToken: token,
-      secTokExp: { $gte: nd },
+    if (prpcheck(token)) return err400(res, "missing/bad token");
+    User.count({
+      where: {
+        currSecToken: token,
+        secTokExp: { $gte: nd },
+      },
     })
-      .then(() =>
-        res.status(200).json({
+      .then((c) => {
+        if (c == 0) return err400(res, "Token is invalid or has expired.");
+        return res.status(200).json({
           success: true,
           message: "Valid reset token",
-          token: token,
-        })
-      )
-      .catch(() =>
-        res.status(400).json({
-          success: false,
-          message: "Token is invalid or has expired.",
-        })
-      );
+        });
+      })
+      .catch((e) => err500(res, e, "Internal server error checking token"));
   }
 
-  //TODO: make email func
-  askResetPassword(req: Request, res: Response) {
-    crypto.randomBytes(20, (err, buffer) => {
-      const token = buffer.toString("hex");
-      User.update(
-        {
-          currUsrOp: "R",
-          currSecToken: token,
-          secTokExp: new Date(Date.now() + 86400000),
+  async askResetPassword(req: RequestUsr, res: Response) {
+    const { email } = req.user;
+    if (prpcheck(email)) return err400(res, "missing/bad email");
+    const token = await crypto.randomBytes(20).toString("hex");
+    User.update(
+      {
+        currUsrOp: "R",
+        currSecToken: token,
+        secTokExp: new Date(Date.now() + 86400000),
+      },
+      {
+        where: {
+          email: email,
         },
-        {
-          returning: true,
-          where: {
-            email: req.body.email,
-          },
-        }
+      }
+    )
+      .then((u) => {
+        if (u[0] == 0)
+          return err400(res, "no user could be found to reset password");
+        return;
+      })
+      .then(() =>
+        sendMessage(
+          "reset your password",
+          `https://${process.env.HOST}/user/reset/${token}`,
+          email
+        )
       )
-        .then((user) =>
-          SES.sendEmail({
-            Destination: {
-              ToAddresses: [user.email],
-            },
-            Message: {
-              Body: {
-                Html: {
-                  Charset: "UTF-8",
-                  Data: `To reset your password click the following link or paste it into your browser<br/><br/> https://${req.headers.host}/user/reset/${token}<br/><br/>If you didn't make this request, then ignore the email and you'll be safe<br/>`,
-                },
-              },
-              Subject: {
-                Charset: "UTF-8",
-                Data: "Password Reset",
-              },
-            },
-            Source: `Sengine <${process.env.LOGIN_USER}>`,
-          }).promise()
-        )
-        .then(() =>
-          res
-            .status(200)
-            .json({ success: true, message: "Sent password reset email" })
-        )
-        .catch((err) =>
-          res.status(500).json({ success: false, message: err.message })
-        );
-    });
+      .then(() =>
+        res
+          .status(200)
+          .json({ success: true, message: "Sent password reset email" })
+      )
+      .catch((e) => err500(res, e, "Internal server error resetting password"));
   }
 
-  ResetPassword(req: Request, res: Response) {
+  ResetPassword(req: RequestUsr, res: Response) {
+    const { password } = req.body;
+    const { token } = req.params;
+    if (prpcheck(password)) return err400(res, "missing/bad password");
+    if (prpcheck(token)) return err400(res, "missing/bad token");
     const nd = new Date();
-    hash(req.body.password, true)
+    hash(password, true)
       .then((hash) =>
         User.update(
           {
@@ -301,9 +343,8 @@ export default class UserController {
             secTokExp: undefined,
           },
           {
-            returning: true,
             where: {
-              currSecToken: req.params.token,
+              currSecToken: token,
               currUsrOp: "R",
               secTokExp: { $gt: nd },
             },
@@ -311,104 +352,86 @@ export default class UserController {
         )
       )
       .then((u) => {
-        if (!u) {
-          return res.status(400).json({
-            success: false,
-            message: "Password reset token is invalid or has expired.",
-          });
+        if (u[0] == 0) {
+          return err400(res, "Password reset token is invalid or has expired.");
         } else {
           res
             .status(200)
             .json({ success: true, message: "Password successfully reset" });
         }
       })
-      .catch((err) => {
-        logger.error(`Error resetting password with error ${err} `);
-        return res.status(500).json({ success: false, message: err.message });
-      });
+      .catch((err) => err500(res, err, "Error resetting password"));
   }
 
-  askAcctDelete(req: Request, res: Response) {
-    crypto.randomBytes(20, (err, buffer) => {
-      const token = buffer.toString("hex");
-      User.findByIdAndUpdate(
-        {
-          currUsrOp: "D",
-          currSecToken: token,
-          secTokExp: new Date(Date.now() + 86400000),
+  async askAcctDelete(req: RequestUsr, res: Response) {
+    const { email } = req.user;
+    if (prpcheck(email)) return err400(res, "missing/bad email");
+    const token = await crypto.randomBytes(20).toString("hex");
+    User.update(
+      {
+        currUsrOp: "D",
+        currSecToken: token,
+        secTokExp: new Date(Date.now() + 86400000),
+      },
+      {
+        where: {
+          email: email,
         },
-        {
-          returning: true,
-          where: {
-            email: req.body.email,
-          },
-        }
+      }
+    )
+      .then((user) => {
+        if (user[0] == 0) return err400(res, "No users found with this data");
+        return;
+      })
+      .then(() =>
+        sendMessage(
+          "delete your account",
+          `https://${process.env.HOST}/user/delete/${token}`,
+          email
+        )
       )
-        .then((user) =>
-          SES.sendEmail({
-            Destination: {
-              ToAddresses: [user.email],
-            },
-            Message: {
-              Body: {
-                Html: {
-                  Charset: "UTF-8",
-                  Data: `To reset your password click the following link or paste it into your browser<br/><br/> https://${req.headers.host}/user/delete/${token}<br/><br/>If you didn't make this request, then ignore the email and you'll be safe<br/>`,
-                },
-              },
-              Subject: {
-                Charset: "UTF-8",
-                Data: "Password Reset",
-              },
-            },
-            Source: `Sengine <${process.env.LOGIN_USER}>`,
-          })
-        )
-        .then(() =>
-          res
-            .status(200)
-            .json({ success: true, message: "Sent deletion email" })
-        )
-        .catch((err) =>
-          res.status(500).json({ success: false, message: err.message })
-        );
-    });
+      .then(() =>
+        res.status(200).json({ success: true, message: "Sent deletion email" })
+      )
+      .catch((e) => err500(res, e, "Internal server error deleting account"));
   }
 
-  AcctDelete(req: Request, res: Response) {
+  AcctDelete(req: RequestUsr, res: Response) {
+    const { token } = req.params;
+    const { _id } = req.user;
     const nd = new Date();
-    User.destroy({
-      returning: true,
+    return User.count({
       where: {
-        currSecToken: req.params.token,
+        currSecToken: token,
         currUsrOp: "D",
         secTokExp: { $gt: nd },
       },
     })
-      .then((usr) =>
-        utilSchema.destroy({
-          returning: true,
-          where: {
-            authorId: usr._id,
-          },
-        })
+      .then((u) => {
+        if (u == 0)
+          return err400(
+            res,
+            "There was no user we found that could be deleted"
+          );
+        return;
+      })
+      .then(() =>
+        req.user.destroy().then(() =>
+          utilSchema.destroy({
+            where: {
+              authorId: _id,
+            },
+          })
+        )
       )
       .then((u) => {
-        if (!u) {
-          return res.status(400).json({
-            success: false,
-            message: "Deletion token is invalid or has expired.",
-          });
-        } else {
-          res.status(200).json({
-            success: true,
-            message: "Removed your account.",
-          });
-        }
+        if (u == 0)
+          return err400(res, "Deletion token is invalid or has expired.");
+        return res.status(200).json({
+          success: true,
+          message: "Removed your account.",
+        });
       })
-      .catch((err) => {
-        logger.error(`Error resetting password with error ${err} `);
-        return res.status(500).json({ success: false, message: err.message });
-      });
+      .catch((e) => err500(res, e, "Internal server error resetting password"));
   }
 }

@@ -1,105 +1,90 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
+import { Sequelize, Model, DataTypes } from "sequelize";
 const sequelize = new Sequelize("sqlite::memory:");
 
-import UserSchema from "./user";
-class utilSchema extends Model {}
+class utilSchema extends Model {
+  public _id!: string;
+  public authorId!: string;
+  public forkChain?: string[];
+  public title!: string;
+  public description!: string;
+  public tags!: string[];
+  public permissions?: string[];
+  public approved!: boolean;
+  public binHash!: string;
+  public binLoc!: string;
+  public srcLoc!: string;
+  public jsonLoc!: string;
+  public uses!: number;
+  public likes!: number;
+  public dislikes!: number;
+}
 utilSchema.init(
   {
     _id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
       primaryKey: true,
     },
     authorId: {
       type: DataTypes.UUID,
-      references: {
-        model: UserSchema,
-        key: "_id",
-        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
+      allowNull: false,
+    },
+    forkChain: {
+      type: DataTypes.STRING,
+      get: function () {
+        return JSON.parse(this.getDataValue("forkChain"));
       },
-      allowNull: {
-        args: false,
-        msg: "No authorid provided",
+      set: function (val) {
+        return this.setDataValue("forkChain", JSON.stringify(val));
       },
     },
-    forkChain: [
-      {
-        type: DataTypes.UUID,
-        references: {
-          model: UserSchema,
-          key: "_id",
-          deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
-        },
-        allowNull: {
-          args: false,
-          msg: "No authorid provided",
-        },
-      },
-    ],
     title: {
       type: DataTypes.STRING,
-      allowNull: {
-        args: false,
-        msg: "No title provided",
-      },
+      allowNull: false,
     },
     description: {
-      type: DataTypes.STRING,
-      allowNull: {
-        args: false,
-        msg: "No description provided",
-      },
+      type: DataTypes.STRING(1500),
+      allowNull: false,
     },
-    tags: [
-      {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-    ],
-    permissions: [
-      {
-        type: DataTypes.STRING,
-      },
-    ],
+    tags: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+    },
+    permissions: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+    },
+    approved: {
+      type: DataTypes.NUMBER, //0,1,2 where respectively dissaproved,pending,approved
+      defaultValue: 1,
+    },
     binHash: {
       type: DataTypes.STRING,
-      allowNull: {
-        args: false,
-        msg: "No binhash provided",
-      },
+      allowNull: false,
     },
     binLoc: {
       type: DataTypes.STRING,
-      allowNull: {
-        args: false,
-        msg: "No binary location provided",
-      },
+      allowNull: false,
     },
     srcLoc: {
       type: DataTypes.STRING,
-      allowNull: {
-        args: false,
-        msg: "No source location provided",
-      },
+      allowNull: false,
     },
     jsonLoc: {
       type: DataTypes.STRING,
-      allowNull: {
-        args: false,
-        msg: "No schema provided",
-      },
+      allowNull: false,
     },
     uses: {
       type: DataTypes.NUMBER,
-      default: 0,
+      defaultValue: 0,
     },
     likes: {
       type: DataTypes.NUMBER,
-      default: 0,
+      defaultValue: 0,
     },
     dislikes: {
       type: DataTypes.NUMBER,
-      default: 0,
+      defaultValue: 0,
     },
   },
   {
@@ -108,7 +93,5 @@ utilSchema.init(
     timestamps: true,
   }
 );
-
-UserSchema.hasMany(utilSchema);
 
 export default utilSchema;

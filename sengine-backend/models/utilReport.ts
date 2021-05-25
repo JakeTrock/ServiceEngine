@@ -1,47 +1,31 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
+import { Sequelize, Model, DataTypes } from "sequelize";
 const sequelize = new Sequelize("sqlite::memory:");
 
-import UserSchema from "./user";
-import utilSchema from "./util";
-
-class utilReportSchema extends Model {}
+class utilReportSchema extends Model {
+  public _id!: string;
+  public reportedBy!: string;
+  public reason!: string;
+  public util!: string;
+}
 utilReportSchema.init(
   {
     _id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
       primaryKey: true,
     },
     reportedBy: {
       type: DataTypes.UUID,
-      references: {
-        model: UserSchema,
-        key: "_id",
-        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
-      },
-      allowNull: {
-        args: false,
-        msg: "No user provided",
-      },
+      allowNull: false,
     },
     reason: {
       type: DataTypes.STRING,
-      allowNull: {
-        args: false,
-        msg: "No description provided",
-      },
+      allowNull: false,
     },
     util: {
       type: DataTypes.UUID,
-      references: {
-        model: utilSchema,
-        key: "_id",
-        deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE,
-      },
-      allowNull: {
-        args: false,
-        msg: "No util provided",
-      },
+      allowNull: false,
     },
   },
   {
@@ -50,9 +34,5 @@ utilReportSchema.init(
     timestamps: true,
   }
 );
-
-UserSchema.hasMany(utilReportSchema);
-
-utilSchema.hasMany(utilReportSchema);
 
 export default utilReportSchema;

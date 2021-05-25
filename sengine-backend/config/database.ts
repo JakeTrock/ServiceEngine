@@ -1,9 +1,15 @@
-import * as dotenv from 'dotenv';
-import { Sequelize } from 'sequelize';
+import * as dotenv from "dotenv";
+import { Sequelize } from "sequelize";
 
 dotenv.config();
-const pgURL = process.env.PG_URL;
 
-const sequelize = new Sequelize(pgURL);
-
+const sequelize = new Sequelize(
+  process.env.PG_DB,
+  process.env.PG_USERNAME,
+  process.env.PG_PASSWORD,
+  {
+    host: process.env.PG_HOST,
+    dialect: "postgres",
+  }
+);
 export default sequelize;

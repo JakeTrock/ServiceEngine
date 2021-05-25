@@ -1,15 +1,14 @@
-/* eslint-disable class-methods-use-this */
-import { Response } from "express";
+import { Request, Response } from "express";
 
 import * as AWS from "aws-sdk";
-import initLogger from "../config/logger";
 import User from "../models/user";
-import { removeNullUndef } from "../config/helpers";
 import utilReport from "../models/utilReport";
 import utilSchema from "../models/util";
-
-const logger = initLogger("Controllerutils");
-
+import { v4 as uuidv4 } from "uuid";
+import Sequelize from "../config/database";
+import { err400, err500, prpcheck } from "../config/helpers";
+import RequestUsr from "../config/types";
+import { Op, literal } from "sequelize";
 const s3Bucket = process.env.BUCKET_NAME;
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS,
@@ -17,356 +16,520 @@ const credentials = {
 };
 AWS.config.update({ credentials, region: "us-east-1" });
 const s3 = new AWS.S3();
-export default class utilController {
-  async createutil(req: Request, res: Response) {
-    const { binHash, srcLoc, description, tags, title } = req.body;
-    const authorId = req.user._id;
-    const _id = mongoose.Types.ObjectId();
-    if (srcLoc) {
-      try {
-        const util = removeNullUndef({
-          _id,
-          title,
-          tags: tags.split(","),
-          description,
-          authorId,
-          binHash,
-          binLoc: `${authorId}/${_id.toString()}/bin.wasm`,
-          srcLoc: `${authorId}/${_id.toString()}/src.zip`,
-          jsonLoc: `${authorId}/${_id.toString()}/iface.json`,
-        });
-        const upls = [
-          await s3.getSignedUrl("putObject", {
-            Bucket: s3Bucket,
-            Key: util.binLoc,
-            Expires: 60,
-            ContentType: "text/wasm",
-            ACL: "public-read",
-          }),
-          await s3.getSignedUrl("putObject", {
-            Bucket: s3Bucket,
-            Key: util.srcLoc,
-            Expires: 60,
-            ContentType: "application/zip",
-            ACL: "public-read",
-          }),
-          await s3.getSignedUrl("putObject", {
-            Bucket: s3Bucket,
-            Key: util.jsonLoc,
-            Expires: 60,
-            ContentType: "text/json",
-            ACL: "public-read",
-          }),
-        ];
 
-        return utilSchema
-          .create(util)
-          .then((p) =>
-            res.status(201).json({
-              success: true,
-              message: {
-                uuid: _id,
-                upls,
-              },
-            })
-          )
-          .catch((err: any) => {
-            logger.error(`Error when saving a util ${util}: ${err}`);
-            return res
-              .status(500)
-              .json({ success: false, message: err.message });
-          });
-      } catch (e) {
-        logger.error(`System upload error: ${e}`);
-        return res.status(500).json({ success: false, message: e.message });
-      }
+export default class utilController {
+  async createutil(req: RequestUsr, res: Response) {
+    const { binHash, description, tags, title, proposedPerms } = req.body;
+    const { _id } = req.user;
+
+    if (
+      prpcheck(_id) ||
+      prpcheck(binHash) ||
+      prpcheck(description) ||
+      prpcheck(tags) ||
+      prpcheck(title) ||
+      prpcheck(proposedPerms)
+    )
+      return err400(res, "Missing some information");
+    if (tags.split(",").length > 5)
+      return err400(res, "please only have 5 or fewer tags.");
+    const perms = [
+      "getCam",
+      "getAud",
+      "getVidAud",
+      "getNet",
+      "sendNet",
+      "getCurrentPos",
+      "getClipboard",
+      "setClipboard",
+      "getScreen",
+      "GetScreenAudio",
+    ];
+    if (proposedPerms.split(",").every((e: string) => perms.includes(e)))
+      return err400(
+        res,
+        "one of your permissions may be mistyped or does not exist"
+      );
+    const id = uuidv4();
+    try {
+      const util = {
+        _id: id,
+        title,
+        tags: tags.split(","),
+        description,
+        authorId: _id,
+        permissions: proposedPerms,
+        approved: proposedPerms == [],
+        binHash,
+        binLoc: `${_id}/${id.toString()}/bin.wasm`,
+        srcLoc: `${_id}/${id.toString()}/src.zip`,
+        jsonLoc: `${_id}/${id.toString()}/iface.json`,
+      };
+      const upls = [
+        await s3.getSignedUrl("putObject", {
+          Bucket: s3Bucket,
+          Key: util.binLoc,
+          Expires: 60,
+          ContentType: "text/wasm",
+          ACL: "public-read",
+        }),
+        await s3.getSignedUrl("putObject", {
+          Bucket: s3Bucket,
+          Key: util.srcLoc,
+          Expires: 60,
+          ContentType: "application/zip",
+          ACL: "public-read",
+        }),
+        await s3.getSignedUrl("putObject", {
+          Bucket: s3Bucket,
+          Key: util.jsonLoc,
+          Expires: 60,
+          ContentType: "text/json",
+          ACL: "public-read",
+        }),
+      ];
+
+      return utilSchema
+        .create(util)
+        .then(() => res.status(200).json({ success: true, message: upls }))
+        .catch((e: Error) =>
+          err500(res, e, "Internal server error saving a util")
+        );
+    } catch (e) {
+      return err500(res, e, "Internal server error uploading file");
     }
   }
-
-  //TODO:allow user to apply for permissions upgrades
 
   //TODO:create a route to calculate possible cost for external compute
 
   //TODO:allow user to run an external compute
 
-  async saveutil(req: Request, res: Response) {
-    const { binHash, newJson, newSrc, title, tags, description } = req.body;
+  async saveutil(req: RequestUsr, res: Response) {
+    const {
+      binHash,
+      newJson,
+      newSrc,
+      title,
+      tags,
+      description,
+      permissions,
+    } = req.body;
     const { id } = req.params;
-    utilSchema
-      .findOne({ _id: id })
-      .then(async (p) => {
-        let upls = [];
-        if (newSrc || binHash) {
-          upls.push(
-            await s3.getSignedUrl("putObject", {
-              Bucket: s3Bucket,
-              Key: `${p.authorId.toString()}/${p._id.toString()}/bin.wasm`,
-              Expires: 60,
-              ContentType: "text",
-              ACL: "public-read",
-            })
-          );
-          upls.push(
-            await s3.getSignedUrl("putObject", {
-              Bucket: s3Bucket,
-              Key: `${p.authorId.toString()}/${p._id.toString()}/bin.wasm`,
-              Expires: 60,
-              ContentType: "text",
-              ACL: "public-read",
-            })
-          );
-        }
-        if (newJson) {
-          upls.push(
-            await s3.getSignedUrl("putObject", {
-              Bucket: s3Bucket,
-              Key: `${p.authorId.toString()}/${p._id.toString()}/iface.json`,
-              Expires: 60,
-              ContentType: "text",
-              ACL: "public-read",
-            })
-          );
-        }
-        return p
-          .update(
-            removeNullUndef({
-              binHash,
-              title,
-              tags: tags.split(","),
-              description,
-            }),
-            {
-              returning: true,
-            }
-          )
-          .then(() => res.status(200).json({ success: true, message: upls }))
-          .catch((err) => {
-            logger.error(`Error when updating util ${id}: ${err}`);
-            return res
-              .status(500)
-              .json({ success: false, message: err.message });
-          });
+    const tagsFormatted = tags.split(",");
+    const permsFormatted = permissions.split(",");
+    return utilSchema
+      .findOne({
+        where: { _id: id },
+        attributes: [
+          "_id",
+          "authorId",
+          "binHash",
+          "title",
+          "tags",
+          "description",
+          "permissions",
+        ],
       })
-      .catch((err) => {
-        logger.error(`Error when updating util ${id}: ${err}`);
-        return res.status(500).json({ success: false, message: err.message });
-      });
+      .then(async (p) => {
+        try {
+          if (!p)
+            return err400(
+              res,
+              "The Util you are trying to save could not be found"
+            );
+          const { authorId, _id } = p;
+          const upls: string[] = [];
+          if (newSrc) {
+            upls.push(
+              await s3.getSignedUrl("putObject", {
+                Bucket: s3Bucket,
+                Key: `${authorId}/${_id}/bin.wasm`,
+                Expires: 60,
+                ContentType: "text",
+                ACL: "public-read",
+              })
+            );
+            upls.push(
+              await s3.getSignedUrl("putObject", {
+                Bucket: s3Bucket,
+                Key: `${p.authorId}/${p._id}/src.zip`,
+                Expires: 60,
+                ContentType: "text",
+                ACL: "public-read",
+              })
+            );
+          }
+          if (newJson) {
+            upls.push(
+              await s3.getSignedUrl("putObject", {
+                Bucket: s3Bucket,
+                Key: `${p.authorId}/${p._id}/iface.json`,
+                Expires: 60,
+                ContentType: "text",
+                ACL: "public-read",
+              })
+            );
+          }
+          interface utcreate {
+            binHash?: string;
+            title?: string;
+            tags?: string[];
+            description?: string;
+            permissions?: string[];
+            approved?: boolean;
+          }
+          const newSch: utcreate = {};
+
+          if (binHash && binHash != p.binHash) newSch.binHash = binHash;
+          if (title && title != p.title) newSch.title = title;
+          if (tags && tagsFormatted != p.tags) newSch.tags = tagsFormatted;
+          if (description && description != p.description)
+            newSch.description = description;
+          if (permissions && permsFormatted != p.permissions) {
+            newSch.permissions = permsFormatted;
+            newSch.approved = false;
+          } else {
+            newSch.approved = true;
+          }
+          return p
+            .update(newSch)
+            .then(() => res.status(200).json({ success: true, message: upls }))
+            .catch((e: Error) =>
+              err500(res, e, "Internal server error when updating util")
+            );
+        } catch (e) {
+          return err500(res, e, "Internal server error when updating util");
+        }
+      })
+      .catch((e: Error) =>
+        err500(res, e, "Internal server error when updating util")
+      );
   }
 
-  remixutil(req: Request, res: Response) {
+  async remixutil(req: RequestUsr, res: Response) {
     const { id } = req.params;
-    utilSchema
-      .findOne({ _id: id })
-      .then(async (util) => {
-        const tmp = {
-          jsonLoc: await s3.getSignedUrl("getObject", {
-            Bucket: s3Bucket,
-            Key: util.jsonLoc,
-          }),
-          binLoc: await s3.getSignedUrl("getObject", {
-            Bucket: s3Bucket,
-            Key: util.binLoc,
-          }),
-          srcLoc: await s3.getSignedUrl("getObject", {
-            Bucket: s3Bucket,
-            Key: util.srcLoc,
-          }),
-        };
-        return {
-          metadata: util,
-          files: tmp,
-        };
+    if (prpcheck(id)) return err400(res, "Missing query string");
+    return utilSchema
+      .findOne({
+        where: { _id: id },
+        attributes: [
+          "jsonLoc",
+          "binLoc",
+          "srcLoc",
+          "_id",
+          "likes",
+          "dislikes",
+          "likes",
+          "uses",
+          "binHash",
+          "permissions",
+        ],
       })
-      .then((result) =>
-        res.status(200).json({
-          success: true,
-          message: result,
-        })
-      )
-      .catch((err) => {
-        logger.error(`Error when getting dev download ${id}: ${err}`);
-        return res.status(500).json({ success: false, message: err.message });
-      });
+      .then(async (util) => {
+        if (!util)
+          return err400(res, "error finding utility. maybe it was deleted?");
+        const {
+          jsonLoc,
+          binLoc,
+          srcLoc,
+          _id,
+          likes,
+          dislikes,
+          uses,
+          binHash,
+          permissions,
+        } = util;
+        try {
+          const tmp = {
+            jsonLoc: await s3.getSignedUrl("getObject", {
+              Bucket: s3Bucket,
+              Key: jsonLoc,
+            }),
+            binLoc: await s3.getSignedUrl("getObject", {
+              Bucket: s3Bucket,
+              Key: binLoc,
+            }),
+            srcLoc: await s3.getSignedUrl("getObject", {
+              Bucket: s3Bucket,
+              Key: srcLoc,
+            }),
+            uuid: _id,
+            likes,
+            dislikes,
+            uses,
+            binHash,
+            permissions,
+          };
+          return res.status(200).json({
+            success: true,
+            message: tmp,
+          });
+        } catch (e) {
+          return err500(
+            res,
+            e,
+            "Internal server error when getting dev download"
+          );
+        }
+      })
+      .catch((e: Error) =>
+        err500(res, e, "Internal server error when getting dev download")
+      );
   }
 
   getutil(req: Request, res: Response) {
     const { id } = req.params;
-    utilSchema
-      .findOne({ _id: id })
+    if (prpcheck(id)) return err400(res, "Missing query string");
+    return utilSchema
+      .findOne({
+        where: { _id: id },
+        attributes: [
+          "jsonLoc",
+          "binLoc",
+          "_id",
+          "likes",
+          "dislikes",
+          "likes",
+          "uses",
+          "binHash",
+          "permissions",
+        ],
+      })
       .then(async (util) => {
-        const tmp = {
-          jsonLoc: await s3.getSignedUrl("getObject", {
-            Bucket: s3Bucket,
-            Key: util.jsonLoc,
-          }),
-          binLoc: await s3.getSignedUrl("getObject", {
-            Bucket: s3Bucket,
-            Key: util.binLoc,
-          }),
-          uuid: util._id,
-          likes: util.likes,
-          dislikes: util.dislikes,
-          uses: util.uses,
-          binhash: util.binhash,
-          permissions: util.permissions,
-        };
-        return tmp;
+        if (!util)
+          return err400(res, "could not find the util you RequestUsred.");
+        const {
+          jsonLoc,
+          binLoc,
+          _id,
+          likes,
+          dislikes,
+          uses,
+          binHash,
+          permissions,
+        } = util;
+        try {
+          const tmp = {
+            jsonLoc: await s3.getSignedUrl("getObject", {
+              Bucket: s3Bucket,
+              Key: jsonLoc,
+            }),
+            binLoc: await s3.getSignedUrl("getObject", {
+              Bucket: s3Bucket,
+              Key: binLoc,
+            }),
+            uuid: _id,
+            likes,
+            dislikes,
+            uses,
+            binHash,
+            permissions,
+          };
+          return res.status(200).json({
+            success: true,
+            message: tmp,
+          });
+        } catch (e) {
+          return err500(res, e, "Internal server error when getting download");
+        }
+      })
+      .catch((e: Error) =>
+        err500(res, e, "Internal server error when getting download")
+      );
+  }
+
+  search(req: Request, res: Response) {
+    const { search } = req.params;
+    if (prpcheck(search))
+      return err400(res, "you must specify a search paramater");
+    const param = search.split(" ");
+    const pl = param.length;
+    const finalquery =
+      "SELECT * FROM Util WHERE" +
+      param.map((p: string, i: number) =>
+        `title LIKE '${p}%' OR tags LIKE '${p}%' OR description LIKE '${p}%'` +
+        (i === pl)
+          ? ";"
+          : " OR "
+      );
+    return utilSchema
+      .findAll({
+        where: {
+          approved: 2,
+          [Op.and]: [
+            literal(`(
+              ${finalquery}
+          )`),
+          ],
+        },
+        order: [[literal("likes"), "DESC"]],
+        attributes: [
+          "_id",
+          "title",
+          "description",
+          "likes",
+          "dislikes",
+          "uses",
+        ],
       })
       .then((result) =>
         res.status(200).json({
           success: true,
-          message: result,
+          message: result[0],
         })
       )
-      .catch((err) => {
-        logger.error(`Error when getting pkg download ${id}: ${err}`);
-        return res.status(500).json({ success: false, message: err.message });
-      });
+      .catch((e: Error) =>
+        err500(
+          res,
+          e,
+          `Internal server error when searching for term ${req.params.search}`
+        )
+      );
   }
 
-  search(req: Request, res: Response) {
-    res.status(404).json({
-      success: false,
-      message: "not implemented",
-    });
-    // const { searchQuery } = req.params;
-    // /*@ts-ignore */
-    // return util
-    //   .fuzzy({
-    //     //TODO still no good way to do this other than:https://dev.to/kaleman15/fuzzy-searching-with-postgresql-97o
-    //     title_tg: {
-    //       searchQuery,
-    //       weight: 20,
-    //     },
-    //     description_tg: {
-    //       searchQuery,
-    //       weight: 10,
-    //     },
-    //     tags_tg: {
-    //       searchQuery,
-    //       weight: 5,
-    //     },
-    //   })
-    //   .select("likes uses dislikes title description _id")
-    //   .sort({ likes: 1, dislikes: -1 }) //TODO:may not sort correctly
-    //   .exec()
-    //   .then((utils) => {
-    //     if (utils) {
-    //       return utils;
-    //     } else {
-    //       return "no utils found for this query";
-    //     }
-    //   })
-    //   .then((result) =>
-    //     res.status(200).json({
-    //       success: true,
-    //       message: result,
-    //     })
-    //   )
-    //   .catch((err) => {
-    //     logger.error(`Error when searching for term ${searchQuery}: ${err}`);
-    //     return res.status(500).json({ success: false, message: err.message });
-    //   });
-  }
-
-  deleteutil(req: Request, res: Response) {
+  deleteutil(req: RequestUsr, res: Response) {
+    const { _id } = req.user;
     const { id } = req.params;
-
-    utilSchema
+    if (prpcheck(id)) return err400(res, "missing target utility id");
+    return utilSchema
       .destroy({
         where: {
           _id: id,
         },
       })
       .then(() =>
-        res.status(200).json({
-          success: true,
-          message: `Successfully deleted util.`,
-        })
+        s3
+          .deleteObject({
+            Bucket: s3Bucket,
+            Key: `${_id}/${id}/bin.wasm`,
+          })
+          .promise()
       )
-      .catch((err) => {
-        logger.error(`Error when deleting a util with utilId ${id}: ${err}`);
-        return res.status(500).json({ success: false, message: err.message });
-      });
+      .then(() =>
+        s3
+          .deleteObject({
+            Bucket: s3Bucket,
+            Key: `${_id}/${id}/src.zip`,
+          })
+          .promise()
+      )
+      .then(() =>
+        s3
+          .deleteObject({
+            Bucket: s3Bucket,
+            Key: `${_id}/${id}/iface.json`,
+          })
+          .promise()
+      )
+      .then(() =>
+        res
+          .status(200)
+          .json({ success: true, message: "Successfully deleted util." })
+      )
+      .catch((e: Error) =>
+        err500(
+          res,
+          e,
+          `Internal server error when deleting a util with utilId ${id}`
+        )
+      );
   }
 
-  report(req: Request, res: Response) {
+  report(req: RequestUsr, res: Response) {
+    const { utils, _id } = req.user;
     const { reason, util } = req.body;
-    const reportedBy = req.user._id;
-    utilReport
-      .findOne({
-        reportedBy,
-        util,
+    if (prpcheck(utils) || prpcheck(_id) || prpcheck(reason) || prpcheck(util))
+      return err400(res, "missing report context data");
+    if (utils.indexOf(util) > -1)
+      return err400(res, "you cannot report one of your own utils");
+    const reportedBy = _id;
+    return utilReport
+      .count({
+        where: { reportedBy, util },
       })
       .then((p) => {
-        if (p) {
-          return res.status(400).json({
-            success: false,
-            message: "you have already reported this util",
-          });
+        if (p > 0) {
+          return err400(res, "you have already reported this util");
         } else {
-          utilReport
+          return utilReport
             .create({
               reportedBy,
               reason,
               util,
             })
             .then(() =>
-              res.status(201).json({
+              res.status(200).json({
                 success: true,
                 message: "Successfully submitted report",
               })
             )
-            .catch((err) => {
-              logger.error(
-                `Error saving util report for util ${util} by user ${reportedBy} with error: ${err}`
-              );
-              return res
-                .status(500)
-                .json({ success: false, message: err.message });
-            });
+            .catch((e: Error) =>
+              err500(
+                res,
+                e,
+                `Error saving util report for util ${util} by user ${reportedBy}`
+              )
+            );
         }
       });
   }
 
-  likeutil(req: Request, res: Response) {
+  likeutil(req: RequestUsr, res: Response) {
     return this.ldHelper(req, res, true);
   }
 
-  dislikeutil(req: Request, res: Response) {
+  dislikeutil(req: RequestUsr, res: Response) {
     return this.ldHelper(req, res, false);
   }
 
-  ldHelper(req: Request, res: Response, ld: boolean) {
+  ldHelper(req: RequestUsr, res: Response, ld: boolean) {
     const { id } = req.params;
-    const { _id } = req.user;
+    const { likes, dislikes, _id } = req.user;
+    if (prpcheck(id) || prpcheck(likes) || prpcheck(dislikes) || prpcheck(_id))
+      return err400(res, "Missing information needed.");
+    const adl = likes ? likes.indexOf(id) > -1 : false;
+    const pct = ld
+      ? adl
+        ? { likes: -1 }
+        : { likes: 1 }
+      : adl
+      ? { dislikes: -1 }
+      : { dislikes: 1 };
 
-    return User.findById(_id).then((u) => {
-      const adl = u.likes.map((x) => x.toString()).includes(id);
-      const pct = ld
-        ? adl
-          ? { $inc: { likes: -1 } }
-          : { $inc: { likes: 1 } }
-        : adl
-        ? { $inc: { dislikes: -1 } }
-        : { $inc: { dislikes: 1 } };
-      const uct = ld
-        ? adl
-          ? { $pull: { likes: id } }
-          : { $push: { likes: id } }
-        : adl
-        ? { $pull: { dislikes: id } }
-        : { $push: { dislikes: id } };
-      return utilSchema
-        .update(pct, {
-          where: { _id: id },
-        })
-        .then(() => u.update(uct))
-        .then(() => res.status(200).json({ success: true }))
-        .catch((err) => {
-          logger.error(`Error while dis/liking a util ${id}: ${err}`);
-          return res.status(500).json({ success: false, message: err.message });
-        });
-    });
+    const uct = ld
+      ? adl
+        ? {
+            likes: likes?.splice(likes.indexOf(id), 1),
+          }
+        : {
+            likes: likes?.push(id),
+          }
+      : adl
+      ? {
+          dislikes: dislikes?.splice(dislikes.indexOf(id), 1),
+        }
+      : {
+          dislikes: dislikes?.push(id),
+        };
+    return utilSchema
+      .increment(pct, {
+        where: {
+          _id: id,
+          authorId: {
+            [Op.notLike]: id,
+          },
+        },
+      })
+      .then((util) => {
+        if (!util) return err400(res, "the util you liked could not be found");
+        User.update(uct, { where: { _id } })
+          .then(() => res.status(200).json({ success: false }))
+          .catch((err) =>
+            err500(res, err, `Error while dis/liking a util ${id}`)
+          );
+      })
+      .catch((e: Error) =>
+        err500(res, e, "Internal server error getting users")
+      );
   }
 }

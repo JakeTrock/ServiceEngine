@@ -1,36 +1,68 @@
-import express from 'express';
-import UserController from '../funcs/user';
-import { isAuthenticated } from '../config/helpers';
+import express from "express";
+import { Request, Response } from "express";
+import UserController from "../funcs/user";
+import { isAuthenticated } from "../config/helpers";
+import RequestUsr from "../config/types";
 
 const router = express.Router();
 const userController = new UserController();
 
-router.post('/getUserutils/:username', async (req: Request, res) => userController.getUserutils(req, res));
+router.post("/getUserutils/:username", async (req: Request, res: Response) =>
+  userController.getUserutils(req, res)
+);
 
-router.post('/getLikedutils', isAuthenticated, async (req: Request, res) => userController.getLikedutils(req, res));
+router.get(
+  "/confirm/:token",
+  (req: Request, res: Response) => userController.Confirm(req, res)
+);
 
-router.post('/signup',(req: Request, res) => userController.Signup(req, res));
+router.post(
+  "/getLikedutils",
+  isAuthenticated,
+  async (req: RequestUsr, res: Response) =>
+    userController.getLikedutils(req, res)
+);
 
-router.post('/login',
-    (req: Request, res) => userController.Login(req, res));
+router.post("/signup", (req: Request, res: Response) =>
+  userController.Signup(req, res)
+);
 
-router.get('/', isAuthenticated, (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ success: false, message: 'Cannot get user, please login' });
-    }
-    return res.status(200).json({ success: true, message: req.user });
-});
+router.post("/login", (req: Request, res: Response) =>
+  userController.Login(req, res)
+);
 
-router.post('/update/:prop', (req: Request, res) => userController.updateProp(req, res));
+router.get("/", isAuthenticated, (req: RequestUsr, res: Response) =>
+  userController.getCurrent(req, res)
+);
 
-router.get('/check/:token', (req: Request, res) => userController.checkToken(req, res));
+router.post(
+  "/update/:prop",
+  isAuthenticated,
+  (req: RequestUsr, res: Response) => userController.updateProp(req, res)
+);
 
-router.get('/reset', (req: Request, res) => userController.askResetPassword(req, res));
+router.get("/check/:token", isAuthenticated, (req: RequestUsr, res: Response) =>
+  userController.checkToken(req, res)
+);
 
-router.post('/reset/:token', (req: Request, res) => userController.ResetPassword(req, res));
+router.get("/reset", isAuthenticated, (req: RequestUsr, res: Response) =>
+  userController.askResetPassword(req, res)
+);
 
-router.get('/delete', (req: Request, res) => userController.askAcctDelete(req, res));
+router.post(
+  "/reset/:token",
+  isAuthenticated,
+  (req: RequestUsr, res: Response) => userController.ResetPassword(req, res)
+);
 
-router.post('/delete/:token', (req: Request, res) => userController.AcctDelete(req, res));
+router.get("/delete", isAuthenticated, (req: RequestUsr, res: Response) =>
+  userController.askAcctDelete(req, res)
+);
+
+router.post(
+  "/delete/:token",
+  isAuthenticated,
+  (req: RequestUsr, res: Response) => userController.AcctDelete(req, res)
+);
 
 export default router;
