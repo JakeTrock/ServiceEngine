@@ -28,6 +28,11 @@ app.listen(port, async () => {
     await db.authenticate();
     logger.info("Successfully Connected to Postgres");
   } catch (err) {
-    logger.error(`Cannot connect to MongoDB: ${err}`);
+    logger.error(`Cannot connect to Postgres: ${err}`);
   }
 });
+
+const handle = (signal) => {
+  logger.error(`Node Process Received event: ${signal}`);
+};
+process.on("SIGHUP", handle);

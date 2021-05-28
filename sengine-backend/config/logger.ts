@@ -15,9 +15,10 @@ function initLogger(uid: string): Logger {
     });
 
     logger.add(
-        new winston.transports.File({
-            filename: process.env.LOG_FILE_PATH || `${path.dirname(require.main.filename)}/logs/default.log`,
-        }),
+        // new winston.transports.File({
+        //     filename: process.env.LOG_FILE_PATH || `${path.dirname(require.main.filename)}/logs/default.log`,
+        // }),
+        new winston.transports.Console(),
     );
 
     return logger;
