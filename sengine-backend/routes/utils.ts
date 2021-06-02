@@ -23,6 +23,10 @@ router.get("/load/:id", async (req: Request, res: Response) =>
   utils.getutil(req, res)
 );
 
+router.get("/fpage", async (req: Request, res: Response) =>
+  utils.getFrontpage(req, res)
+);
+
 router.get(
   "/save/:id",
   isAuthenticated,

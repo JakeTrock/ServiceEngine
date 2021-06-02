@@ -387,6 +387,38 @@ export default class utilController {
       );
   }
 
+  getFrontpage(req: Request, res: Response) {
+    return utilSchema
+      .findAll({
+        limit:12,
+        where: {
+          approved: 2,
+        },
+        order: [[literal("likes"), "DESC"],[literal("createdAt"), "DESC"]],
+        attributes: [
+          "_id",
+          "title",
+          "description",
+          "likes",
+          "dislikes",
+          "uses",
+        ],
+      })
+      .then((result) =>
+        res.status(200).json({
+          success: true,
+          message: result[0],
+        })
+      )
+      .catch((e: Error) =>
+        err500(
+          res,
+          e,
+          `Internal server error when searching for term ${req.params.search}`
+        )
+      );
+  }
+
   deleteutil(req: RequestUsr, res: Response) {
     const { _id } = req.user;
     const { id } = req.params;
