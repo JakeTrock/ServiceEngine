@@ -6,7 +6,6 @@ export interface form {
 }
 
 export interface ValidComponent {
-  fart:(poop:number)=>Promise<String>;
   serviceUUID: string,
   form: form,
   permissions: string[],

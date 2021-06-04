@@ -1,48 +1,44 @@
-import styled from "styled-components";
-const Holder = styled.div`
-  font-family: Helvetica Neue, sans-serif;
+#holder{
+font-family: Helvetica Neue, sans-serif;
   max-width: 600px;
   margin: 100px auto;
-
-  &,
-  & * {
-    box-sizing: border-box;
-  }
-`;
-const ServiceContainer = styled.div`
+  box-sizing: border-box;
+}
+#serviceContainer{
   border: 2px solid #ddd;
   outline: none;
-`;
-const ServiceBox = styled.div`
+}
+#serviceBox{
   border: 2px solid #ddd;
   outline: none;
-  &:hover {
+}
+#serviceBox:hover{
     border: 2px solid #ccf;
-  }
-`;
-const Suggestion = styled.div`
+}
+#suggestion{
   display: flex;
   font-size: 20px;
   align-items: baseline;
   padding: 10px 0;
   border: 1px solid #ddd;
   outline: none;
-  &:hover {
+}
+#suggestion:hover{
     border: 2px solid #ccf;
-    border-left 5px solid #ccf;
-  }
-`;
-const IntroHolder = styled.div`
-  padding: 20px 0;
-  font-weight: bold;
-  font-family: inherit;
-`;
-const SearchFormHolder = styled.div``;
-const ResultsHolder = styled.div`
+    border-left: 5px solid #ccf;
+}
+#introHolder{
+    padding: 20px 0;
+    font-weight: bold;
+    font-family: inherit;
+}
+
+#resultsHolder{
   border: 2px solid #ddd;
   outline: none;
-`;
-const SearchInput = styled.input`
+}
+
+#searchInput{
   display: block;
   width: 100%;
   padding: 25px;
@@ -51,12 +47,12 @@ const SearchInput = styled.input`
   font-size: 30px;
   border: 2px solid #ddd;
   outline: none;
+}
 
-  &:focus {
+#searchInput:focus {
     border-color: #bbb;
-  }
-`;
-const LgButton = styled.a`
+}
+#lgButton{
   text-align: center;
   background: LightCoral;
   display: block;
@@ -68,25 +64,24 @@ const LgButton = styled.a`
   border: 2px solid #ddd;
   outline: none;
   color: white;
+}
+#lgButton:hover {
+  border-color: #bbb;
+}
 
-  &:hover {
-    border-color: #bbb;
-  }
-`;
-
-const InputNorm = styled.input`
+input[type="text"], input[type="password"] {
   width: 50%;
   border: none;
   font: inherit;
   font-weight: bold;
-  font-size: 30px;
+  font-size: 1em;
   border-bottom: 1.5px solid #000;
-  &:hover {
-    border-bottom: 3px solid #000;
-  }
-`;
+}
+input[type="text"]:hover, input[type="password"]:hover {
+  border-bottom: 3px solid #000;
+}
 
-const FormButton = styled.a`
+button,a{
   text-align: center;
   font: inherit;
   display: inline-block;
@@ -96,37 +91,21 @@ const FormButton = styled.a`
   background: lightgreen;
   color: white;
   border: 2px solid lightgreen;
-  &:hover {
-    border: 2px solid lightgray;
-  }
-`;
+}  
+button,a:hover {
+  border: 2px solid lightgray;
+}
 
-const Header = styled.h1`
+h1{
   color: #000;
   font: inherit;
   font-weight: bold;
   font-size: 30px;
-`;
+}
 
-const Small = styled.p`
+p {
   color: #000;
   font: inherit;
   font-weight: bold;
   font-size: 10px;
-`;
-
-export {
-  Holder,
-  ServiceContainer,
-  ServiceBox,
-  Suggestion,
-  IntroHolder,
-  SearchFormHolder,
-  ResultsHolder,
-  SearchInput,
-  LgButton,
-  FormButton,
-  Header,
-  Small,
-  InputNorm
-};
+}

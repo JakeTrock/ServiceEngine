@@ -1,6 +1,6 @@
 import * as React from "react";
 import jszip from 'jszip';
-import { Holder, ResultsHolder, Suggestion } from "../../data/styles";
+import '../../data/styles.css';
 
 // markup
 const FilesOutput = () => {
@@ -10,8 +10,8 @@ const FilesOutput = () => {
         //TODO:pull files from mem.buffer
     };
     return (
-        <Holder>
-            {files.length > 1 && <Suggestion onClick={
+        <div id="holder">
+            {files.length > 1 && <div id="suggestion" onClick={
                 async () => {
                     let zip = new jszip();
                     await files.map(async (f) => zip.file(f.name, f.arrayBuffer()));
@@ -24,18 +24,18 @@ const FilesOutput = () => {
                 }
             }>
                 [Download all as zip]
-            </Suggestion>}
-            <ResultsHolder>
+            </div>}
+            <div id="resultsHolder">
                 {files.map((result, index) => {
                     const url = (window.URL || window.webkitURL).createObjectURL(result);
                     return (
-                        <Suggestion key={index} download={result.name} href={url}>
+                        <div id="suggestion" key={index} download={result.name} href={url}>
                             {result.name}
-                        </Suggestion>
+                        </div>
                     );
                 })}
-            </ResultsHolder>
-        </Holder>
+            </div>
+        </div>
     );
 };
 

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Holder } from "../../data/styles";
 
 // markup
 const Collapsible = (props) => {
@@ -7,7 +6,7 @@ const Collapsible = (props) => {
 
     return (
         <div>
-            <h5 onClick={() => setActive(!active)}>{active ? "⯆" : "⯈"}</h5>
+            <h5 style={{ display: "inline" }} onClick={() => setActive(!active)}>{active ? "⯆" : "⯈"}</h5>
             {active && props.children}
         </div>
     );
