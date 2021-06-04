@@ -348,7 +348,7 @@ export default class utilController {
       "SELECT * FROM Util WHERE" +
       param.map((p: string, i: number) =>
         `title LIKE '${p}%' OR tags LIKE '${p}%' OR description LIKE '${p}%'` +
-        (i === pl)
+          (i === pl)
           ? ";"
           : " OR "
       );
@@ -388,13 +388,17 @@ export default class utilController {
   }
 
   getFrontpage(req: Request, res: Response) {
+    const { tag } = req.params;
+    let where = {
+      approved: 2,
+      tag
+    };
+    if (!tag) delete where['tag'];
     return utilSchema
       .findAll({
-        limit:12,
-        where: {
-          approved: 2,
-        },
-        order: [[literal("likes"), "DESC"],[literal("createdAt"), "DESC"]],
+        limit: 12,
+        where,
+        order: [[literal("likes"), "DESC"], [literal("createdAt"), "DESC"]],
         attributes: [
           "_id",
           "title",
@@ -525,22 +529,22 @@ export default class utilController {
         ? { likes: -1 }
         : { likes: 1 }
       : adl
-      ? { dislikes: -1 }
-      : { dislikes: 1 };
+        ? { dislikes: -1 }
+        : { dislikes: 1 };
 
     const uct = ld
       ? adl
         ? {
-            likes: likes?.splice(likes.indexOf(id), 1),
-          }
+          likes: likes?.splice(likes.indexOf(id), 1),
+        }
         : {
-            likes: likes?.push(id),
-          }
+          likes: likes?.push(id),
+        }
       : adl
-      ? {
+        ? {
           dislikes: dislikes?.splice(dislikes.indexOf(id), 1),
         }
-      : {
+        : {
           dislikes: dislikes?.push(id),
         };
     return utilSchema
