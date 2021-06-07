@@ -7,8 +7,8 @@ import RequestUsr from "../config/types";
 const router = express.Router();
 const userController = new UserController();
 
-router.post("/getUserutils/:username", async (req: Request, res: Response) =>
-  userController.getUserutils(req, res)
+router.post("/signup", (req: Request, res: Response) =>
+  userController.Signup(req, res)
 );
 
 router.get(
@@ -16,19 +16,19 @@ router.get(
   (req: Request, res: Response) => userController.Confirm(req, res)
 );
 
-router.post(
-  "/getLikedutils",
+router.post("/login", (req: Request, res: Response) =>
+  userController.Login(req, res)
+);
+
+router.get(
+  "/getLikedUtils",
   isAuthenticated,
   async (req: RequestUsr, res: Response) =>
     userController.getLikedutils(req, res)
 );
 
-router.post("/signup", (req: Request, res: Response) =>
-  userController.Signup(req, res)
-);
-
-router.post("/login", (req: Request, res: Response) =>
-  userController.Login(req, res)
+router.post("/getUserUtils/:username", async (req: Request, res: Response) =>
+  userController.getUserutils(req, res)
 );
 
 router.get("/", isAuthenticated, (req: RequestUsr, res: Response) =>
@@ -36,12 +36,12 @@ router.get("/", isAuthenticated, (req: RequestUsr, res: Response) =>
 );
 
 router.post(
-  "/update/:prop",
+  "/update",
   isAuthenticated,
   (req: RequestUsr, res: Response) => userController.updateProp(req, res)
 );
 
-router.get("/check/:token", isAuthenticated, (req: RequestUsr, res: Response) =>
+router.get("/check/:token", (req: Request, res: Response) =>
   userController.checkToken(req, res)
 );
 

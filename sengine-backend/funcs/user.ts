@@ -8,7 +8,6 @@ import bcrypt from "bcrypt";
 import User from "../models/user";
 import utilSchema from "../models/util";
 import { err400, err500, prpcheck } from "../config/helpers";
-import UserSchema from "../models/user";
 import RequestUsr from "../config/types";
 
 const credentials = {
@@ -23,24 +22,25 @@ const s3 = new AWS.S3();
 const s3Bucket = process.env.BUCKET_NAME;
 
 const sendMessage = (message: string, link: string, recipient: string) =>
-  SES.sendEmail({
-    Destination: {
-      ToAddresses: [recipient],
-    },
-    Message: {
-      Body: {
-        Html: {
-          Charset: "UTF-8",
-          Data: `To ${message} click the following link or paste it into your browser<br/><br/> ${link}<br/><br/>If you didn't make this RequestUsr, then ignore the email and you'll be safe<br/>`,
-        },
-      },
-      Subject: {
-        Charset: "UTF-8",
-        Data: message,
-      },
-    },
-    Source: `Sengine <${process.env.LOGIN_USER}>`,
-  }).promise();
+  console.log(message + "," + link + "," + recipient);
+// SES.sendEmail({
+//   Destination: {
+//     ToAddresses: [recipient],
+//   },
+//   Message: {
+//     Body: {
+//       Html: {
+//         Charset: "UTF-8",
+//         Data: `To ${message} click the following link or paste it into your browser<br/><br/> ${link}<br/><br/>If you didn't make this RequestUsr, then ignore the email and you'll be safe<br/>`,
+//       },
+//     },
+//     Subject: {
+//       Charset: "UTF-8",
+//       Data: message,
+//     },
+//   },
+//   Source: `Sengine <${process.env.LOGIN_USER}>`,
+// }).promise();
 
 const hash = (pass: string, isPwd: boolean): Promise<String> =>
   new Promise((resolve, reject) => {
@@ -48,25 +48,19 @@ const hash = (pass: string, isPwd: boolean): Promise<String> =>
     return bcrypt.genSalt(10, (err: Error, salt) => {
       if (err) {
         return reject(err);
-      } else if (
-        (isPwd &&
-          pwd.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/)) ||
-        pwd.match(
-          /^\s*(?:\+?(\d{1,3}))?([-. (]*(\d{3})[-. )]*)?((\d{3})[-. ]*(\d{2,4})(?:[-.x ]*(\d+))?)\s*$/
-        )
-      ) {
-        return bcrypt.hash(pwd, salt, (err1: Error, hash) => {
-          if (err1) {
-            return reject(err1);
-          }
-          return resolve(hash);
-        });
-      } else
+      }
+      if (!pwd.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/))
         return reject(
           new Error(
             "Password must be at least 8 characters, contain at least 1 uppercase letter, 1 lowercase letter, and 1 number, Can contain special characters"
           )
         );
+      return bcrypt.hash(pwd, salt, (err1: Error, hash) => {
+        if (err1) {
+          return reject(err1);
+        }
+        return resolve(hash);
+      });
     });
   });
 
@@ -81,13 +75,13 @@ export default class UserController {
     const emtrim = email.trim();
     const unametrim = username.trim().toLowerCase();
 
-    if (emtrim.match(/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/))
+    if (!emtrim.match(/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/))
       return err400(res, "The email you provided was not correctly typed");
 
     if (
-      unametrim.length > 20 ||
-      unametrim.length < 2 ||
-      unametrim.match(/^[a-zA-Z0-9_.]*$/)
+      !(unametrim.length > 20 ||
+        unametrim.length < 2 ||
+        unametrim.match(/^[a-zA-Z0-9_.]*$/))
     )
       return err400(
         res,
@@ -120,7 +114,7 @@ export default class UserController {
 
   Confirm(req: Request, res: Response) {
     const nd = new Date();
-    const { token } = req.query;
+    const { token } = req.params;
     if (prpcheck(token as string)) return err400(res, "No Token given");
     const updParams = {
       currSecToken: undefined,
@@ -219,7 +213,7 @@ export default class UserController {
     }
   }
 
-  getUserutils(req: Request, res: Response) {
+  async getUserutils(req: Request, res: Response) {
     const { username } = req.params;
     const findParams = { where: { username } };
     return User.findOne(findParams)
@@ -246,32 +240,30 @@ export default class UserController {
   }
 
   updateProp(req: RequestUsr, res: Response) {
-    const reqBod = req.body;
-    const { prop } = req.params;
+    const { email, username } = req.body;
     const { _id } = req.user;
-    if (prpcheck(prop)) return err400(res, "missing type of item to update");
+    if (prpcheck(email) && prpcheck(username)) return err400(res, "missing field to update");
 
-    if (prop === "username" || prop === "email") {
-      const prp = reqBod[prop].trim();
+    let updParams = {
+      email,
+      username
+    };
+    if (prpcheck(email)) delete updParams['email'];
+    else if (prpcheck(username)) delete updParams['username'];
 
-      const updParams = {
-        prp,
-      };
-      const findParams = { where: { _id } };
+    const findParams = { where: { _id } };
 
-      return User.update(updParams, findParams).then((u) => {
-        if (u[0] == 0) return err400(res, "No user found to update");
-        return res.status(200).json({
-          success: true,
-          message: `Successfully updated ${prop}`,
-        });
+    return User.update(updParams, findParams).then((u) => {
+      if (u[0] == 0) return err400(res, "No user found to update");
+      return res.status(200).json({
+        success: true,
+        message: `Successfully updated user`,
       });
-    } else {
-      return err400(res, "property to update must be email or username.");
-    }
+    });
+
   }
 
-  checkToken(req: RequestUsr, res: Response) {
+  checkToken(req: Request, res: Response) {
     const nd = new Date();
     const { token } = req.params;
     if (prpcheck(token)) return err400(res, "missing/bad token");

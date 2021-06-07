@@ -52,12 +52,10 @@ const AuthPage = ({ match, location, history }) => {
     });
     //uploads and publishes the current service
     const svcPub = async () => {
-        const binHash = await bin.arrayBuffer().then(ab => sha512(new Uint8Array(ab)));
         return defaultConnect
             .post("/create", {
                 iface,
                 langType,//TODO:add support
-                binHash,
                 userUUID: JSON.parse(localStorage.getItem("tk")).uuid
             })
             .then(async (itm) => {

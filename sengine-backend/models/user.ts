@@ -64,7 +64,7 @@ UserSchema.init(
     utils: {
       type: DataTypes.STRING,
       get: function () {
-        return JSON.parse(this.getDataValue("utils"));
+        return JSON.parse(this.getDataValue("utils")||"[]");
       },
       set: function (val) {
         return this.setDataValue("utils", JSON.stringify(val));
@@ -73,7 +73,7 @@ UserSchema.init(
     likes: {
       type: DataTypes.STRING,
       get: function () {
-        return JSON.parse(this.getDataValue("likes"));
+        return JSON.parse(this.getDataValue("likes")||"[]");
       },
       set: function (val) {
         return this.setDataValue("likes", JSON.stringify(val));
@@ -82,7 +82,7 @@ UserSchema.init(
     dislikes: {
       type: DataTypes.STRING,
       get: function () {
-        return JSON.parse(this.getDataValue("dislikes"));
+        return JSON.parse(this.getDataValue("dislikes")||"[]");
       },
       set: function (val) {
         return this.setDataValue("dislikes", JSON.stringify(val));

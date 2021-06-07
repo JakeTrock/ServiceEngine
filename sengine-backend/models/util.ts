@@ -10,7 +10,7 @@ class utilSchema extends Model {
   public tags!: string[];
   public permissions?: string[];
   public approved!: boolean;
-  public binHash!: string;
+  public langType!: string;
   public binLoc!: string;
   public srcLoc!: string;
   public jsonLoc!: string;
@@ -30,14 +30,8 @@ utilSchema.init(
       type: DataTypes.UUID,
       allowNull: false,
     },
-    forkChain: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue("forkChain"));
-      },
-      set: function (val) {
-        return this.setDataValue("forkChain", JSON.stringify(val));
-      },
+    fork: {
+      type: DataTypes.UUID,
     },
     title: {
       type: DataTypes.STRING,
@@ -58,9 +52,15 @@ utilSchema.init(
       type: DataTypes.NUMBER, //0,1,2 where respectively dissaproved,pending,approved
       defaultValue: 1,
     },
-    binHash: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    langType: {
+      type: DataTypes.ENUM,
+      values: [
+        "typescript",
+        "csharp",
+        "rust",
+        "cpp",
+      ],
+      allowNull: false
     },
     binLoc: {
       type: DataTypes.STRING,

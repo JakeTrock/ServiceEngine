@@ -5,10 +5,9 @@ import User from "../models/user";
 import utilReport from "../models/utilReport";
 import utilSchema from "../models/util";
 import { v4 as uuidv4 } from "uuid";
-import Sequelize from "../config/database";
 import { err400, err500, prpcheck } from "../config/helpers";
 import RequestUsr from "../config/types";
-import { Op, literal } from "sequelize";
+import { Op, literal, UUIDV4 } from "sequelize";
 const s3Bucket = process.env.BUCKET_NAME;
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS,
@@ -19,18 +18,18 @@ const s3 = new AWS.S3();
 
 export default class utilController {
   async createutil(req: RequestUsr, res: Response) {
-    const { binHash, description, tags, title, proposedPerms } = req.body;
+    const { description, langType, tags, title, proposedPerms } = req.body;
     const { _id } = req.user;
 
     if (
       prpcheck(_id) ||
-      prpcheck(binHash) ||
       prpcheck(description) ||
+      prpcheck(langType) ||
       prpcheck(tags) ||
       prpcheck(title) ||
       prpcheck(proposedPerms)
     )
-      return err400(res, "Missing some information");
+      return err400(res, "Missing some information");//TODO:make all props messages more specific, perhaps make a varargs propcheck
     if (tags.split(",").length > 5)
       return err400(res, "please only have 5 or fewer tags.");
     const perms = [
@@ -57,10 +56,10 @@ export default class utilController {
         title,
         tags: tags.split(","),
         description,
+        langType,
         authorId: _id,
         permissions: proposedPerms,
         approved: proposedPerms == [],
-        binHash,
         binLoc: `${_id}/${id.toString()}/bin.wasm`,
         srcLoc: `${_id}/${id.toString()}/src.zip`,
         jsonLoc: `${_id}/${id.toString()}/iface.json`,
@@ -106,13 +105,12 @@ export default class utilController {
 
   async saveutil(req: RequestUsr, res: Response) {
     const {
-      binHash,
       newJson,
       newSrc,
       title,
       tags,
       description,
-      permissions,
+      permissions
     } = req.body;
     const { id } = req.params;
     const tagsFormatted = tags.split(",");
@@ -123,11 +121,10 @@ export default class utilController {
         attributes: [
           "_id",
           "authorId",
-          "binHash",
           "title",
           "tags",
           "description",
-          "permissions",
+          "permissions"
         ],
       })
       .then(async (p) => {
@@ -171,7 +168,6 @@ export default class utilController {
             );
           }
           interface utcreate {
-            binHash?: string;
             title?: string;
             tags?: string[];
             description?: string;
@@ -180,7 +176,6 @@ export default class utilController {
           }
           const newSch: utcreate = {};
 
-          if (binHash && binHash != p.binHash) newSch.binHash = binHash;
           if (title && title != p.title) newSch.title = title;
           if (tags && tagsFormatted != p.tags) newSch.tags = tagsFormatted;
           if (description && description != p.description)
@@ -217,11 +212,9 @@ export default class utilController {
           "binLoc",
           "srcLoc",
           "_id",
-          "likes",
-          "dislikes",
-          "likes",
-          "uses",
-          "binHash",
+          "title",
+          "tags",
+          "description",
           "permissions",
         ],
       })
@@ -233,36 +226,48 @@ export default class utilController {
           binLoc,
           srcLoc,
           _id,
-          likes,
-          dislikes,
-          uses,
-          binHash,
+          title,
+          tags,
+          langType,
+          description,
           permissions,
+          approved
         } = util;
         try {
-          const tmp = {
-            jsonLoc: await s3.getSignedUrl("getObject", {
-              Bucket: s3Bucket,
-              Key: jsonLoc,
-            }),
-            binLoc: await s3.getSignedUrl("getObject", {
-              Bucket: s3Bucket,
-              Key: binLoc,
-            }),
-            srcLoc: await s3.getSignedUrl("getObject", {
-              Bucket: s3Bucket,
-              Key: srcLoc,
-            }),
-            uuid: _id,
-            likes,
-            dislikes,
-            uses,
-            binHash,
-            permissions,
+          const nid = uuidv4();
+
+          const corBin: AWS.S3.CopyObjectRequest = {
+            Bucket: s3Bucket,
+            CopySource: binLoc,
+            Key: `${_id}/${nid}/bin.wasm`
           };
+          const corSrc: AWS.S3.CopyObjectRequest = {
+            Bucket: s3Bucket,
+            CopySource: srcLoc,
+            Key: `${_id}/${nid}/src.zip`
+          };
+          const corGUI: AWS.S3.CopyObjectRequest = {
+            Bucket: s3Bucket,
+            CopySource: jsonLoc,
+            Key: `${_id}/${nid}/iface.json`
+          };
+
+          const tmp = {
+            _id: nid,
+            fork: _id,
+            description,
+            title,
+            langType,
+            tags,
+            permissions,
+            approved
+          };
+          s3.copyObject(corBin);
+          s3.copyObject(corSrc);
+          s3.copyObject(corGUI);
+          await utilSchema.create(tmp);
           return res.status(200).json({
             success: true,
-            message: tmp,
           });
         } catch (e) {
           return err500(
@@ -291,7 +296,6 @@ export default class utilController {
           "dislikes",
           "likes",
           "uses",
-          "binHash",
           "permissions",
         ],
       })
@@ -305,7 +309,6 @@ export default class utilController {
           likes,
           dislikes,
           uses,
-          binHash,
           permissions,
         } = util;
         try {
@@ -322,7 +325,6 @@ export default class utilController {
             likes,
             dislikes,
             uses,
-            binHash,
             permissions,
           };
           return res.status(200).json({
@@ -473,7 +475,8 @@ export default class utilController {
 
   report(req: RequestUsr, res: Response) {
     const { utils, _id } = req.user;
-    const { reason, util } = req.body;
+    const { util } = req.params;
+    const { reason } = req.body;
     if (prpcheck(utils) || prpcheck(_id) || prpcheck(reason) || prpcheck(util))
       return err400(res, "missing report context data");
     if (utils.indexOf(util) > -1)
