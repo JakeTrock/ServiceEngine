@@ -1,7 +1,6 @@
 import * as React from "react";
 import axios from "axios";
 import Form from "@rjsf/core";
-import * as etag from 'etag';
 import { ToastContainer, toast } from 'react-toastify';
 import '../data/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -248,27 +247,22 @@ const IndexPage = ({ match, location, history }) => {
         if (itm && itm.data) {
           const { jsonLoc, binLoc, permissions, _id } = JSON.parse(itm.data);
           //get and set current binary backend
-          fetch(binLoc)
-            .then(async response => {
-              const binHash = response.headers.get('etag');
-              if (etag(response) != binHash)
-                throw "it seems something is wrong with this module. You may want to connect to a different network.";
-              //set current form to the form stored in s3
-              const form = await axios.get(jsonLoc).then(d => { return d.data });
+          const bin = await fetch(binLoc);
+          //set current form to the form stored in s3
+          const form = await axios.get(jsonLoc).then(d => { return d.data });
 
-              let currentBin;
-              //load current binary
-              await WebAssembly.instantiateStreaming(response, importObject)
-                .then(obj => currentBin = obj.instance.exports.exported_func);
+          let currentBin;
+          //load current binary
+          await WebAssembly.instantiateStreaming(bin, importObject)
+            .then(obj => currentBin = obj.instance.exports.exported_func);
 
-              //set all module values
-              setcurrentComponent({
-                serviceUUID: _id,
-                form,
-                permissions,
-                currentBin
-              });
-            }).catch(e => toast(e));
+          //set all module values
+          setcurrentComponent({
+            serviceUUID: _id,
+            form,
+            permissions,
+            currentBin
+          });
         }
       })
       .catch((e) => toast(e));

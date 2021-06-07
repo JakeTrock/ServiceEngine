@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import * as AWS from "aws-sdk";
 import User from "../models/user";
 import utilReport from "../models/utilReport";
@@ -7,7 +6,7 @@ import utilSchema from "../models/util";
 import { v4 as uuidv4 } from "uuid";
 import { err400, err500, prpcheck } from "../config/helpers";
 import RequestUsr from "../config/types";
-import { Op, literal, UUIDV4 } from "sequelize";
+import { Op, literal } from "sequelize";
 const s3Bucket = process.env.BUCKET_NAME;
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS,
