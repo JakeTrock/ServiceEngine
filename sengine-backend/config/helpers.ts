@@ -10,7 +10,7 @@ export const isAuthenticated = (
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ success: false, message: "Missing token" });
+  if (!authHeader) return res.status(401).json({ success: false, message: "You must be logged in to perform this action." });
   const jwsecret = process.env.JWT_SECRET || "23rc8280rnm238x";
   return jwt.verify(authHeader, jwsecret, (err, o) => {
     const out = o as User;

@@ -29,7 +29,7 @@ router.get("/load/:id", async (req: Request, res: Response) =>
   utils.getutil(req, res)
 );
 
-router.post("/search/:query", async (req: Request, res: Response) =>
+router.get("/search/:search", async (req: Request, res: Response) =>
   utils.search(req, res)
 );
 

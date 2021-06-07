@@ -36,10 +36,24 @@ utilSchema.init(
     title: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate:{
+        is: {
+          args: /^[a-zA-Z0-9]*$/,
+          msg:
+            "Your title can only contain letters and numbers.",
+        },
+      }
     },
     description: {
       type: DataTypes.STRING(1500),
       allowNull: false,
+      validate:{
+        is: {
+          args: /^[a-zA-Z0-9]*$/,
+          msg:
+            "Your description can only contain letters and numbers.",
+        },
+      }
     },
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING),

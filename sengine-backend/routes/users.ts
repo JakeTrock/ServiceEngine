@@ -27,7 +27,7 @@ router.get(
     userController.getLikedutils(req, res)
 );
 
-router.post("/getUserUtils/:username", async (req: Request, res: Response) =>
+router.get("/getUserUtils/:username", async (req: Request, res: Response) =>
   userController.getUserutils(req, res)
 );
 

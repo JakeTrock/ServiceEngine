@@ -62,32 +62,41 @@ UserSchema.init(
       type: DataTypes.DATE,
     },
     utils: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue("utils")||"[]");
-      },
-      set: function (val) {
-        return this.setDataValue("utils", JSON.stringify(val));
-      },
+      type: DataTypes.ARRAY(DataTypes.STRING),
     },
     likes: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue("likes")||"[]");
-      },
-      set: function (val) {
-        return this.setDataValue("likes", JSON.stringify(val));
-      },
+      type: DataTypes.ARRAY(DataTypes.STRING),
     },
     dislikes: {
-      type: DataTypes.STRING,
-      get: function () {
-        return JSON.parse(this.getDataValue("dislikes")||"[]");
-      },
-      set: function (val) {
-        return this.setDataValue("dislikes", JSON.stringify(val));
-      },
+      type: DataTypes.ARRAY(DataTypes.STRING),
     },
+    // utils: {
+    //   type: DataTypes.STRING,
+    //   get: function () {
+    //     return JSON.parse(this.getDataValue("utils")||"[]");
+    //   },
+    //   set: function (val) {
+    //     return this.setDataValue("utils", JSON.stringify(val));
+    //   },
+    // },
+    // likes: {
+    //   type: DataTypes.STRING,
+    //   get: function () {
+    //     return JSON.parse(this.getDataValue("likes")||"[]");
+    //   },
+    //   set: function (val) {
+    //     return this.setDataValue("likes", JSON.stringify(val));
+    //   },
+    // },
+    // dislikes: {
+    //   type: DataTypes.STRING,
+    //   get: function () {
+    //     return JSON.parse(this.getDataValue("dislikes")||"[]");
+    //   },
+    //   set: function (val) {
+    //     return this.setDataValue("dislikes", JSON.stringify(val));
+    //   },
+    // },
   },
   {
     sequelize,

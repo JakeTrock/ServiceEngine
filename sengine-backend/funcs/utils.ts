@@ -344,6 +344,7 @@ export default class utilController {
     const { search } = req.params;
     if (prpcheck(search))
       return err400(res, "you must specify a search paramater");
+    if(!search.match(/^[a-zA-Z0-9]*$/))return err400(res, "you can only use alphanumeric characters");
     const param = search.split(" ");
     const pl = param.length;
     const finalquery =
