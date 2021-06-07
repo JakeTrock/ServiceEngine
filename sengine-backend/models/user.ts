@@ -59,7 +59,7 @@ UserSchema.init(
       type: DataTypes.STRING,
     },
     secTokExp: {
-      type: DataTypes.STRING, //TODO:should this be a str or date?
+      type: DataTypes.DATE,
     },
     utils: {
       type: DataTypes.STRING,

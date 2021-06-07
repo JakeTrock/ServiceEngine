@@ -10,34 +10,28 @@ export const isAuthenticated = (
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const jwsecret = process.env.JWT_SECRET || "23rc8280rnm238x";
-    return jwt.verify(authHeader, jwsecret, (err, o) => {
-      const out = o as User;
-      if (err) res.status(400).json({ success: false, message: err.message });
-      else if (out && out._id) {
-        return User.findOne({ where: { _id: out._id } })
-          .then((ex: User | null) => {
-            if (ex) {
-              out.currSecToken = "";
-              out.password = "";
-              req.user = out;
-              return next();
-            }
-            return res
-              .status(401)
-              .json({ success: false, message: "Unauthenticated" });
-          })
-          .catch((e: Error) =>
-            res.status(401).json({ success: false, message: err.message })
-          );
-      } else {
-        return res.status(401).json({ success: false, message: "Blank token" });
-      }
-    });
-  } else {
-    return res.status(401).json({ success: false, message: "Missing token" });
-  }
+  if (!authHeader) return res.status(401).json({ success: false, message: "Missing token" });
+  const jwsecret = process.env.JWT_SECRET || "23rc8280rnm238x";
+  return jwt.verify(authHeader, jwsecret, (err, o) => {
+    const out = o as User;
+    const { _id } = out;
+    if (err) res.status(400).json({ success: false, message: err.message });
+    if (prpcheck(_id)) return res.status(401).json({ success: false, message: "Blank token" });
+    return User.findOne({ where: { _id: out._id } })
+      .then((ex: User | null) => {
+        if (!ex) return res
+          .status(401)
+          .json({ success: false, message: "Unauthenticated" });
+
+        ex.currSecToken = "";
+        ex.password = "";
+        req.user = ex;
+        return next();
+      })
+      .catch((e: Error) =>
+        res.status(401).json({ success: false, message: err.message })
+      );
+  });
 };
 
 export const err400 = (res: Response, e: Error | string) => {
