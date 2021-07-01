@@ -1,0 +1,161 @@
+#type Mutation {
+#  getUtilDetails(id: String!): Util
+#  getUtilData(id: String!): Util @function(name: "sengineViewPost-${env}")
+#  likeUtil(id: String!): Util @function(name: "sengineLikePost-${env}")
+#  forkUtil(id: String!): Util @function(name: "forkUtil-${env}")
+#  makeUtil(
+#    title: String!
+#    description: String!
+#    tags: [String!]!
+#    permissions: [String!]!
+#    langType: String!
+#  ): Util @function(name: "createUtil-${env}")
+#  saveUtil(
+#    parentID: String!
+#    newBins: Boolean!
+#    title: String
+#    description: String
+#    tags: [String]
+#    permissions: [String]
+#    langType: String
+#  ): Util @function(name: "saveUtil-${env}")
+#  makeReport(reason: String!, utilId: String!): Report
+#    @function(name: "createReport-${env}")
+#  removeUtil(id: String!): String @function(name: "deleteUtil-${env}")
+#}
+
+type Report
+  @model
+  @key(
+    name: "BySpecificOwner"
+    fields: ["owner", "createdAt"]
+    queryField: "listReportsBySpecificOwner"
+  )
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [] }
+      { allow: owner, provider: userPools, operations: [read] }
+      { allow: groups, groups: ["Admin"] }
+    ]
+  ) {
+  id: String! #unique
+  owner: String
+  reason: String!
+  util: Util! @connection(name: "ReportUtil")
+  createdAt: Int!
+}
+
+#can only be created/updated via lambdas
+type Util
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: owner, provider: userPools, operations: [read] }
+      { allow: groups, groups: ["Admin"] }
+    ]
+  )
+  @versioned
+  @key(
+    name: "byTrend"
+    fields: ["numLikes", "numUses", "createdAt"]
+    queryField: "getTrending"
+  )
+  @key(
+    name: "SortByTimestamp"
+    fields: ["createdAt"]
+    queryField: "listUtilsSortedByTimestamp"
+  )
+  @key(
+    name: "BySpecificOwner"
+    fields: ["owner", "createdAt"]
+    queryField: "listUtilsBySpecificOwner"
+  ) {
+  id: String! #unique
+  owner: String
+  forkChain: [Util]
+  title: String!
+  description: String!
+  # tags: [TaggedUtil] @connection(name: "tagsByUtil")
+  tags: [String!]!
+  permissions: [Permissions]
+  license: License!
+  approved: Approval!
+  reports: [Report] @connection(name: "ReportUtil")
+  langType: Langs!
+  binLoc: String!
+  srcLoc: String!
+  jsonLoc: String!
+  numUses: Int!
+  numLikes: Int!
+  likes: [String]
+  createdAt: Int!
+  updatedAt: Int!
+}
+
+# type Tag
+#   @model
+#   @auth(
+#     rules: [
+#       { allow: private, provider: userPools, operations: [read] }
+#       { allow: owner, operations: [create, read] }
+#       { allow: groups, groups: ["Admin"] }
+#     ]
+#   )
+#   @key(
+#     name: "getByTag"
+#     fields: ["appliedTo", "createdAt"]
+#     queryField: "listUtilsSortedByTag"
+#   ) {
+#   type: String!
+#   value: String! #unique
+#   appliedTo: [TaggedUtil]
+#     @connection(name: "tagsByTag")
+#     @auth(rules: [{ allow: private, operations: [update] }])
+# }
+
+# type TaggedUtil
+#   @model(queries: null)
+#   @auth(
+#     rules: [
+#       { allow: private, provider: userPools, operations: [read] }
+#       { allow: owner, operations: [create, update, delete] }
+#       { allow: groups, groups: ["Admin"] }
+#     ]
+#   ) {
+#   util: Util! @connection(name: "tagsByUtil")
+#   tag: Tag! @connection(name: "tagsByTag")
+# }
+
+enum Langs {
+  typescript
+  csharp
+  rust
+  cpp
+}
+
+enum Approval {
+  pending
+  approved
+  disapproved
+}
+
+enum License {
+  bsd
+  gpl
+  unlicense
+  apache
+}
+
+enum Permissions {
+  getCam
+  getAud
+  getVidAud
+  getNet
+  sendNet
+  getCurrentPos
+  getClipboard
+  setClipboard
+  getScreen
+  GetScreenAudio
+}

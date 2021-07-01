@@ -1,0 +1,61 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-sengine-dev-174218-authRole",
+      "UnauthRoleArn": "arn:aws:iam::194497364292:role/amplify-sengine-dev-174218-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::194497364292:role/amplify-sengine-dev-174218-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-sengine-dev-174218-deployment",
+      "UnauthRoleName": "amplify-sengine-dev-174218-unauthRole",
+      "StackName": "amplify-sengine-dev-174218",
+      "StackId": "arn:aws:cloudformation:us-east-1:194497364292:stack/amplify-sengine-dev-174218/00ba05e0-d07e-11eb-9f4e-0e0c962da451",
+      "AmplifyAppId": "d27maama6zwl87"
+    },
+    "categories": {
+      "function": {
+        "senginee1307a19CustomMessage": {
+          "REDIRECTURL": "sengine.cc/dash",
+          "EMAILSUBJECT": "Please confirm your sengine account",
+          "EMAILMESSAGE": "Hello, and welcome to sengine! If you didn't request to create this account, simply ignore this email and the link below. If you did create this account, then please click it to finish the authentication process.",
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/senginee1307a19CustomMessage-64634b544a337942636d-build.zip"
+        },
+        "createReport": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/createReport-6c6f35726b4533456a74-build.zip"
+        },
+        "sengineViewPost": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/sengineViewPost-4b67616d6e616552494f-build.zip"
+        },
+        "sengineLikePost": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/sengineLikePost-4945517a49744d326e47-build.zip"
+        },
+        "forkUtil": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/forkUtil-54452f6a53494e636167-build.zip"
+        },
+        "saveUtil": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/saveUtil-6a4d6b58533852745674-build.zip"
+        },
+        "deleteUtil": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/deleteUtil-7541624b6c5650457739-build.zip"
+        },
+        "createUtil": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/createUtil-6338764b55312b522f4f-build.zip"
+        },
+        "sengineauthUserLayer": {
+          "deploymentBucketName": "amplify-sengine-dev-174218-deployment",
+          "s3Key": "amplify-builds/sengineauthUserLayer-LambdaLayerVersion7fcd54d5-build.zip"
+        }
+      },
+      "auth": {
+        "senginee1307a19": {}
+      }
+    }
+  }
+}

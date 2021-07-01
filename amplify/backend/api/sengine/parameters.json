@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "sengine",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authsenginee1307a19",
+      "Outputs.UserPoolId"
+    ]
+  }
+}

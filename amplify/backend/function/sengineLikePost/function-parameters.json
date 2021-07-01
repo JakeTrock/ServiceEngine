@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "auth": {
+      "senginee1307a19": [
+        "read"
+      ]
+    },
+    "api": {
+      "sengine": [
+        "Query",
+        "Mutation"
+      ]
+    }
+  },
+  "lambdaLayers": [
+    {
+      "type": "ProjectLayer",
+      "resourceName": "sengineauthUserLayer",
+      "env": "dev",
+      "version": "Always choose latest version",
+      "isLatestVersionSelected": true
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "trigger": true,
+  "modules": [
+    "verification-link"
+  ],
+  "parentResource": "senginee1307a19",
+  "functionName": "senginee1307a19CustomMessage",
+  "resourceName": "senginee1307a19CustomMessage",
+  "parentStack": "auth",
+  "triggerEnvs": [
+    {
+      "key": "RESOURCENAME",
+      "value": "resourceName"
+    }
+  ],
+  "triggerDir": "/home/bluushift/.nvm/versions/node/v16.2.0/lib/node_modules/@aws-amplify/cli/node_modules/amplify-category-auth/provider-utils/awscloudformation/triggers/CustomMessage",
+  "triggerTemplate": "CustomMessage.json.ejs",
+  "triggerEventPath": "CustomMessage.event.json",
+  "roleName": "senginee1307a19CustomMessage",
+  "skipEdit": true,
+  "REDIRECTURL": "sengine.cc/dash",
+  "EMAILSUBJECT": "Please confirm your sengine account",
+  "EMAILMESSAGE": "Hello, and welcome to sengine! If you didn't request to create this account, simply ignore this email and the link below. If you did create this account, then please click it to finish the authentication process.",
+  "RESOURCENAME": "resourceName",
+  "enableCors": false
+}
