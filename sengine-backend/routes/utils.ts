@@ -29,9 +29,9 @@ router.get("/load/:id", async (req: Request, res: Response) =>
   utils.getutil(req, res)
 );
 
-router.get("/search/:search", async (req: Request, res: Response) =>
-  utils.search(req, res)
-);
+// router.get("/search/:search", async (req: Request, res: Response) =>
+//   utils.search(req, res)
+// );
 
 router.get("/frontpage", async (req: Request, res: Response) =>
   utils.getFrontpage(req, res)

@@ -8,7 +8,7 @@ class UserSchema extends Model {
   public password!: string;
   public currSecToken?: string;
   public currUsrOp?: string;
-  public secTokExp?: string; //TODO:should this be a str?
+  public secTokExp?: Date; //TODO:should this be a str?
   public utils?: string[];
   public likes?: string[];
   public dislikes?: string[];

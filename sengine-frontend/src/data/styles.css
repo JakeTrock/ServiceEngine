@@ -38,20 +38,6 @@ font-family: Helvetica Neue, sans-serif;
   outline: none;
 }
 
-#searchInput{
-  display: block;
-  width: 100%;
-  padding: 25px;
-  font: inherit;
-  font-weight: bold;
-  font-size: 30px;
-  border: 2px solid #ddd;
-  outline: none;
-}
-
-#searchInput:focus {
-    border-color: #bbb;
-}
 #lgButton{
   text-align: center;
   background: LightCoral;

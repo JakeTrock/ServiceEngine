@@ -1,16 +1,4 @@
 //TODO: look into sw like this:https://gatsby.dev/offline
-/*
-SEO optimize subpages
-what the engines like:
->ppl linking to you with similar text describing the link
->on-page
-  >descriptive title tags
-  >descriptive h1/h2/h3 tags
-  >^these are prioritized if rendered on first contentful paint
-  >fast loadtimes and good lighthouse scores
-  >they dont care about meta tags
-
-*/
 import * as React from "react";
 import {
   BrowserRouter as Router,
@@ -18,15 +6,17 @@ import {
   Route,
   withRouter
 } from 'react-router-dom';
-import search from './search';
+import search from './frontPage';
 import dash from './dash';
 import auth from './auth';
 import editor from './editor';
+import runner from './runner';
 //import all subpages
 const Dash = withRouter(dash);
-const Search = withRouter(search);
+const FrontPage = withRouter(search);
 const Auth = withRouter(auth);
 const Editor = withRouter(editor);
+const Runner = withRouter(runner);
 //composite pages into monopage app
 export default function () {
   return (
@@ -41,8 +31,11 @@ export default function () {
         <Route path="/auth">
           <Auth />
         </Route>
+        <Route path="/runner">
+          <Runner />
+        </Route>
         <Route path="/">
-          <Search />
+          <FrontPage />
         </Route>
       </Switch>
     </Router>

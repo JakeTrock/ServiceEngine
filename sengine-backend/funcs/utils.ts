@@ -98,6 +98,8 @@ export default class utilController {
     }
   }
 
+  //TODO:make route to generate robots.txt
+
   //TODO:create a route to calculate possible cost for external compute
 
   //TODO:allow user to run an external compute
@@ -293,7 +295,6 @@ export default class utilController {
           "_id",
           "likes",
           "dislikes",
-          "likes",
           "uses",
           "permissions",
         ],
@@ -336,56 +337,6 @@ export default class utilController {
       })
       .catch((e: Error) =>
         err500(res, e, "Internal server error when getting download")
-      );
-  }
-
-  search(req: Request, res: Response) {
-    const { search } = req.params;
-    if (prpcheck(search))
-      return err400(res, "you must specify a search paramater");
-    if(!search.match(/^[a-zA-Z0-9]*$/))return err400(res, "you can only use alphanumeric characters");
-    const param = search.split(" ");
-    const pl = param.length;
-    const finalquery =
-      "SELECT * FROM Util WHERE" +
-      param.map((p: string, i: number) =>
-        `title LIKE '${p}%' OR tags LIKE '${p}%' OR description LIKE '${p}%'` +
-          (i === pl)
-          ? ";"
-          : " OR "
-      );
-    return utilSchema
-      .findAll({
-        where: {
-          approved: 2,
-          [Op.and]: [
-            literal(`(
-              ${finalquery}
-          )`),
-          ],
-        },
-        order: [[literal("likes"), "DESC"]],
-        attributes: [
-          "_id",
-          "title",
-          "description",
-          "likes",
-          "dislikes",
-          "uses",
-        ],
-      })
-      .then((result) =>
-        res.status(200).json({
-          success: true,
-          message: result[0],
-        })
-      )
-      .catch((e: Error) =>
-        err500(
-          res,
-          e,
-          `Internal server error when searching for term ${req.params.search}`
-        )
       );
   }
 
