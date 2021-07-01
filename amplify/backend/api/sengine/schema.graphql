@@ -1,28 +1,28 @@
-#type Mutation {
-#  getUtilDetails(id: String!): Util
-#  getUtilData(id: String!): Util @function(name: "sengineViewPost-${env}")
-#  likeUtil(id: String!): Util @function(name: "sengineLikePost-${env}")
-#  forkUtil(id: String!): Util @function(name: "forkUtil-${env}")
-#  makeUtil(
-#    title: String!
-#    description: String!
-#    tags: [String!]!
-#    permissions: [String!]!
-#    langType: String!
-#  ): Util @function(name: "createUtil-${env}")
-#  saveUtil(
-#    parentID: String!
-#    newBins: Boolean!
-#    title: String
-#    description: String
-#    tags: [String]
-#    permissions: [String]
-#    langType: String
-#  ): Util @function(name: "saveUtil-${env}")
-#  makeReport(reason: String!, utilId: String!): Report
-#    @function(name: "createReport-${env}")
-#  removeUtil(id: String!): String @function(name: "deleteUtil-${env}")
-#}
+type Mutation {
+  getUtilDetails(id: String!): Util
+  getUtilData(id: String!): Util @function(name: "sengineViewPost-${env}")
+  likeUtil(id: String!): Util @function(name: "sengineLikePost-${env}")
+  forkUtil(id: String!): Util @function(name: "forkUtil-${env}")
+  makeUtil(
+    title: String!
+    description: String!
+    tags: [String!]!
+    permissions: [String!]!
+    langType: String!
+  ): Util @function(name: "createUtil-${env}")
+  saveUtil(
+    parentID: String!
+    newBins: Boolean!
+    title: String
+    description: String
+    tags: [String]
+    permissions: [String]
+    langType: String
+  ): Util @function(name: "saveUtil-${env}")
+  makeReport(reason: String!, utilId: String!): Report
+    @function(name: "createReport-${env}")
+  removeUtil(id: String!): String @function(name: "deleteUtil-${env}")
+}
 
 type Report
   @model

@@ -2,37 +2,43 @@ export interface form {
   input: Object,
   uiSchema: Object,
   currentFormData: Object,
-  output: string
+  output: String
 }
 
 export interface ValidComponent {
-  serviceUUID: string,
+  serviceUUID: String,
   form: form,
-  permissions: string[],
+  permissions: String[],
   currentBin: any//Function
 }
 
 export interface subel {
-  message: string,
+  message: String,
   stack: any | null//TODO:alias
 }
 
 export interface util {
-  _id: string,
+  _id: String,
   likes: number,
   dislikes: number,
   uses: number,
-  description: string,
-  title: string
+  description: String,
+  title: String
 }
 
 export interface profDetails {
   utils: [util] | [],
-  username: string
+  username: String
 }
 
 export interface usrCreds {
   confirmed: boolean,
-  username: string,
-  userSub: string,
+  username: String,
+  userSub: String,
+}
+
+export interface usrLogin {
+  email: String,
+  username: String,
+  password: String
 }

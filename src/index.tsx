@@ -9,6 +9,7 @@ import {
 import search from './interface/frontPage';
 import dash from './interface/dash';
 import auth from './interface/auth';
+import resend from './interface/resend';
 import editor from './interface/editor';
 import runner from './interface/runner';
 import NotFoundPage from './interface/404';
@@ -18,7 +19,7 @@ import aws_exports from './aws-exports'
 
 // Amplify.configure(aws_exports);
 Amplify.configure({
-  Auth: {//TODO:INSERTME
+  Auth: {
     identityPoolId: aws_exports.aws_cognito_identity_pool_id,
     region: aws_exports.aws_project_region,
     userPoolId: aws_exports.aws_user_pools_id,
@@ -36,6 +37,7 @@ Amplify.configure({
 const Dash = withRouter(dash);
 const FrontPage = withRouter(search);
 const Auth = withRouter(auth);
+const Resend = withRouter(resend);
 const Editor = withRouter(editor);
 const Runner = withRouter(runner);
 const NotFound = withRouter(NotFoundPage);
@@ -50,9 +52,14 @@ export default function () {
         <Route path="/editor">
           <Editor />
         </Route>
+        {/* authroutes */}
         <Route path="/auth">
           <Auth />
         </Route>
+        <Route path="/resend">
+          <Resend />
+        </Route>
+
         <Route path="/runner">
           <Runner />
         </Route>

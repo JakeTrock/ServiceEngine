@@ -1,15 +1,16 @@
 import * as React from "react";
 import { Auth } from 'aws-amplify';
 import '../data/styles.css';
-//TODO:integrate if need arises
-// React.useEffect(()=>{
-//     try {
-//       await Auth.confirmSignUp(username, code);
-//     } catch (error) {
-//         console.log('error confirming sign up', error);
-//     }
-// },[])
+
 const ConfirmSignup = () => {
+  //TODO:integrate when you figure out how the code is passed back to the user
+  // React.useEffect(() => {
+  //   try {
+  //     await Auth.confirmSignUp(username, code);
+  //   } catch (error) {
+  //     console.log('error confirming sign up', error);
+  //   }
+  // }, []);
   return (
     <div id="holder">
       <title>Confirming account...</title>
@@ -25,6 +26,3 @@ const ConfirmSignup = () => {
 };
 //https://docs.amplify.aws/lib/auth/emailpassword/q/platform/js#sign-in
 export default ConfirmSignup;
-
-//TODO:also add reset pwd, etc.
-//all funx at /home/bluushift/Desktop/sengine/node_modules/amazon-cognito-identity-js/index.d.ts
