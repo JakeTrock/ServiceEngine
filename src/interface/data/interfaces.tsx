@@ -1,8 +1,7 @@
 export interface form {
   input: Object,
   uiSchema: Object,
-  currentFormData: Object,
-  output: String
+  currentFormData: Object
 }
 
 export interface ValidComponent {

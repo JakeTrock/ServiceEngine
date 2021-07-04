@@ -10,6 +10,8 @@ const AWS = require("aws-sdk");
 const BUCKET_NAME = "sengines3-dev";
 const IAM_USER_KEY = "AKIAS2SHSIFCOGERYKHL";
 const IAM_USER_SECRET = "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";
+const GQAPIKEY = process.env.API_SENGINE_GRAPHQLAPIKEYOUTPUT;
+const GQLEPT = process.env.API_URL;
 
 const s3bucket = new AWS.S3({
   accessKeyId: IAM_USER_KEY,
@@ -28,22 +30,22 @@ const chkProp = (prop) => {
 const signedUrlExpireSeconds = 60 * 5; // your expiry time in seconds.
 
 exports.handler = async (event) => {
-  const utilID = event.body.JSON.util;
+  const { utilID } = event.body;
   //eslint-disable-line
   try {
     if (chkProp(utilID)) throw new Error("you must choose a util to like!");
 
     const getDls = await axios({
-      url: event.API_URL,
-      method: "post",
+      url: GQLEPT,
+      method: "get",
       headers: {
         //TODO:this could be a bad/nonexistent key
-        "x-api-key": event.API_SENGINE_GRAPHQLAPIKEYOUTPUT,
+        "x-api-key": GQAPIKEY,
       },
       data: {
         query: /* GraphQL */ `mutation {
-              updateUtil(input: { numUses: ${event.Records[0]
-                .numUses++}}, condition:{id: ${utilID}}) {
+              GetUtil() {
+                numUses,
                 binLoc,
                 srcLoc,
                 jsonLoc
@@ -67,6 +69,23 @@ exports.handler = async (event) => {
       Bucket: BUCKET_NAME,
       Key: getDls.binLoc,
       Expires: signedUrlExpireSeconds,
+    });
+
+    await axios({
+      url: GQLEPT,
+      method: "post",
+      headers: {
+        //TODO:this could be a bad/nonexistent key
+        "x-api-key": GQAPIKEY,
+      },
+      data: {
+        query: /* GraphQL */ `mutation {
+              updateUtil(input: { numUses: ${getDls.numUses++}}, condition:{id: ${utilID}}) {
+              }
+            }`,
+      },
+    }).catch((e) => {
+      throw new Error(e.message);
     });
 
     const dlUrls = {

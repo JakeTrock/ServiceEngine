@@ -19,29 +19,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import '../data/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { Helmet } from "react-helmet";
-//import output types
-import CanvasOutput from "./outputHandlers/canvas";
-import TextOutput from "./outputHandlers/text";
-import FilesOutput from "./outputHandlers/files";
-import VideoOutput from "./outputHandlers/video";
-import AudioOutput from "./outputHandlers/audio";
 import { usrCreds, ValidComponent } from "./data/interfaces";
 import Collapsible from "./outputHandlers/collapsible";
 import { login } from "./data/helpers";
 import { sLoader } from "./data/loader";
-import { createReport, updateUser } from "../graphql/mutations";
+import { createReport } from "../graphql/mutations";
 import { API, graphqlOperation } from "aws-amplify";
-
-//consts
-
-//dictionary of all possible output types
-const outputs = {
-    "textarea": TextOutput,
-    "canvas": CanvasOutput,
-    "video": VideoOutput,
-    "audio": AudioOutput,
-    "files": FilesOutput
-};
 
 const SvcPage = ({ match, location, history }) => {
     const [userToken, setUserToken] = React.useState<usrCreds>();
@@ -67,14 +50,11 @@ const SvcPage = ({ match, location, history }) => {
             currentFormData: {//current gui value content
                 title: "faketitle",
                 done: false
-            },
-            output: "textarea"//the type of output field that will be rendering
+            }
         },
         permissions: [],//list of restricted browser apis that this app has access to
         currentBin: () => { }//the current binary function that serves as the backend to the gui
     });
-    let cOutput;//TODO:might need to be state tied
-
 
     React.useEffect(() => {//appends current form values to url so they can be shared
         if (currentComponent && currentComponent.form && currentComponent.form.currentFormData) {
@@ -92,10 +72,6 @@ const SvcPage = ({ match, location, history }) => {
         }
     }, [currentComponent]);
 
-    const handleOutput = (o) => {//update the output component with the given data
-        cOutput.update(o);//TODO:would this call work?
-    };
-
     const updateForm = (newContents) => {//updates the current form contents with new contents from program
         currentComponent.form.currentFormData = newContents;
         setcurrentComponent(currentComponent);
@@ -104,7 +80,7 @@ const SvcPage = ({ match, location, history }) => {
     //runs when the page loads
     React.useEffect(() => {
         if (match.params.length > 0 && match.params.svc) {
-            sLoader(match.params.svc, handleOutput, updateForm)
+            sLoader(match.params.svc, updateForm)
                 .then((cmp) => {
                     if (match.params.length > 1) {
                         let cvls = match.params;
@@ -178,6 +154,11 @@ const SvcPage = ({ match, location, history }) => {
 
     return (
         <div id="helper">
+            <Helmet>
+            {/* <title itemProp="name" lang="en">{currentComponent}</title>
+            <meta name="description" content="Helmet application" />
+            TODO:FINISH METATAGS, AND MAKE THIS A 2 PART REQUEST WITH PLAY BUTTON */}
+            </Helmet>
             <ToastContainer />
             <img
                 alt="ServiceEngine Logo"
@@ -189,12 +170,6 @@ const SvcPage = ({ match, location, history }) => {
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onError={handleErr} />
-                {cOutput && (
-                    <div>
-                        <hr></hr>
-                        {() => outputs[currentComponent.form.output]}
-                    </div>
-                )}
             </div>
             {userToken &&
                 <div>

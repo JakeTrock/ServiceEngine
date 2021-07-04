@@ -1,5 +1,4 @@
 import * as React from "react";
-import axios from "axios";
 import { logout } from "./data/helpers";
 
 import { profDetails } from "./data/interfaces";

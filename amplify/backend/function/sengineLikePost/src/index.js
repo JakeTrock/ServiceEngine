@@ -8,15 +8,21 @@ Amplify Params - DO NOT EDIT */
 const authenticator = require("aws-cognito-jwt-authenticate");
 const axios = require("axios");
 
+const GQAPIKEY = process.env.API_SENGINE_GRAPHQLAPIKEYOUTPUT;
+const GQLEPT = process.env.API_URL;
+
 const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "*",
 };
 
-const authUsr = async (userPoolId, region, jwt) => {
+const cognitoDetails = {
+  userPoolId: process.env.AUTH_SENGINEE1307A19_USERPOOLID,
+  region: process.env.REGION,
+};
+const authUsr = async (jwt) => {
   //https://www.npmjs.com/package/aws-cognito-jwt-authenticate
   try {
-    const cognitoDetails = { userPoolId, region };
     const payload = await authenticator.validateJwt(jwt, cognitoDetails); // the decoded JWT payload
     return payload;
   } catch (err) {
@@ -31,24 +37,20 @@ const chkProp = (prop) => {
 
 exports.handler = async (event) => {
   //get util id from event
-  const utilID = event.body.JSON.util;
+  const { utilID } = event.body;
 
   try {
     if (chkProp(utilID)) throw new Error("you must choose a util to like!");
 
-    const result = await authUsr(
-      event.userPoolId,
-      event.region,
-      event.headers.authorization
-    ); //TODO: I don't know where the jwt is sent...
+    const result = await authUsr(event.headers.authorization); //TODO: I don't know where the jwt is sent...
 
     //make axios query get to the util id to get likes, who likes
     const preLike = await axios({
-      url: event.API_URL,
+      url: GQLEPT,
       method: "get",
       headers: {
         //TODO:this could be a bad/nonexistent key
-        "x-api-key": event.API_SENGINE_GRAPHQLAPIKEYOUTPUT,
+        "x-api-key": GQAPIKEY,
       },
       data: {
         query: /* GraphQL */ `query {
@@ -76,11 +78,11 @@ exports.handler = async (event) => {
           numLikes: preLike.numLikes++,
         };
     await axios({
-      url: event.API_URL,
+      url: GQLEPT,
       method: "post",
       headers: {
         //TODO:this could be a bad/nonexistent key
-        "x-api-key": event.API_SENGINE_GRAPHQLAPIKEYOUTPUT,
+        "x-api-key": GQAPIKEY,
       },
       data: {
         query: /* GraphQL */ `mutation {

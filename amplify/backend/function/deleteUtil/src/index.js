@@ -16,6 +16,8 @@ const AWS = require("aws-sdk");
 const BUCKET_NAME = "sengines3-dev";
 const IAM_USER_KEY = "AKIAS2SHSIFCOGERYKHL";
 const IAM_USER_SECRET = "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";
+const GQAPIKEY = process.env.API_SENGINE_GRAPHQLAPIKEYOUTPUT;
+const GQLEPT=process.env.API_URL;
 
 const s3bucket = new AWS.S3({
   accessKeyId: IAM_USER_KEY,
@@ -27,10 +29,13 @@ const headers = {
   "Access-Control-Allow-Headers": "*",
 };
 
-const authUsr = async (userPoolId, region, jwt) => {
+const cognitoDetails = {
+   userPoolId:process.env.AUTH_SENGINEE1307A19_USERPOOLID,
+   region:process.env.REGION
+ };
+const authUsr = async (jwt) => {
   //https://www.npmjs.com/package/aws-cognito-jwt-authenticate
   try {
-    const cognitoDetails = { userPoolId, region };
     const payload = await authenticator.validateJwt(jwt, cognitoDetails); // the decoded JWT payload
     return payload;
   } catch (err) {
@@ -49,18 +54,14 @@ exports.handler = async (event) => {
     if (chkProp(id) || !(typeof id == "string"))
       throw new Error("parentID needs to be set!");
     //verify authentic user
-    const result = await authUsr(
-      event.userPoolId,
-      event.region,
-      event.headers.authorization
-    ); //TODO: I don't know where the jwt is sent...
+    const result = await authUsr(event.headers.authorization); //TODO: I don't know where the jwt is sent...
     //Remove Util(also makes sure the util even exists)
     const postExists = await axios({
-      url: event.API_URL,
+      url: GQLEPT,
       method: "delete",
       headers: {
         //TODO:this could be a bad/nonexistent key
-        "x-api-key": event.API_SENGINE_GRAPHQLAPIKEYOUTPUT,
+        "x-api-key": GQAPIKEY,
       },
       data: {
         query: /* GraphQL */ `mutation {
@@ -99,11 +100,11 @@ exports.handler = async (event) => {
     postExists.reports.array
       .forEach(async (element) => {
         await axios({
-          url: event.API_URL,
+          url: GQLEPT,
           method: "delete",
           headers: {
             //TODO:this could be a bad/nonexistent key
-            "x-api-key": event.API_SENGINE_GRAPHQLAPIKEYOUTPUT,
+            "x-api-key": GQAPIKEY,
           },
           data: {
             query: /* GraphQL */ `mutation {

@@ -157,5 +157,8 @@ enum Permissions {
   getClipboard
   setClipboard
   getScreen
-  GetScreenAudio
+  getScreenAudio
+  downloadFile
+  multiDownloadFile
+  getDataUrl
 }

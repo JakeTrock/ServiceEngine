@@ -15,10 +15,13 @@ const headers = {
   "Access-Control-Allow-Headers": "*",
 };
 
-const authUsr = async (userPoolId, region, jwt) => {
+const cognitoDetails = {
+   userPoolId:process.env.AUTH_SENGINEE1307A19_USERPOOLID,
+   region:process.env.REGION
+ };
+const authUsr = async (jwt) => {
   //https://www.npmjs.com/package/aws-cognito-jwt-authenticate
   try {
-    const cognitoDetails = { userPoolId, region };
     const payload = await authenticator.validateJwt(jwt, cognitoDetails); // the decoded JWT payload
     return payload;
   } catch (err) {
@@ -39,11 +42,7 @@ exports.handler = async (event) => {
     if (chkProp(reason)) throw new Error("reason needs to be set!");
     if (chkProp(utilId)) throw new Error("utilID needs to be set!");
     //login with token
-    const result = await authUsr(
-      event.userPoolId,
-      event.region,
-      event.headers.authorization
-    ); //TODO: I don't know where the jwt is sent...
+    const result = await authUsr(event.headers.authorization); //TODO: I don't know where the jwt is sent...
     //build report
     const id = nanoid();
     const dt = Date.now();
@@ -56,11 +55,11 @@ exports.handler = async (event) => {
     };
     //create new report based on schema
     await axios({
-      url: event.API_URL,
+      url: GQLEPT,
       method: "post",
       headers: {
         //TODO:this could be a bad/nonexistent key
-        "x-api-key": event.API_SENGINE_GRAPHQLAPIKEYOUTPUT,
+        "x-api-key": GQAPIKEY,
       },
       data: {
         query: /* GraphQL */ `mutation {

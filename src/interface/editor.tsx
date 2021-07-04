@@ -43,8 +43,7 @@ const AuthPage = ({ match, location, history }) => {
         currentFormData: {
             title: "faketitle",
             done: false
-        },
-        output: "textarea"
+        }
     });
     //uploads and publishes the current service
     const svcPub = async () => {
