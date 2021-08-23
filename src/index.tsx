@@ -1,109 +1,72 @@
-//TODO: look into sw like this:https://gatsby.dev/offline
-import * as React from "react";
+import React from "react";
+import ReactDOM from 'react-dom';
+
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   withRouter
 } from 'react-router-dom';
-import search from './interface/frontPage';
-import dash from './interface/dash';
-import auth from './interface/auth';
-import resend from './interface/resend';
-import editor from './interface/editor';
+import codeeditor from './interface/editor-code';
+import interfaceeditor from './interface/editor-interface';
 import runner from './interface/runner';
 import NotFoundPage from './interface/404';
-//configure aws
-import Amplify from 'aws-amplify'
-import aws_exports from './aws-exports'
-
-// Amplify.configure(aws_exports);
-Amplify.configure({
-  Auth: {
-    identityPoolId: aws_exports.aws_cognito_identity_pool_id,
-    region: aws_exports.aws_project_region,
-    userPoolId: aws_exports.aws_user_pools_id,
-    userPoolWebClientId: aws_exports.aws_user_pools_web_client_id,
-  },
-  Storage: {
-    AWSS3: {
-      bucket: aws_exports.aws_user_files_s3_bucket,
-      region: aws_exports.aws_project_region,
-    }
-  }
-});
+import TopBar from "./interface/subcomponents/organizers/topbar";
+import { usrCreds } from "./interface/data/interfaces";
 
 //import all subpages
-const Dash = withRouter(dash);
-const FrontPage = withRouter(search);
-const Auth = withRouter(auth);
-const Resend = withRouter(resend);
-const Editor = withRouter(editor);
+const CodeEditor = withRouter(codeeditor);
+const InterfaceEditor = withRouter(interfaceeditor);
 const Runner = withRouter(runner);
 const NotFound = withRouter(NotFoundPage);
 //composite pages into monopage app
-export default function () {
+const Switchboard = () => {
+  const [currentUser, setCurrentUser] = React.useState<usrCreds>({
+    confirmed: true,
+    username: "banan",
+    userSub: "49234920093",
+  });
+
   return (
     <Router>
+      {/* TODO: pass topbar pfp image */}
+      <nav><TopBar /></nav>
       <Switch>
-        <Route path="/dash">
-          <Dash />
-        </Route>
-        <Route path="/editor">
-          <Editor />
-        </Route>
-        {/* authroutes */}
-        <Route path="/auth">
-          <Auth />
-        </Route>
-        <Route path="/resend">
-          <Resend />
+        {currentUser ?
+          <React.Fragment>
+            <Route path="/codeeditor/:uuid">
+              <CodeEditor userInfo={currentUser} />
+            </Route>
+
+            <Route path="/interfaceeditor/:uuid">
+              <InterfaceEditor userInfo={currentUser} />
+            </Route>
+          </React.Fragment> :
+          <Route exact path="/login">
+            please log in
+            TODO: in future, provide userInfo={currentUser} and userSet={setCurrentUser}
+          </Route>
+        }
+
+        <Route path="/runner/:uuid">
+          <Runner userInfo={currentUser} />
         </Route>
 
-        <Route path="/runner">
-          <Runner />
-        </Route>
-        <Route path="/">
-          <FrontPage />
-        </Route>
         <Route path="*">
           <NotFound />
         </Route>
       </Switch>
     </Router>
   );
-}
+};
 
-//TODO:https://docs.amplify.aws/lib/utilities/i18n/q/platform/js
+ReactDOM.render(
+  <React.StrictMode>
+    <Switchboard />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
 
-
-//TODO: Set bucket CORS policy to
-//from https://docs.amplify.aws/lib/storage/getting-started/q/platform/js#amazon-s3-bucket-cors-policy-setup
-/*
-[
-    {
-        "AllowedHeaders": [
-            "*"
-        ],
-        "AllowedMethods": [
-            "GET",
-            "HEAD",
-            "PUT",
-            "POST",
-            "DELETE"
-        ],
-        "AllowedOrigins": [
-            "*"
-        ],
-        "ExposeHeaders": [
-            "x-amz-server-side-encryption",
-            "x-amz-request-id",
-            "x-amz-id-2",
-            "ETag"
-        ],
-        "MaxAgeSeconds": 3000
-    }
-]
-*/
+// TODO:https://docs.amplify.aws/lib/utilities/i18n/q/platform/js
 
 // https://docs.aws.amazon.com/amplify/latest/userguide/to-add-a-custom-domain-managed-by-amazon-route-53.html
