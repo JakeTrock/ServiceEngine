@@ -1,6 +1,6 @@
 import * as React from "react";
 import './data/styles.css';
-import allutils from "./data/allutils.json";
+import allutils from "./data/allutils";
 
 const AllPage = () => {
   const gallery = [];

@@ -6,25 +6,26 @@ import { Helmet } from "react-helmet";
 import { exportCollection, IFaceBlock, utility } from "./data/interfaces";
 import { wasmLoader } from "./data/wasmLoader";
 import GuiRender from "./subcomponents/guiRender";
-import allutils from "./data/allutils.json";
+import allutils from "./data/allutils";
+
+const loadMetaData = (id) => {
+    if (id) {
+        const ut = allutils.filter(ut => ut.id === id);
+        if (ut.length === 0) toast("Invalid utility ID!")
+        return ut[0];
+    } else toast("You must provide an id of a utility to load!")
+};
 
 const SvcPage = (props) => {
     const { match, location, history } = props;
     const utilID = match.params.uuid;
-    const [currentComponent, setCurrentComponent] = React.useState<utility>();
-    const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[]>();
+    const currentComponent = loadMetaData(utilID);
+    const currentInterface: IFaceBlock | [] = currentComponent.scheme;
     const [exports, setExports] = React.useState<exportCollection>();
 
     //handle form error
     const handleErr = (e) => toast(e);
 
-    React.useEffect(() => {
-        if (utilID) {
-            const ut = allutils.filter(ut => ut.id === utilID);
-            if (ut.length === 0) toast("Invalid utility ID!")
-            setCurrentComponent(ut[0]);
-        } else toast("You must provide an id of a utility to load!")
-    }, []);
 
     const loadAll = async () => {
         if (currentComponent) {
