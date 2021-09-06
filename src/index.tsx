@@ -12,7 +12,6 @@ import NotFoundPage from './interface/404';
 import TopBar from "./interface/subcomponents/organizers/topbar";
 import AboutPage from "./interface/aboutpage";
 import AllPage from "./interface/allpage";
-import IntEdit from "./interface/editor-interface";
 
 //import all subpages
 const Runner = withRouter(runner);
@@ -32,9 +31,6 @@ const Switchboard = () => {
         </Route>
         <Route path="/runner/:uuid">
           <Runner />
-        </Route>
-        <Route path="/editor">
-          <IntEdit />
         </Route>
 
         <Route path="*">
