@@ -14,19 +14,11 @@ function TopBar(props) {
           />
         </a>
 
-        {usrPfP ? <a href="/dash">Dashboard<img src={usrPfP} alt="pfp" /></a> : <a className="lnk" href="/login">
-          Log in
+        <a className="lnk" href="/about">
+          About us
         </a>
-        }
-
-        <a className="lnk" href="/search">
-          Search
-        </a>
-        <a className="lnk" href="/tags">
-          Tags
-        </a>
-        <a className="lnk" href="/frontpage">
-          Popular
+        <a className="lnk" href="/all">
+          View all Utilities
         </a>
 
       </div>

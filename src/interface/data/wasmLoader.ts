@@ -16,7 +16,10 @@ const getParamNames = (func) => {
 };
 //Thanks, stackoverflow! https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically?page=1&tab=votes#tab-top
 
-export const wasmLoader = async (permissions, libraries): Promise<exportCollection> => {
+export const wasmLoader = async (
+  permissions,
+  libraries
+): Promise<exportCollection> => {
   //https://developer.mozilla.org/en-US/docs/WebAssembly/Using_the_JavaScript_API
   //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Memory
   try {
