@@ -12,6 +12,7 @@ import NotFoundPage from './interface/404';
 import TopBar from "./interface/subcomponents/organizers/topbar";
 import AboutPage from "./interface/aboutpage";
 import AllPage from "./interface/allpage";
+import Welcome from "./interface/welcome";
 
 //import all subpages
 const Runner = withRouter(runner);
@@ -31,6 +32,9 @@ const Switchboard = () => {
         </Route>
         <Route path="/runner/:uuid">
           <Runner />
+        </Route>
+        <Route path="/">
+          <Welcome />
         </Route>
 
         <Route path="*">
