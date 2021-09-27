@@ -33,7 +33,8 @@ const processHooks = (schema, makeEvent) => {
 
 function GuiRender(props) {
     const mkevt = (evv) => {
-        const evfunction = (e) => props.controllerFunctions(formAccess, evv.name, e, evv.additional || {});
+        console.log(evv.name);
+        const evfunction = (e) => props.exports[evv.name](e, formAccess, evv.additional || {});
         return evfunction;
     };
 

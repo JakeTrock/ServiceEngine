@@ -44,11 +44,7 @@ const SvcPage = (props) => {
                     content={currentComponent.description} />
             </Helmet>
             <div id="serviceContainer">
-                {(currentComponent.scheme && exports) ? <GuiRender initScheme={currentComponent.scheme} controllerFunctions={(formAccess, evtname, e, additional) => {
-                    console.log(evtname);
-                    setExports(exports);
-                    if (exports[evtname] !== undefined) exports[evtname](e, formAccess, additional)//TODO: export is a clear security vuln for exfil, you should filter event for read only
-                }} /> : <button onClick={() => loadAll()}>▶️ load and start program</button>}
+                {(currentComponent.scheme && exports) ? <GuiRender initScheme={currentComponent.scheme} exports={exports} /> : <button onClick={() => loadAll()}>▶️ load and start program</button>}
             </div>
         </div>
     );
