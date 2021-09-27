@@ -30,26 +30,26 @@ const glcode = (imports) => {
       window.URL.revokeObjectURL(url);
     },
     convert: async (e, fa, a) => {
-      fa("insert", "", {
+      fa("add", "", {
         id: "label",
         uuid: "convertinglabel",
         defaults: { visible: true, size: "1em", label: "Converting..." },
       });
-      fa("insert", "", {
+      fa("add", "", {
         id: "progbar",
         uuid: "ffmbar",
         defaults: { visible: true, value: 0, min: 0, max: 1 },
       });
       const progbar = (prog) => {
-        fa("set", "ffmbar", { value: prog });
+        fa("set", "ffmbar", { default: { value: prog } });
       };
-      console.log(fa("get"))
+      console.log(fa("get"));
       // if (fa("get", "downloadButton").length > 0) {
       //   const all = fa("get").filter(
       //     (e) => (e.id = "button" && e.uuid !== "button1")
       //   );
       //   all.forEach((e) => {
-      //     fa("delete", e.uuid);
+      //     fa("del", e.uuid);
       //   });
       // }
       // ffmpeg.formatToFormat
@@ -63,7 +63,7 @@ const glcode = (imports) => {
       //     console.log(filesOut);
       //     filesOut
       //       .forEach((file, i) => {
-      //         fa("insert", "", {
+      //         fa("add", "", {
       //           id: "button",
       //           uuid: "button" + (i + 1),
       //           defaults: {
@@ -80,7 +80,7 @@ const glcode = (imports) => {
       //           },
       //         });
       //       })
-      //       .then(() => fa("delete", "convertinglabel"));
+      //       .then(() => fa("del", "convertinglabel"));
       //   })
       //   .catch((e) => toast(e));
     },

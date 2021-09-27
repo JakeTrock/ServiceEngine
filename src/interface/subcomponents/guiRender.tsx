@@ -1,12 +1,28 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { IFaceBlock } from "../data/interfaces";
 import compDict from "../data/compDict";
+
+const compList: IFaceBlock[] = [
+    { id: "label", defaults: { visible: true, size: "1em", label: "Explanatory text" } },
+    { id: "button", defaults: { visible: true, disabled: true, size: "1em", label: "Button" } },
+    { id: "uplButton", defaults: { visible: true, disabled: true, size: "1em" } },
+    { id: "textbox", defaults: { visible: true, disabled: true, size: "1em", value: "default value", multirow: "false" } },
+    { id: "numbox", defaults: { visible: true, disabled: true, size: "1em", value: 3, min: 0, max: 10 } },
+    { id: "datebox", defaults: { visible: true, disabled: true, size: "1em", value: "1000-01-01T12:00", min: "0001-01-01T00:00", max: "2000-01-01T24:00" } },
+    { id: "onechoice", defaults: { visible: true, disabled: true, size: "1em", labels: "apple,banana,melon,berry" } },
+    { id: "multchoice", defaults: { visible: true, disabled: true, size: "1em", label: "topping", labels: "walnuts,peanuts,chocolate,gummy", checked: "false,true,false,true" } },
+    { id: "listbuild", defaults: { visible: true, disabled: true, size: "1em", width: "20em", values: "strawberry,chocolate,vanilla,mint" } },
+    { id: "mediabox", defaults: { visible: true, hasVideo: true, hasControls: true, width: "10em", height: "10em" } },
+    { id: "canvasbox", defaults: { visible: true, width: "10em", height: "10em" } },
+    { id: "slider", defaults: { visible: true, disabled: true, width: "10em", value: 1, min: 0, max: 10 } },
+    { id: "progbar", defaults: { visible: true, value: 50, max: 100 } }
+];
 
 const processHooks = (schema, makeEvent) => {
     return schema.map(prp => {
         if (prp.hooks && prp.hooks !== {}) {
             Object.getOwnPropertyNames(prp.hooks).forEach((key) => {
-                if (prp.hooks[key].name&&prp.hooks[key].name!=="evfunction") {
+                if (prp.hooks[key].name && prp.hooks[key].name !== "evfunction") {
                     prp.hooks[key] = makeEvent(prp.hooks[key]);
                 }
             })
@@ -17,47 +33,70 @@ const processHooks = (schema, makeEvent) => {
 
 function GuiRender(props) {
     const mkevt = (evv) => {
-        const evfunction = (e) => props.controllerFunctions(evv.name, e, evv.additional || {});
+        const evfunction = (e) => props.controllerFunctions(formAccess, evv.name, e, evv.additional || {});
         return evfunction;
     };
-    const initSch = props.schema;
-    const [scheme, setScheme] = React.useState<IFaceBlock[] | []>(processHooks(initSch, mkevt));
 
-    React.useEffect(() => {
-        console.log("chg")
-        if (!Object.is(props.schema, scheme)) {
-            //this only works for one-at-a-time, but that's what we're using now
-            let scompare1 = {}, scompare2 = {};
-            scheme.forEach((s: IFaceBlock) => {
-                if (s.uuid) {
-                    scompare1[s.uuid] = s.defaults;
-                }
-            });
-            props.schema.forEach((s: IFaceBlock) => {
-                if (s.uuid) {
-                    scompare2[s.uuid] = s.defaults;
-                }
-            });
-            Object.getOwnPropertyNames(scompare2).forEach(k => {//TODO:built for one at a time
-                if (!(k in scompare1)) {
-                    const newItm: IFaceBlock = processHooks([props.schema.find((e: IFaceBlock) => e.uuid === k)], mkevt);
-                    let ns: IFaceBlock[] = scheme;
-                    ns.push(newItm);
-                    setScheme(ns);
-                }
-            })
+    const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[] | []>(props.initScheme);
+
+    const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {
+        if (action === "del" && key) {
+            setCurrentInterface(ci => ci.filter((e: IFaceBlock) => e.uuid !== key));
         }
-    }
-    // , [props.schema]
-    )
+        if (action === "add") {
+            let concat;
+            if (key !== "") {
+                concat = compList.find((e: IFaceBlock) => e.id === key);
+            }
+            else if (kvpset) {
+                concat = kvpset;
+            }
+            else {
+                return;
+            }
+            if (!concat.uuid) concat.uuid = Math.random().toString(36).substr(2);
+
+            setCurrentInterface((ci) => {
+                if (!ci.find((e: IFaceBlock) => e.uuid && e.uuid === concat.uuid)) {
+                    const ncurr: IFaceBlock[] = [...ci, concat];
+                    console.log(ncurr);
+                    return ncurr;
+                }
+            });//TODO:add location index insert l8r
+
+            //TODO: For some reason this change isnt being applied to array?
+            console.log(currentInterface)
+        }
+        if (action === "get") {
+            if (!key || key !== "") return currentInterface;
+            else return currentInterface.filter((e: IFaceBlock, i) => e.uuid === key)[0];
+        }
+        if (action === "set" && kvpset) {
+            setCurrentInterface((ci) => ci.map((e: IFaceBlock) => {
+                if (e.uuid === key) {
+                    Object.getOwnPropertyNames(kvpset).forEach(k => {
+                        if (k === "defaults") {
+                            Object.getOwnPropertyNames(kvpset.defaults).forEach(dk => e["defaults"][dk] = kvpset.defaults[dk]);
+                        } else if (k === "hooks") {
+                            Object.getOwnPropertyNames(kvpset.hooks).forEach(dk => e["hooks"][dk] = kvpset.hooks[dk]);
+                        } else {
+                            e[k] = kvpset[k];
+                        }
+                    });
+                    return e;
+                } else return e;
+            })
+            );
+        }
+    };
 
     return (
         <div>
-            {scheme.map((item, i) => (
-                <>
+            {currentInterface && processHooks(currentInterface, mkevt).map((item, i) => (
+                <Fragment key={props.key}>
                     {React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks })}
                     <br />
-                </>
+                </Fragment>
             ))}
         </div>
     );
