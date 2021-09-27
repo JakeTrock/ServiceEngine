@@ -1697,6 +1697,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ffmpeg/core@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@ffmpeg/core@npm:0.10.0"
+  checksum: e93aa8dea8853d4aca9702dcca64dc1ceef750146fb7384dc6d16175c4927de9e1262f788e2f647b9b94ae5df86ae250415649e928e57e73e4c022709268e959
+  languageName: node
+  linkType: hard
+
+"@ffmpeg/ffmpeg@npm:^0.10.1":
+  version: 0.10.1
+  resolution: "@ffmpeg/ffmpeg@npm:0.10.1"
+  dependencies:
+    is-url: ^1.2.4
+    node-fetch: ^2.6.1
+    regenerator-runtime: ^0.13.7
+    resolve-url: ^0.2.1
+  checksum: 8072aef7468febdeea346801e9fe957c0022093eafd6e9f3baa4e6d2d2d0ea780ff0503759c5d9d837c5d013f8cbbb8d76b760e1b36e4f6c5d317f7e324b3a29
+  languageName: node
+  linkType: hard
+
 "@hapi/address@npm:2.x.x":
   version: 2.1.4
   resolution: "@hapi/address@npm:2.1.4"
@@ -8470,6 +8489,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"is-url@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "is-url@npm:1.2.4"
+  checksum: 100e74b3b1feab87a43ef7653736e88d997eb7bd32e71fd3ebc413e58c1cbe56269699c776aaea84244b0567f2a7d68dfaa512a062293ed2f9fdecb394148432
+  languageName: node
+  linkType: hard
+
 "is-windows@npm:^1.0.2":
   version: 1.0.2
   resolution: "is-windows@npm:1.0.2"
@@ -10282,6 +10308,13 @@ fsevents@^1.2.7:
     lower-case: ^2.0.2
     tslib: ^2.0.3
   checksum: 0b2ebc113dfcf737d48dde49cfebf3ad2d82a8c3188e7100c6f375e30eafbef9e9124aadc3becef237b042fd5eb0aad2fd78669c20972d045bbe7fea8ba0be5c
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:^2.6.1":
+  version: 2.6.2
+  resolution: "node-fetch@npm:2.6.2"
+  checksum: de367eae1dfbc0e12283c1cf92256ea7fba7eac8655e2e51ebb217727162396fc6cf24689ef9fc6accf075e3991e2ffaa061f7cfaa958215329649b2297ff06d
   languageName: node
   linkType: hard
 
@@ -13503,6 +13536,8 @@ resolve@^2.0.0-next.3:
   version: 0.0.0-use.local
   resolution: "sengineapp@workspace:."
   dependencies:
+    "@ffmpeg/core": ^0.10.0
+    "@ffmpeg/ffmpeg": ^0.10.1
     "@types/node": ^16.4.5
     "@types/react": ^17.0.15
     "@types/react-dom": ^17.0.9
@@ -13523,6 +13558,7 @@ resolve@^2.0.0-next.3:
     sortablejs: ^1.14.0
     typescript: ^4.3.5
     uuid: ^8.3.2
+    wasm-imagemagick: ^1.2.8
   languageName: unknown
   linkType: soft
 
@@ -13877,6 +13913,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"source-map@npm:0.5.6":
+  version: 0.5.6
+  resolution: "source-map@npm:0.5.6"
+  checksum: 390b3f5165c9631a74fb6fb55ba61e62a7f9b7d4026ae0e2bfc2899c241d71c1bccb8731c496dc7f7cb79a5f523406eb03d8c5bebe8448ee3fc38168e2d209c8
+  languageName: node
+  linkType: hard
+
 "source-map@npm:0.6.1, source-map@npm:^0.6.0, source-map@npm:^0.6.1, source-map@npm:~0.6.0, source-map@npm:~0.6.1":
   version: 0.6.1
   resolution: "source-map@npm:0.6.1"
@@ -14028,6 +14071,15 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"stack-generator@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "stack-generator@npm:2.0.5"
+  dependencies:
+    stackframe: ^1.1.1
+  checksum: a85c45a6f166319b31e9298da1e05b778b768553c2126eeeccfa5c4402fc810de1c541ec0b92db63238d68b3e08f4f57544adc27255e52f25f8edcabcc9caf63
+  languageName: node
+  linkType: hard
+
 "stack-utils@npm:^2.0.2":
   version: 2.0.3
   resolution: "stack-utils@npm:2.0.3"
@@ -14041,6 +14093,27 @@ resolve@^2.0.0-next.3:
   version: 1.2.0
   resolution: "stackframe@npm:1.2.0"
   checksum: 37d659bdd574e118a48c445a9a054a2b8dee6d6ad54eb16c51c7dae622c0f4994b9ff4e47d744aa6cfd14c00b477e145f34db3df78771f3e783ce8f357616d00
+  languageName: node
+  linkType: hard
+
+"stacktrace-gps@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "stacktrace-gps@npm:3.0.4"
+  dependencies:
+    source-map: 0.5.6
+    stackframe: ^1.1.1
+  checksum: b98cb77632d38e6cbc243da4c47ca5f4bef918985c233bb4cfe8bfdc60fde92b53ce0630b16cf24d81560f1442e2ff92ccf6e2fe19031c90fb775d8e86037d9b
+  languageName: node
+  linkType: hard
+
+"stacktrace-js@npm:^2.0.0":
+  version: 2.0.2
+  resolution: "stacktrace-js@npm:2.0.2"
+  dependencies:
+    error-stack-parser: ^2.0.6
+    stack-generator: ^2.0.5
+    stacktrace-gps: ^3.0.4
+  checksum: 081e786d56188ac04ac6604c09cd863b3ca2b4300ec061366cf68c3e4ad9edaa34fb40deea03cc23a05f442aa341e9171f47313f19bd588f9bec6c505a396286
   languageName: node
   linkType: hard
 
@@ -15313,6 +15386,16 @@ typescript@^4.3.5:
   dependencies:
     makeerror: 1.0.x
   checksum: 4038fcf92f6ab0288267ad05008aec9e089a759f1bd32e1ea45cc2eb498eb12095ec43cf8ca2bf23a465f4580a0d33b25b89f450ba521dd27083cbc695ee6bf5
+  languageName: node
+  linkType: hard
+
+"wasm-imagemagick@npm:^1.2.8":
+  version: 1.2.8
+  resolution: "wasm-imagemagick@npm:1.2.8"
+  dependencies:
+    p-map: ^2.0.0
+    stacktrace-js: ^2.0.0
+  checksum: 7fcad8fa3572e35d7958ed85711ede0eb48693b7b8711958e7469953f8cdf651986096e8744dce2197a1f498489da211a4047d88b58a0740f6b6652203afe8a4
   languageName: node
   linkType: hard
 

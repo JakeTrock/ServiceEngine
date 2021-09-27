@@ -3,7 +3,6 @@ import "../../data/navbar.css";
 import { ToastContainer } from "react-toastify";
 
 function TopBar(props) {
-  const usrPfP = props.userPfP;
   return (
     <div>
       <div className="topnav">
