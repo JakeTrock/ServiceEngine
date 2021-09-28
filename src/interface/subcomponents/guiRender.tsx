@@ -32,13 +32,15 @@ const processHooks = (schema, makeEvent) => {
 }
 
 function GuiRender(props) {
+    const currentInterface = props.scheme;
+    const setCurrentInterface = props.setScheme;
     const mkevt = (evv) => {
         console.log(evv.name);
         const evfunction = (e) => props.exports[evv.name](e, formAccess, evv.additional || {});
         return evfunction;
     };
 
-    const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[] | []>(props.initScheme);
+
 
     const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {
         if (action === "del" && key) {

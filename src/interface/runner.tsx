@@ -23,6 +23,7 @@ const SvcPage = (props) => {
     const utilID = match.params.uuid;
     const currentComponent = loadMetaData(utilID);
     const [exports, setExports] = React.useState<hookCollection>();
+    const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[] | []>(currentComponent.scheme);
 
     const loadAll = async () => {
         if (currentComponent) {
@@ -44,7 +45,7 @@ const SvcPage = (props) => {
                     content={currentComponent.description} />
             </Helmet>
             <div id="serviceContainer">
-                {(currentComponent.scheme && exports) ? <GuiRender initScheme={currentComponent.scheme} exports={exports} /> : <button onClick={() => loadAll()}>▶️ load and start program</button>}
+                {(currentComponent.scheme && exports) ? <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} /> : <button onClick={() => loadAll()}>▶️ load and start program</button>}
             </div>
         </div>
     );
