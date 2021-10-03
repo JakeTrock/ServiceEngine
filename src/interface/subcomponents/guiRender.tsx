@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { IFaceBlock } from "../data/interfaces";
 import compDict from "../data/compDict";
+import FailComponent from "./guiBlocks/failComponent";
 
 const compList: IFaceBlock[] = [
     { id: "label", defaults: { visible: true, size: "1em", label: "Explanatory text" } },
@@ -31,7 +32,7 @@ const processHooks = (schema, makeEvent) => {
     });
 }
 
-function GuiRender(props) {
+export default function GuiRender(props) {
     const currentInterface = props.scheme;
     const setCurrentInterface = props.setScheme;
     const mkevt = (evv) => {
@@ -40,16 +41,22 @@ function GuiRender(props) {
         return evfunction;
     };
 
-
-
-    const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {
-        if (action === "del" && key) {
-            setCurrentInterface(ci => ci.filter((e: IFaceBlock) => e.uuid !== key));
+    const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {//TODO:make switch
+        if (action === "del" && key && currentInterface.length) {
+            // setCurrentInterface(ci => {
+            //     if (ci !== undefined) {
+            //         const v = ci.filter((e: IFaceBlock) => e.uuid !== key);
+            //         return v;
+            //     }
+            // });
         }
         if (action === "add") {
             let concat;
-            if (key !== "") {
-                concat = compList.find((e: IFaceBlock) => e.id === key);
+            if (key && key !== "") {
+                const cmpFind = compList.find((e: IFaceBlock) => e.id === key);
+                if (cmpFind)
+                    concat = cmpFind;
+                else return;
             }
             else if (kvpset) {
                 concat = kvpset;
@@ -57,25 +64,21 @@ function GuiRender(props) {
             else {
                 return;
             }
-            if (!concat.uuid) concat.uuid = Math.random().toString(36).substr(2);
 
+            if (!concat.uuid) concat.uuid = Math.random().toString(36).substr(2);
             setCurrentInterface((ci) => {
-                if (!ci.find((e: IFaceBlock) => e.uuid && e.uuid === concat.uuid)) {
+                if (ci !== undefined && !ci.find((e: IFaceBlock) => e.uuid && e.uuid === concat.uuid)) {
                     const ncurr: IFaceBlock[] = [...ci, concat];
-                    console.log(ncurr);
                     return ncurr;
                 }
             });//TODO:add location index insert l8r
-
-            //TODO: For some reason this change isnt being applied to array?
-            console.log(currentInterface)
         }
         if (action === "get") {
-            if (!key || key !== "") return currentInterface;
-            else return currentInterface.filter((e: IFaceBlock, i) => e.uuid === key)[0];
+            if (!key || key === "") return currentInterface;
+            else return currentInterface.find((e: IFaceBlock) => e.uuid === key);
         }
         if (action === "set" && kvpset) {
-            setCurrentInterface((ci) => ci.map((e: IFaceBlock) => {
+            setCurrentInterface((ci) => ci !== undefined && ci.map((e: IFaceBlock) => {
                 if (e.uuid === key) {
                     Object.getOwnPropertyNames(kvpset).forEach(k => {
                         if (k === "defaults") {
@@ -97,12 +100,10 @@ function GuiRender(props) {
         <div>
             {currentInterface && processHooks(currentInterface, mkevt).map((item, i) => (
                 <Fragment key={props.key}>
-                    {React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks })}
+                    {React.createElement(compDict[item.id] || FailComponent, { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks })}
                     <br />
                 </Fragment>
             ))}
         </div>
     );
 }
-
-export default GuiRender;

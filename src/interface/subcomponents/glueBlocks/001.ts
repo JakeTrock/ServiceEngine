@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
-  let dd2: string, filesIn: File[], filesDownloadable: File[];
+  let dd2: string, filesIn: File[], filesDownloadable: File[], currPromise;
 
   return {
     dropdown: (e, fa, a) => {
@@ -30,59 +30,64 @@ const glcode = (imports) => {
       window.URL.revokeObjectURL(url);
     },
     convert: async (e, fa, a) => {
-      fa("add", "", {
-        id: "label",
-        uuid: "convertinglabel",
-        defaults: { visible: true, size: "1em", label: "Converting..." },
-      });
-      fa("add", "", {
-        id: "progbar",
-        uuid: "ffmbar",
-        defaults: { visible: true, value: 0, min: 0, max: 1 },
-      });
+      if (currPromise !== undefined) currPromise.cancel();
       const progbar = (prog) => {
-        fa("set", "ffmbar", { default: { value: prog } });
+        fa("set", "ffmbar", { defaults: { value: prog } });
       };
-      console.log(fa("get"));
-      // if (fa("get", "downloadButton").length > 0) {
-      //   const all = fa("get").filter(
-      //     (e) => (e.id = "button" && e.uuid !== "button1")
-      //   );
-      //   all.forEach((e) => {
-      //     fa("del", e.uuid);
-      //   });
-      // }
-      // ffmpeg.formatToFormat
-      //   .function(
-      //     filesIn,
-      //     filesIn.map((f) => f.name + "." + dd2),
-      //     progbar
-      //   )
-      //   .then((filesOut) => {
-      //     filesDownloadable = filesOut;
-      //     console.log(filesOut);
-      //     filesOut
-      //       .forEach((file, i) => {
-      //         fa("add", "", {
-      //           id: "button",
-      //           uuid: "button" + (i + 1),
-      //           defaults: {
-      //             visible: true,
-      //             disabled: false,
-      //             size: "1em",
-      //             label: "Download " + file.name,
-      //           },
-      //           hooks: {
-      //             click: {
-      //               name: "download",
-      //               additional: { fname: file.name, findex: i - 1 },
-      //             },
-      //           },
-      //         });
-      //       })
-      //       .then(() => fa("del", "convertinglabel"));
-      //   })
-      //   .catch((e) => toast(e));
+      if (fa("get", "button2")) {
+        const all = fa("get").filter(
+          (e) => e.id === "button" && e.uuid !== "button1"
+        );
+        all.forEach((e) => {
+          fa("del", e.uuid);
+        });
+      } else {
+        fa("add", "", {
+          id: "label",
+          uuid: "convertinglabel",
+          defaults: { visible: true, size: "1em", label: "Converting..." },
+        });
+        fa("add", "", {
+          id: "progbar",
+          uuid: "ffmbar",
+          defaults: { visible: true, value: 0, min: 0, max: 1 },
+        });
+      }
+
+      currPromise = ffmpeg.formatToFormat
+        .function(
+          filesIn,
+          filesIn.map((f) => f.name + "." + dd2),
+          progbar
+        )
+        .then((filesOut) => {
+          filesDownloadable = filesOut;
+          console.log(filesOut);
+          filesOut
+            .forEach((file, i) => {
+              fa("add", "", {
+                id: "button",
+                uuid: "button" + (i + 1),
+                defaults: {
+                  visible: true,
+                  disabled: false,
+                  size: "1em",
+                  label: "Download " + file.name,
+                },
+                hooks: {
+                  click: {
+                    name: "download",
+                    additional: { fname: file.name, findex: i - 1 },
+                  },
+                },
+              });
+            })
+            .then(() => {
+              currPromise = undefined;
+              fa("del", "convertinglabel");
+            });
+        })
+        .catch((e) => toast(e));
     },
   };
 };
