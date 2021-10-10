@@ -42,57 +42,79 @@ export default function GuiRender(props) {
     };
 
     const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {//TODO:make switch
-        if (action === "del" && key && currentInterface.length) {
-            // setCurrentInterface(ci => {
-            //     if (ci !== undefined) {
-            //         const v = ci.filter((e: IFaceBlock) => e.uuid !== key);
-            //         return v;
-            //     }
-            // });
-        }
-        if (action === "add") {
-            let concat;
-            if (key && key !== "") {
-                const cmpFind = compList.find((e: IFaceBlock) => e.id === key);
-                if (cmpFind)
-                    concat = cmpFind;
-                else return;
-            }
-            else if (kvpset) {
-                concat = kvpset;
-            }
-            else {
-                return;
-            }
+        console.log(action)
+        if (action && currentInterface.length) {
+            if (action === "del" && key) {
+                setCurrentInterface(ci => {
+                    const cface = (ci || currentInterface);
+                    const v = cface.filter((e: IFaceBlock) => e.uuid !== key);
+                    return v;
 
-            if (!concat.uuid) concat.uuid = Math.random().toString(36).substr(2);
-            setCurrentInterface((ci) => {
-                if (ci !== undefined && !ci.find((e: IFaceBlock) => e.uuid && e.uuid === concat.uuid)) {
-                    const ncurr: IFaceBlock[] = [...ci, concat];
-                    return ncurr;
+                });
+            }
+            if (action === "add") {
+                let concat;
+                if (kvpset && kvpset !== {}) {
+                    concat = kvpset;
+                } else {
+                    const cmpFind = compList.find((e: IFaceBlock) => e.id === key);
+                    if (cmpFind)
+                        concat = cmpFind;
+                    else return;
                 }
-            });//TODO:add location index insert l8r
+
+                if (!concat.uuid) concat.uuid = Math.random().toString(36).substr(2);
+                setCurrentInterface((ci) => {
+                    const nci = (ci || currentInterface);
+                    if (!nci.find((e: IFaceBlock) => e.uuid && e.uuid === concat.uuid)) {
+                        const ncurr: IFaceBlock[] = [...nci, concat];
+                        return ncurr;
+                    } else return nci;
+                });//TODO:add location index insert l8r
+            }
+            if (action === "set" && key && kvpset) {
+                if (kvpset.uuid && currentInterface.find((e: IFaceBlock) => e.uuid && e.uuid === kvpset.uuid)) return;
+                setCurrentInterface((ci) => {//TODO:use lower version when state problem fixed, not mem efficient
+                    const cface = (ci || currentInterface);
+                    return cface.map((e: IFaceBlock) => {
+                        if (e.uuid === key) {
+                            Object.getOwnPropertyNames(kvpset).forEach(k => {
+                                if (k === "defaults") {
+                                    Object.getOwnPropertyNames(kvpset.defaults).forEach(dk => e["defaults"][dk] = kvpset.defaults[dk]);
+                                } else if (k === "hooks") {
+                                    Object.getOwnPropertyNames(kvpset.hooks).forEach(dk => e["hooks"][dk] = kvpset.hooks[dk]);
+                                } else {
+                                    e[k] = kvpset[k];
+                                }
+                            });
+                            return e;
+                        } else return e;
+                    })
+                });
+            }
+            // if (action === "set" && key && kvpset) {
+            //     if (kvpset.uuid && currentInterface.find((e: IFaceBlock) => e.uuid && e.uuid === kvpset.uuid)) return;
+            //     setCurrentInterface((ci) => {
+            //         const cface = (ci || currentInterface);
+            //         const itm = cface.findIndex((e: IFaceBlock) => e.uuid && e.uuid === key)
+            //         if (itm > -1) {
+            //             Object.getOwnPropertyNames(kvpset).forEach(k => {
+            //                 if (k === "defaults") {
+            //                     Object.getOwnPropertyNames(kvpset.defaults).forEach(dk => cface[itm]["defaults"][dk] = kvpset.defaults[dk]);
+            //                 } else if (k === "hooks") {
+            //                     Object.getOwnPropertyNames(kvpset.hooks).forEach(dk => cface[itm]["hooks"][dk] = kvpset.hooks[dk]);
+            //                 } else {
+            //                     cface[itm][k] = kvpset[k];
+            //                 }
+            //             });
+            //         }
+            //         return cface;
+            //     });
+            // }
         }
         if (action === "get") {
             if (!key || key === "") return currentInterface;
             else return currentInterface.find((e: IFaceBlock) => e.uuid === key);
-        }
-        if (action === "set" && kvpset) {
-            setCurrentInterface((ci) => ci !== undefined && ci.map((e: IFaceBlock) => {
-                if (e.uuid === key) {
-                    Object.getOwnPropertyNames(kvpset).forEach(k => {
-                        if (k === "defaults") {
-                            Object.getOwnPropertyNames(kvpset.defaults).forEach(dk => e["defaults"][dk] = kvpset.defaults[dk]);
-                        } else if (k === "hooks") {
-                            Object.getOwnPropertyNames(kvpset.hooks).forEach(dk => e["hooks"][dk] = kvpset.hooks[dk]);
-                        } else {
-                            e[k] = kvpset[k];
-                        }
-                    });
-                    return e;
-                } else return e;
-            })
-            );
         }
     };
 

@@ -34,6 +34,7 @@ const ffmpeg = async () => {
     opNames: string[]
   ) =>
     new Promise<File[]>(async (resolve, reject) => {
+      if (!input || input.length === 0) return reject("no files provided!");
       const all = input.map(
         async (ifile) =>
           new Promise<void>(async (resolve, reject) => {

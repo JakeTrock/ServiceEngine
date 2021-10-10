@@ -1,5 +1,11 @@
 import { toast } from "react-toastify";
 
+async function asyncFor(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
   let dd2: string, filesIn: File[], filesDownloadable: File[], currPromise;
@@ -19,7 +25,9 @@ const glcode = (imports) => {
       }
     },
     download: async (e, fa, a) => {
+      console.log(filesDownloadable);
       const file = filesDownloadable[a.findex];
+      console.log(file);
       const url = window.URL.createObjectURL(file);
       const dlink = document.createElement("a");
       dlink.style.display = "none";
@@ -30,11 +38,14 @@ const glcode = (imports) => {
       window.URL.revokeObjectURL(url);
     },
     convert: async (e, fa, a) => {
-      if (currPromise !== undefined) currPromise.cancel();
+      if (currPromise !== undefined) currPromise.cancel(); //TODO:instead of this make a list with cancel buttons you append to
       const progbar = (prog) => {
         fa("set", "ffmbar", { defaults: { value: prog } });
       };
-      if (fa("get", "button2")) {
+      if (fa("get", "convertinglabel")) {
+        fa("del", "convertinglabel");
+        fa("del", "ffmbar");
+      } else if (fa("get", "button2")) {
         const all = fa("get").filter(
           (e) => e.id === "button" && e.uuid !== "button1"
         );
@@ -54,38 +65,48 @@ const glcode = (imports) => {
         });
       }
 
+      // currPromise = new Promise<File[]>((resolve) => {
+      //   setTimeout(() => {
+      //     resolve([
+      //       new File(["new Blob()"], "banan", {
+      //         type: "text/plain",
+      //       }),
+      //     ]);
+      //   }, 300);
+      // })
       currPromise = ffmpeg.formatToFormat
         .function(
           filesIn,
           filesIn.map((f) => f.name + "." + dd2),
           progbar
         )
-        .then((filesOut) => {
+        .then((filesOut: File[]) => {
           filesDownloadable = filesOut;
+          console.log(filesDownloadable[0]);
           console.log(filesOut);
-          filesOut
-            .forEach((file, i) => {
-              fa("add", "", {
-                id: "button",
-                uuid: "button" + (i + 1),
-                defaults: {
-                  visible: true,
-                  disabled: false,
-                  size: "1em",
-                  label: "Download " + file.name,
+          asyncFor(filesOut, (file, i) => {
+            console.log(i);
+            fa("add", "", {
+              id: "button",
+              uuid: "button" + (i + 2),
+              defaults: {
+                visible: true,
+                disabled: false,
+                size: "1em",
+                label: "Download " + file.name,
+              },
+              hooks: {
+                click: {
+                  name: "download",
+                  additional: { fname: file.name, findex: i },
                 },
-                hooks: {
-                  click: {
-                    name: "download",
-                    additional: { fname: file.name, findex: i - 1 },
-                  },
-                },
-              });
-            })
-            .then(() => {
-              currPromise = undefined;
-              fa("del", "convertinglabel");
+              },
             });
+          }).then(() => {
+            currPromise = undefined;
+            fa("del", "convertinglabel");
+            fa("del", "ffmbar");
+          });
         })
         .catch((e) => toast(e));
     },

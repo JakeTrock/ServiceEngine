@@ -11,6 +11,7 @@
     "react-blockly": "^7.0.0-alpha.1",
     "react-dom": "^17.0.2",
     "react-helmet": "^6.1.0",
+    "react-imported-component": "^6.4.1",
     "react-monaco-editor": "^0.43.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
@@ -22,7 +23,7 @@
     "wasm-imagemagick": "^1.2.8"
   },
   "scripts": {
-    "prbuild":"react-scripts build && yarn dlx serve -s build",
+    "prbuild": "react-scripts build && yarn dlx serve -s build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
