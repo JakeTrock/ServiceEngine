@@ -88,17 +88,13 @@ const ffmpeg = async () => {
     //   names: [""],
     //   types: [""],
     // },
-    formatToFormat: {
-      function: (input: File[], outNames: string[], progressCB: Function) =>
-        ffGeneric(
-          input,
-          outNames.map((n, i) => ["-i", `{if${i}}`, `{of${i}}`]),
-          progressCB,
-          outNames
-        ),
-      names: ["input file", "output format"],
-      types: ["File", "string"],
-    },
+    formatToFormat: (input: File[], outNames: string[], progressCB: Function) =>
+      ffGeneric(
+        input,
+        outNames.map((n, i) => ["-i", `{if${i}}`, `{of${i}}`]),
+        progressCB,
+        outNames
+      ),
     //TODO: addmore
   };
 };

@@ -1,5 +1,3 @@
-import { toast } from "react-toastify";
-
 async function asyncFor(array, callback) {
   for (let index = 0; index < array.length; index++) {
     await callback(array[index], index, array);
@@ -74,8 +72,8 @@ const glcode = (imports) => {
       //     ]);
       //   }, 300);
       // })
-      currPromise = ffmpeg.formatToFormat
-        .function(
+      currPromise = ffmpeg
+        .formatToFormat(
           filesIn,
           filesIn.map((f) => f.name + "." + dd2),
           progbar
@@ -108,7 +106,13 @@ const glcode = (imports) => {
             fa("del", "ffmbar");
           });
         })
-        .catch((e) => toast(e));
+        .catch((e) =>
+          fa("add", "", {
+            id: "label",
+            uuid: "errlabel",
+            defaults: { visible: true, size: "1em", label: e },
+          })
+        );
     },
   };
 };
