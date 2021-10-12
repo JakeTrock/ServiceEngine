@@ -1,11 +1,13 @@
 import React from "react";
 
-function CanvasFrame(props) {//TODO: important find a way to pass in frame stream from wasm
+function CanvasFrame(props) {
     const { visible, width, height } = props.objProps;
     const hookset = React.useRef(null);
+    //attach hooks to html
     React.useEffect(() => {
         const ohooks = props.objHooks;
         if (ohooks && ohooks !== {}) {
+            //if object has hook kvp, loop thru and attach all functions from hooks to html object
             Object.entries(ohooks).forEach(([key, value]) => {
                 hookset.current.addEventListener(key, value);
             })

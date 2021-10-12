@@ -1,18 +1,13 @@
 import React from "react";
-import { lazy } from "react";
 import { toast } from 'react-toastify';
 import './data/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { Helmet } from "react-helmet";
-import { useImported } from "react-imported-component";
-import { exportCollection, hookCollection, IFaceBlock, utility } from "./data/interfaces";
-// import { wasmLoader } from "./data/wasmLoader";
+import { hookCollection, IFaceBlock } from "./data/interfaces";
 import GuiRender from "./subcomponents/guiRender";
 import allutils from "./data/allutils";
 
-import ffmpeg from "./subcomponents/codeBlocks/ffmpeg";
-// import glue from "./subcomponents/glueBlocks/001"
-
+//load metadata from fake database to build component, replace later with db call
 const loadMetaData = (id) => {
     if (id) {
         const ut = allutils.filter(ut => ut.id === id);
@@ -35,13 +30,12 @@ async function asyncBuild(array, callback) {
 const SvcPage = (props) => {
     const { match, location, history } = props;
     const utilID = match.params.uuid;
-    const currentComponent = loadMetaData(utilID);
+    const currentComponent = loadMetaData(utilID);//current component data
+    const [exports, setExports] = React.useState<hookCollection>();//all references to functions in a dictionary so the gui can attach
+    const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[] | []>(currentComponent.scheme);//current gui scheme
 
-    const [exports, setExports] = React.useState<hookCollection>();
-    const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[] | []>(currentComponent.scheme);
-
+    //loads all code when run button is pressed, 
     const loadAll = async (): Promise<hookCollection> => {
-
         try {
             if (typeof SharedArrayBuffer === 'undefined') {
                 const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true });
@@ -59,20 +53,13 @@ const SvcPage = (props) => {
                 })).then(libpreload => x.default({
                     libraries: libpreload
                 }));
-            // const libpreload = currentComponent.binariesUsed.reduce(async (r, o, i) => {
-            //     //combine libs
-            //     const v = await import(`${prefixCB}${o}`);
-            //     console.log(v)
-            //     const n = v.default();
-            //     r[currentComponent.binariesUsed[i]] = n;
-            //     return r;
-            // }, {});
-
         } catch (e) {
             toast(e);
         }
-
     }
+
+    //run loadall, pipe all hooks into the hook state so the form can attach
+    const saveHooks = () => loadAll().then(cmpt => setExports(cmpt));
 
     return (
         <div id="helper">
@@ -85,7 +72,7 @@ const SvcPage = (props) => {
             </Helmet>
             <div id="serviceContainer">
                 {(currentComponent.scheme && exports) ? <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} /> :
-                    <button onClick={() => loadAll().then(cmpt => setExports(cmpt))}>▶️ load and start program</button>}
+                    <button onClick={() => saveHooks()}>▶️ load and start program</button>}
             </div>
         </div>
     );

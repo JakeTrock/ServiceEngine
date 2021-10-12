@@ -5,11 +5,22 @@ function ListBuilder(props) {
     const hookset = React.useRef(null);
     React.useEffect(() => {
         const ohooks = props.objHooks;
+        const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(hookset.current), 'value');
+        //shim for weird onchange behaviour
+        Object.defineProperty(hookset.current, 'value', {
+            set: function (t) {
+                const event = new Event('change');
+                hookset.current.dispatchEvent(event);
+                return descriptor.set.apply(this, arguments);
+            },
+            get: function () {
+                return descriptor.get.apply(this);
+            }
+        });
         if (ohooks && ohooks !== {}) {
+            //typical hook attachment loop
             Object.entries(ohooks).forEach(([key, value]) => {
-                // hookset.current.addEventListener(key, value);
-                //TODO: fix me, cannot listen for changes oddly enough
-                hookset.current.addEventListener("change", ()=>console.log("sdfadf"));
+                hookset.current.addEventListener(key, value);
             })
         }
     }, []);
@@ -25,9 +36,8 @@ function ListBuilder(props) {
 
     return (
         <>
-            <input type="hidden" id={id} ref={hookset} value={output} readOnly />
+            <input type="text" style={{ display: "none" }} id={id} ref={hookset} value={output} readOnly />
             <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis, fontSize: size }}>
-                {/* TODO:how can i make this always sync the current value? */}
                 {allVals.map((lbl, i) => (
                     <div key={i} style={{ border: "1px solid black" }}>
                         <input type="text" disabled={disabled} defaultValue={lbl} onChange={(e) => {

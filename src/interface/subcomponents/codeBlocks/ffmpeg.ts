@@ -25,8 +25,10 @@ async function asyncMap(array, callback) {
 
 //https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
 const ffmpeg = async () => {
+  //initialize ffmpeg instance
   const ffmpegInst = createFFmpeg({ log: true });
   await ffmpegInst.load();
+  //generic command runner function
   const ffGeneric = async (
     input: File[],
     runargs: string[][],
@@ -82,12 +84,14 @@ const ffmpeg = async () => {
         .then((f) => resolve(f))
         .catch((e) => reject(e));
     });
+  //all exported ffmpeg functions
   return {
     // name: {
     //   function: () => ffGeneric(),
     //   names: [""],
     //   types: [""],
     // },
+    /*basic format to format converter*/
     formatToFormat: (input: File[], outNames: string[], progressCB: Function) =>
       ffGeneric(
         input,

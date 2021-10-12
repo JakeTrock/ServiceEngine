@@ -1,23 +1,9 @@
 import React, { Fragment } from "react";
 import { IFaceBlock } from "../data/interfaces";
-import compDict from "../data/compDict";
+import { compDict, compDefaults } from "../data/compDict";
 import FailComponent from "./guiBlocks/failComponent";
 
-const compList: IFaceBlock[] = [
-    { id: "label", defaults: { visible: true, size: "1em", label: "Explanatory text" } },
-    { id: "button", defaults: { visible: true, disabled: true, size: "1em", label: "Button" } },
-    { id: "uplButton", defaults: { visible: true, disabled: true, size: "1em" } },
-    { id: "textbox", defaults: { visible: true, disabled: true, size: "1em", value: "default value", multirow: "false" } },
-    { id: "numbox", defaults: { visible: true, disabled: true, size: "1em", value: 3, min: 0, max: 10 } },
-    { id: "datebox", defaults: { visible: true, disabled: true, size: "1em", value: "1000-01-01T12:00", min: "0001-01-01T00:00", max: "2000-01-01T24:00" } },
-    { id: "onechoice", defaults: { visible: true, disabled: true, size: "1em", labels: "apple,banana,melon,berry" } },
-    { id: "multchoice", defaults: { visible: true, disabled: true, size: "1em", label: "topping", labels: "walnuts,peanuts,chocolate,gummy", checked: "false,true,false,true" } },
-    { id: "listbuild", defaults: { visible: true, disabled: true, size: "1em", width: "20em", values: "strawberry,chocolate,vanilla,mint" } },
-    { id: "mediabox", defaults: { visible: true, hasVideo: true, hasControls: true, width: "10em", height: "10em" } },
-    { id: "canvasbox", defaults: { visible: true, width: "10em", height: "10em" } },
-    { id: "slider", defaults: { visible: true, disabled: true, width: "10em", value: 1, min: 0, max: 10 } },
-    { id: "progbar", defaults: { visible: true, value: 50, max: 100 } }
-];
+
 
 const processHooks = (schema, makeEvent) => {
     return schema.map(prp => {
@@ -35,29 +21,31 @@ const processHooks = (schema, makeEvent) => {
 export default function GuiRender(props) {
     const currentInterface = props.scheme;
     const setCurrentInterface = props.setScheme;
-    const mkevt = (evv) => {
-        console.log(evv.name);
+    //function which attaches the event function from the imported function based on the name string provided
+    const makeEvent = (evv) => {
         const evfunction = (e) => props.exports[evv.name](e, formAccess, evv.additional || {});
         return evfunction;
     };
 
-    const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {//TODO:make switch
-        console.log(action)
+    //function which allows the form to be manipulated from the program which it runs. 
+    const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {//TODO:make this into a switch statement
         if (action && currentInterface.length) {
+            //delete form element, provide a uuid in the key slot and any match will be deleted
             if (action === "del" && key) {
                 setCurrentInterface(ci => {
                     const cface = (ci || currentInterface);
                     const v = cface.filter((e: IFaceBlock) => e.uuid !== key);
                     return v;
-
                 });
             }
+            //add form element, provide the component as json, or a key of a default element to clone and it will be inserted
+            //if no uuid is provided, one will be generated
             if (action === "add") {
                 let concat;
                 if (kvpset && kvpset !== {}) {
                     concat = kvpset;
                 } else {
-                    const cmpFind = compList.find((e: IFaceBlock) => e.id === key);
+                    const cmpFind = compDefaults.find((e: IFaceBlock) => e.id === key);
                     if (cmpFind)
                         concat = cmpFind;
                     else return;
@@ -72,6 +60,7 @@ export default function GuiRender(props) {
                     } else return nci;
                 });//TODO:add location index insert l8r
             }
+            //set value of a form element, provide a uuid in the key slot and the component that matches it will have any keys which are specified changed to new values
             if (action === "set" && key && kvpset) {
                 if (kvpset.uuid && currentInterface.find((e: IFaceBlock) => e.uuid && e.uuid === kvpset.uuid)) return;
                 setCurrentInterface((ci) => {//TODO:use lower version when state problem fixed, not mem efficient
@@ -92,35 +81,18 @@ export default function GuiRender(props) {
                     })
                 });
             }
-            // if (action === "set" && key && kvpset) {
-            //     if (kvpset.uuid && currentInterface.find((e: IFaceBlock) => e.uuid && e.uuid === kvpset.uuid)) return;
-            //     setCurrentInterface((ci) => {
-            //         const cface = (ci || currentInterface);
-            //         const itm = cface.findIndex((e: IFaceBlock) => e.uuid && e.uuid === key)
-            //         if (itm > -1) {
-            //             Object.getOwnPropertyNames(kvpset).forEach(k => {
-            //                 if (k === "defaults") {
-            //                     Object.getOwnPropertyNames(kvpset.defaults).forEach(dk => cface[itm]["defaults"][dk] = kvpset.defaults[dk]);
-            //                 } else if (k === "hooks") {
-            //                     Object.getOwnPropertyNames(kvpset.hooks).forEach(dk => cface[itm]["hooks"][dk] = kvpset.hooks[dk]);
-            //                 } else {
-            //                     cface[itm][k] = kvpset[k];
-            //                 }
-            //             });
-            //         }
-            //         return cface;
-            //     });
-            // }
         }
+        //get function, returns the whole interface, or just one element who has its uuid specified
         if (action === "get") {
             if (!key || key === "") return currentInterface;
             else return currentInterface.find((e: IFaceBlock) => e.uuid === key);
         }
     };
 
+    //build current form from provided component list
     return (
         <div>
-            {currentInterface && processHooks(currentInterface, mkevt).map((item, i) => (
+            {currentInterface && processHooks(currentInterface, makeEvent).map((item, i) => (
                 <Fragment key={props.key}>
                     {React.createElement(compDict[item.id] || FailComponent, { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks })}
                     <br />

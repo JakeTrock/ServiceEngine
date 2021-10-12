@@ -9,7 +9,6 @@ const Welcome = () => {
                 <h2>Start Converting!</h2>
             </a><br />
             <img src={selogo} alt="Logo" />
-
         </div>
     );
 };

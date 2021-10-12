@@ -1,6 +1,6 @@
 import * as React from "react";
 
-// markup
+// element which can collapse its contents
 const Collapsible = (props) => {
     const [active, setActive] = React.useState<Boolean>(false);
 

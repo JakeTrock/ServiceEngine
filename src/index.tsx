@@ -13,8 +13,6 @@ import TopBar from "./interface/subcomponents/organizers/topbar";
 import AboutPage from "./interface/aboutpage";
 import AllPage from "./interface/allpage";
 import Welcome from "./interface/welcome";
-import glcode from "./interface/subcomponents/glueBlocks/001";
-import ffmpeg from "./interface/subcomponents/codeBlocks/ffmpeg";
 
 //import all subpages
 const Runner = withRouter(runner);
@@ -35,6 +33,7 @@ const Switchboard = () => {
         <Route path="/runner/:uuid">
           <Runner />
         </Route>
+        
         <Route path="/">
           <Welcome />
         </Route>

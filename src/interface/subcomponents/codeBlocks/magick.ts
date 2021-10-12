@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import { execute, MagickInputFile } from "wasm-imagemagick";
 
 const outFormatTranslate = {
