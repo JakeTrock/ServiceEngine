@@ -1,17 +1,17 @@
-import TextBlock from "../subcomponents/guiBlocks/textBlock";
-import ButtonBlock from "../subcomponents/guiBlocks/buttonBlock";
-import UploadButtonBlock from "../subcomponents/guiBlocks/uploadButton";
-import NumBox from "../subcomponents/guiBlocks/numBox";
-import DateBox from "../subcomponents/guiBlocks/dateBox";
-import OneChoice from "../subcomponents/guiBlocks/oneChoice";
-import MultiChoice from "../subcomponents/guiBlocks/multiChoice";
-import MediaFrame from "../subcomponents/guiBlocks/mediaFrame";
-import CanvasFrame from "../subcomponents/guiBlocks/canvasFrame";
-import Slider from "../subcomponents/guiBlocks/slider";
-import ProgressBar from "../subcomponents/guiBlocks/progressbar";
-import TextBox from "../subcomponents/guiBlocks/textBox";
-import ListBuilder from "../subcomponents/guiBlocks/listBuilder";
-import { IFaceBlock } from "./interfaces";
+import TextBlock from "./guiBlocks/textBlock";
+import ButtonBlock from "./guiBlocks/buttonBlock";
+import UploadButtonBlock from "./guiBlocks/uploadButton";
+import NumBox from "./guiBlocks/numBox";
+import DateBox from "./guiBlocks/dateBox";
+import OneChoice from "./guiBlocks/oneChoice";
+import MultiChoice from "./guiBlocks/multiChoice";
+import MediaFrame from "./guiBlocks/mediaFrame";
+import CanvasFrame from "./guiBlocks/canvasFrame";
+import Slider from "./guiBlocks/slider";
+import ProgressBar from "./guiBlocks/progressbar";
+import TextBox from "./guiBlocks/textBox";
+import ListBuilder from "./guiBlocks/listBuilder";
+import { IFaceBlock } from "../../../data/interfaces";
 
 //dictionary of all component names and their corresponding react element
 export const compDict: { [key: string]: (props: any) => JSX.Element } = {
@@ -139,4 +139,4 @@ export const compDefaults: IFaceBlock[] = [
 ];
 
 
-//TODO: add component container/tab component
+//TODO: add colorpicker, component container/tab component

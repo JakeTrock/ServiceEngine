@@ -13,6 +13,7 @@ import TopBar from "./interface/subcomponents/organizers/topbar";
 import AboutPage from "./interface/aboutpage";
 import AllPage from "./interface/allpage";
 import Welcome from "./interface/welcome";
+import Editor from "./interface/editor";
 
 //import all subpages
 const Runner = withRouter(runner);
@@ -33,7 +34,10 @@ const Switchboard = () => {
         <Route path="/runner/:uuid">
           <Runner />
         </Route>
-        
+        <Route path="/editor/:uuid">
+          <Editor />
+        </Route>
+
         <Route path="/">
           <Welcome />
         </Route>

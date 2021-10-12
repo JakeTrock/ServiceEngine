@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
-import { IFaceBlock } from "../data/interfaces";
-import { compDict, compDefaults } from "../data/compDict";
-import FailComponent from "./guiBlocks/failComponent";
+import { IFaceBlock } from "../../data/interfaces";
+import { compDict, compDefaults } from "./guiData/compDict";
+import FailComponent from "./guiData/guiBlocks/failComponent";
 
 
 

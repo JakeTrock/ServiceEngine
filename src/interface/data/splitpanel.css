@@ -1,0 +1,40 @@
+.split {
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    overflow-x: hidden;
+    padding-top: 20px;
+    border: 1px solid black;
+    overflow: scroll;
+  }
+  
+  .left {
+    left: 0;
+    width: 20%;
+    background-color: rgb(168, 168, 168);
+  }
+  
+  .center {
+    left: 20%;
+    width: 60%;
+  }
+  
+  .right {
+    right: 0;
+    width: 20%;
+  }
+  
+  .target {
+    height: 80%;
+    width: 60%;
+    padding-top: 10%;
+    padding-left: 10%;
+    border: 1px solid black;
+  }
+  
+  .component {
+    width: 100%;
+    border: 1px solid black;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+  }
