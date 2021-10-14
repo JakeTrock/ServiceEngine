@@ -31,7 +31,7 @@ const GuiRunner = (props) => {
                 //@ts-ignore
                 globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
             }
-            const x = await import(`${prefixGB}${currentComponent.id}`);
+            const coreGlue = await import(`${prefixGB}${currentComponent.id}`);
 
             const liblist = currentComponent.binariesUsed.map(o => import(`${prefixCB}${o}`));
             return Promise.all(liblist)
@@ -39,7 +39,7 @@ const GuiRunner = (props) => {
                 .then(l => Promise.all(l))
                 .then(l => asyncBuild(l, async (v, i, r) => {
                     r[currentComponent.binariesUsed[i]] = await v();
-                })).then(libpreload => x.default({
+                })).then(libpreload => coreGlue.default({
                     libraries: libpreload
                 }));
         } catch (e) {

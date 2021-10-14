@@ -6,16 +6,17 @@ async function asyncFor(array, callback) {
 
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
+  const download = imports.libraries.fileUtils.downloadOne;
   let dd2: string, filesIn: File[], filesDownloadable: File[], currPromise;
 
   //object containing functions which attach to the form
   return {
-    dropdown: (e, fa, a) => {
-      dd2 = e.target.value;
+    dropdown: (event, formAccess, additional) => {
+      dd2 = event.target.value;
     },
     //hook that runs when a file is chosen
-    chooser: (e, fa, a) => {
-      var f = e.target.files;
+    chooser: (event, formAccess, additional) => {
+      var f = event.target.files;
       if (f.length) {
         let tmp = [];
         for (var i = 0; i < f.length; i++) {
@@ -25,44 +26,36 @@ const glcode = (imports) => {
       }
     },
     //downloads file as from object
-    download: async (e, fa, a) => {
-      const file = filesDownloadable[a.findex];
-      const url = window.URL.createObjectURL(file);
-      const dlink = document.createElement("a");
-      dlink.style.display = "none";
-      dlink.href = url;
-      dlink.download = a.fname;
-      document.body.appendChild(dlink);
-      dlink.click();
-      window.URL.revokeObjectURL(url);
-    },
+    download: async (event, formAccess, additional) =>
+      download(filesDownloadable[additional.findex]),
     //hook that runs when the convert button is pressed
-    convert: async (e, fa, a) => {
+    convert: async (event, formAccess, additional) => {
       if (currPromise !== undefined) currPromise.cancel(); //TODO:instead of this make a list with cancel buttons you append to
-      const progbar = (prog) => {//function which increments the progressbar from within ffmpeg
-        fa("set", "ffmbar", { defaults: { value: prog } });
+      const progbar = (prog) => {
+        //function which increments the progressbar from within ffmpeg
+        formAccess("set", "ffmbar", { defaults: { value: prog } });
       };
 
-      if (fa("get", "convertinglabel")) {
+      if (formAccess("get", "convertinglabel")) {
         //if a file was already being converted, remove the previous label and loading bar
-        fa("del", "convertinglabel");
-        fa("del", "ffmbar");
-      } else if (fa("get", "button2")) {
+        formAccess("del", "convertinglabel");
+        formAccess("del", "ffmbar");
+      } else if (formAccess("get", "button2")) {
         //if a new file is to be converted and the old download still exists, remove it
-        const all = fa("get").filter(
+        const all = formAccess("get").filter(
           (e) => e.id === "button" && e.uuid !== "button1"
         );
         all.forEach((e) => {
-          fa("del", e.uuid);
+          formAccess("del", e.uuid);
         });
       } else {
         //otherwise add the converting label and loading bar
-        fa("add", "", {
+        formAccess("add", "", {
           id: "label",
           uuid: "convertinglabel",
           defaults: { visible: true, size: "1em", label: "Converting..." },
         });
-        fa("add", "", {
+        formAccess("add", "", {
           id: "progbar",
           uuid: "ffmbar",
           defaults: { visible: true, value: 0, min: 0, max: 1 },
@@ -80,7 +73,7 @@ const glcode = (imports) => {
           filesDownloadable = filesOut;
           //add download button for every available downloadable
           asyncFor(filesOut, (file, i) => {
-            fa("add", "", {
+            formAccess("add", "", {
               id: "button",
               uuid: "button" + (i + 2),
               defaults: {
@@ -92,18 +85,18 @@ const glcode = (imports) => {
               hooks: {
                 click: {
                   name: "download",
-                  additional: { fname: file.name, findex: i },
+                  additional: { findex: i },
                 },
               },
             });
           }).then(() => {
             currPromise = undefined;
-            fa("del", "convertinglabel");
-            fa("del", "ffmbar");
+            formAccess("del", "convertinglabel");
+            formAccess("del", "ffmbar");
           });
         })
         .catch((e) =>
-          fa("add", "", {
+          formAccess("add", "", {
             id: "label",
             defaults: { visible: true, size: "1em", label: e },
           })

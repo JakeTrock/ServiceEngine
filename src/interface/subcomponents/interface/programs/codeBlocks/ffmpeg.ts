@@ -73,14 +73,14 @@ const ffmpeg = async () => {
             );
           })
         )
-        .then(() => {
-          return asyncMap(opNames, async (n) => {
+        .then(() =>
+          asyncMap(opNames, async (n) => {
             const f = await ffmpegInst.FS("readFile", n);
             return new File([f], n, {
               type: outFormatTranslate[n],
             });
-          });
-        })
+          })
+        )
         .then((f) => resolve(f))
         .catch((e) => reject(e));
     });
@@ -96,6 +96,22 @@ const ffmpeg = async () => {
       ffGeneric(
         input,
         outNames.map((n, i) => ["-i", `{if${i}}`, `{of${i}}`]),
+        progressCB,
+        outNames
+      ),
+    optimizeClip: (input: File[], outNames: string[], progressCB: Function) =>
+      ffGeneric(
+        input,
+        outNames.map((n, i) => [
+          "-filter:v 'crop=ih/3*4:ih'",
+          "-c:v libx264",
+          "-crf 28",
+          "-preset veryfast",
+          "-c:a copy",
+          "-i",
+          `{if${i}}`,
+          `{of${i}}`,
+        ]),
         progressCB,
         outNames
       ),
