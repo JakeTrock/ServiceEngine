@@ -13,7 +13,7 @@ function UploadButtonBlock(props) {//TODO:https://stackoverflow.com/questions/15
                 hookset.current.onchange = function (e) {//hardcode in the filesize limit for wasm
                     if (this.files[0].size > 4294967296) {
                         this.value = "";
-                        return toast("File is too big!");
+                        return toast.error("File is too big!");
                     };
                     const fcall: any = chgIndex[0][1];
                     return fcall(e);
@@ -21,7 +21,7 @@ function UploadButtonBlock(props) {//TODO:https://stackoverflow.com/questions/15
             } else {
                 hookset.current.onchange = function () {//hardcode in the filesize limit for wasm
                     if (this.files[0].size > 4294967296) {
-                        toast("File is too big!");
+                        toast.error("File is too big!");
                         this.value = "";
                     };
                 };
@@ -32,7 +32,7 @@ function UploadButtonBlock(props) {//TODO:https://stackoverflow.com/questions/15
         } else {
             hookset.current.onchange = function () {//hardcode in the filesize limit for wasm
                 if (this.files[0].size > 4294967296) {
-                    toast("File is too big!");
+                    toast.error("File is too big!");
                     this.value = "";
                 };
             };
