@@ -126,7 +126,7 @@ const Editor = (props) => {
     });
   }, [exports]);
 
-  const handleErr = (e) => toast(e);
+  const handleErr = (e) => toast(e.toString());
 
   function genScript(workspace) {
     const code = Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(workspace));

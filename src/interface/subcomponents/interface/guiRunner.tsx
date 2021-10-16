@@ -32,7 +32,6 @@ const GuiRunner = (props) => {
                 globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
             }
             const x = await import(`${prefixGB}${currentComponent.id}`);
-
             const liblist = currentComponent.binariesUsed.map(o => import(`${prefixCB}${o}`));
             return Promise.all(liblist)
                 .then(l => l.map(v => () => v.default()))
@@ -43,7 +42,7 @@ const GuiRunner = (props) => {
                     libraries: libpreload
                 }));
         } catch (e) {
-            toast(e);
+            toast.error(e.toString());
         }
     }
 
