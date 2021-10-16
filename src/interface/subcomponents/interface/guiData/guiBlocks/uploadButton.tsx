@@ -1,7 +1,7 @@
 import React from "react";
 import { toast } from "react-toastify";
 
-function UploadButtonBlock(props) {
+function UploadButtonBlock(props) {//TODO:https://stackoverflow.com/questions/1593225/how-to-select-multiple-files-with-input-type-file
     const { visible, disabled, size, required } = props.objProps;
     const hookset = React.useRef(null);
     React.useEffect(() => {
