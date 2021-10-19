@@ -42,7 +42,13 @@ export const compDefaults: IFaceBlock[] = [
   },
   {
     id: "uplButton",
-    defaults: { visible: true, disabled: true, size: "1em", required: false },
+    defaults: {
+      visible: true,
+      disabled: true,
+      multiple: false,
+      size: "1em",
+      required: false,
+    },
   },
   {
     id: "textbox",
@@ -131,12 +137,12 @@ export const compDefaults: IFaceBlock[] = [
       disabled: true,
       width: "10em",
       value: 1,
+      step: 1,
       min: 0,
       max: 10,
     },
   },
   { id: "progbar", defaults: { visible: true, value: 50, max: 100 } },
 ];
-
 
 //TODO: add colorpicker, component container/tab component
