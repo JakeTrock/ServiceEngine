@@ -11,14 +11,13 @@ const loadMetaData = (id) => {
         const ut = allutils.filter(ut => ut.id === id);
         if (ut.length === 0) toast("Invalid utility ID!")
         return ut[0];
-    } else toast("You must provide an id of a utility to load!")
+    } else toast.error("You must provide an id of a utility to load!")
 };
 
 const SvcPage = (props) => {
     const { match, location, history } = props;
     const utilID = match.params.uuid;
     const currentComponent = loadMetaData(utilID);//current component data
-
     return (
         <>
             <GuiRunner component={currentComponent} />
