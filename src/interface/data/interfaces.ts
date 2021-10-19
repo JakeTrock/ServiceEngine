@@ -5,6 +5,7 @@ export interface utility {
   description: string;
   scheme: IFaceBlock[] | [];
   binariesUsed: string[];
+  file: string;
 }
 
 export interface IFaceBlock {

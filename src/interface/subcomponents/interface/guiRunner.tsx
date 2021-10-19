@@ -31,7 +31,7 @@ const GuiRunner = (props) => {
                 //@ts-ignore
                 globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
             }
-            const coreGlue = await import(`${prefixGB}${currentComponent.id}`);
+            const coreGlue = await import(`${prefixGB}${currentComponent.file}`);
 
             const liblist = currentComponent.binariesUsed.map(o => import(`${prefixCB}${o}`));
             return Promise.all(liblist)
