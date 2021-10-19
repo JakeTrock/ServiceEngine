@@ -15,7 +15,12 @@ const allutils: utility[] = [
       {
         id: "uplButton",
         uuid: "uplButton1",
-        defaults: { visible: true, disabled: false, size: "1em" },
+        defaults: {
+          visible: true,
+          multiple: true,
+          disabled: false,
+          size: "1em",
+        },
         hooks: { change: { name: "chooser" } },
       },
       {
