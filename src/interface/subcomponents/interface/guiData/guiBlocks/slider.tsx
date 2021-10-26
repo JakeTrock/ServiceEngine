@@ -19,7 +19,10 @@ function Slider(props) {//can be optimized i reckon
     const vis = (visible) ? "visible" : "hidden";
 
     return (
-        <><input type="range" id={id} disabled={disabled} ref={hookset} style={{ visibility: vis, width }} min={min} max={max} step={step} defaultValue={value} />{cval}</>
+        <div style={{display:'flex'}}>
+            <input type="range" id={id} disabled={disabled} ref={hookset} style={{ visibility: vis, width }} min={min} max={max} step={step} defaultValue={value} />
+            {cval}
+            </div>
     );
 }
 

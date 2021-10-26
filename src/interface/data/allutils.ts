@@ -54,6 +54,60 @@ const allutils: utility[] = [
     ],
     binariesUsed: ["ffmpeg", "fileUtils"],
   },
+  {
+    id: "002",
+    name: "speed converter",
+    tags: ["video", "converter", "mp4", "wmv", "mpv"],
+    description: "Converts a video to a different speed.",
+    file: "002",
+    scheme: [
+      {
+        id: "label",
+        uuid: "label1",
+        defaults: { visible: true, size: "1em", label: "Input files:" },
+      },
+      {
+        id: "uplButton",
+        uuid: "uplButton1",
+        defaults: { visible: true, disabled: false, size: "1em" },
+        hooks: { change: { name: "chooser" } },
+      },
+      {
+        id: "label",
+        uuid: "label2",
+        defaults: { visible: true, size: "1em", label: "Speed:" },
+      },
+      {
+        id: "slider",
+        uuid: "slider1",
+        defaults: {
+          visible: true,
+          disabled: false,
+          required: true,
+          size: "1em",
+          min: 0.1,
+          max: 10,
+          value: 1,
+          step: 0.1,
+        },
+        hooks: {
+          change: { name: "speedChanger" },
+        },
+      },
+      {
+        id: "button",
+        uuid: "button1",
+        defaults: {
+          visible: true,
+          disabled: false,
+          size: "1em",
+          label: "Convert file(s)",
+        },
+        hooks: { click: { name: "convert" } },
+      },
+    ],
+    binariesUsed: ["ffmpeg", "fileUtils"],
+  },
   // {
   //   id: "002",
   //   name: "3d model converter",
