@@ -64,9 +64,9 @@ const ffmpeg = async () => {
             return ffmpegInst.run(
               ...ra.map((r) => {
                 /*
-                    {if} replaced with input filename
-                    {of}.xyz replaced with output filename
-                  */
+                  {if} replaced with input filename
+                  {of}.xyz replaced with output filename
+                */
                 const pos = Number(r.substring(3).split("}")[0]);
                 if (r.substring(0, 3) === "{if") {
                   return input[pos].name;

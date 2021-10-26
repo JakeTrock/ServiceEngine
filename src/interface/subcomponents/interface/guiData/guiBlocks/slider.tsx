@@ -26,7 +26,7 @@ function Slider(props) {//can be optimized i reckon
     const vis = (visible) ? "visible" : "hidden";
 
     return (
-        <div><input type="range" id={id} disabled={disabled} ref={hookset} style={{ visibility: vis, width }} min={min} max={max} step={step} defaultValue={value} onChange={e => { 
+        <div style={{display:'flex'}}><input type="range" id={id} disabled={disabled} ref={hookset} style={{ visibility: vis, width }} min={min} max={max} step={step} defaultValue={value} onChange={e => { 
             //@ts-ignore
             e.currentTarget.parentNode.childNodes.item(1).innerHTML=e.target.value }} /><p>{value}</p></div>
     );
