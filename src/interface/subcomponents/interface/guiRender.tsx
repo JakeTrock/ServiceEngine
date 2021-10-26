@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import { toast } from "react-toastify";
 import { IFaceBlock } from "../../data/interfaces";
 import { compDict, compDefaults } from "./guiData/compDict";
 import FailComponent from "./guiData/guiBlocks/failComponent";
@@ -23,7 +24,7 @@ export default function GuiRender(props) {
     const setCurrentInterface = props.setScheme;
     //function which attaches the event function from the imported function based on the name string provided
     const makeEvent = (evv) => {
-        const evfunction = (e) => props.exports[evv.name](e, formAccess, evv.additional || {});
+        const evfunction = (e) => props.exports[evv.name](e, formAccess, evv.additional || {}, toast);
         return evfunction;
     };
 
@@ -72,6 +73,8 @@ export default function GuiRender(props) {
                                     Object.getOwnPropertyNames(kvpset.defaults).forEach(dk => e["defaults"][dk] = kvpset.defaults[dk]);
                                 } else if (k === "hooks") {
                                     Object.getOwnPropertyNames(kvpset.hooks).forEach(dk => e["hooks"][dk] = kvpset.hooks[dk]);
+                                } else if (k === "validate") {
+                                    Object.getOwnPropertyNames(kvpset.validate).forEach(dk => e["validate"][dk] = kvpset.validate[dk]);
                                 } else {
                                     e[k] = kvpset[k];
                                 }
@@ -94,7 +97,7 @@ export default function GuiRender(props) {
         <div>
             {currentInterface && processHooks(currentInterface, makeEvent).map((item, i) => (
                 <Fragment key={props.key}>
-                    {React.createElement(compDict[item.id] || FailComponent, { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks })}
+                    {React.createElement(compDict[item.id] || FailComponent, { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })}
                     <br />
                 </Fragment>
             ))}

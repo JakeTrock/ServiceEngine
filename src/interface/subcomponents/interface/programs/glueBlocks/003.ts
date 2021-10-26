@@ -7,20 +7,34 @@ async function asyncFor(array, callback) {
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
   const download = imports.libraries.fileUtils.downloadOne;
-  let dd2: string, filesIn: File[], filesDownloadable: File[], currPromise;
+  let qual: number,
+    dd2: string,
+    isfourthree: boolean,
+    filesIn: File[],
+    filesDownloadable: File[],
+    currPromise;
 
   //object containing functions which attach to the form
   return {
+    setqual: (event, formAccess, additional, notify) => {
+      qual = event.target.value;
+    },
     dropdown: (event, formAccess, additional, notify) => {
       dd2 = event.target.value;
     },
+    setfourthree: (event, formAccess, additional, notify) => {
+      isfourthree = event.target.value === "yes";
+    },
     //hook that runs when a file is chosen
     chooser: (event, formAccess, additional, notify) => {
-      //TODO: add filetype validator
       var f = event.target.files;
       if (f.length) {
         let tmp = [];
         for (var i = 0; i < f.length; i++) {
+          if (f[i].name.indexOf("mp4") < 0) {
+            notify("file must be a MP4!");
+            tmp = [];
+          }
           tmp.push(f[i]);
         }
         filesIn = tmp;
@@ -31,6 +45,7 @@ const glcode = (imports) => {
       download(filesDownloadable[additional.findex]),
     //hook that runs when the convert button is pressed
     convert: async (event, formAccess, additional, notify) => {
+      if (currPromise !== undefined) currPromise.cancel(); //TODO:instead of this make a list with cancel buttons you append to
       const progbar = (prog) => {
         //function which increments the progressbar from within ffmpeg
         formAccess("set", "ffmbar", { defaults: { value: prog } });
@@ -61,25 +76,42 @@ const glcode = (imports) => {
           defaults: { visible: true, value: 0, min: 0, max: 1 },
         });
       }
-
       //run conversion from imported library
-      ffmpeg
+      currPromise = ffmpeg
         .basicProcess(
           filesIn,
-          filesIn
-            .map((f) => f.name + "." + dd2)
-            .map((n, i) => ["-i", `{if${i}}`, `{of${i}}`]),
+          filesIn.map((n, i) =>
+            isfourthree
+              ? [
+                  "-filter:v 'crop=ih/3*4:ih'",
+                  "-c:v libx264",
+                  `-crf ${qual}`,
+                  // `-preset ${dd2}`,
+                  "-c:a copy",
+                  "-i",
+                  `{if${i}}`,
+                  `{of${i}}`,
+                ]
+              : [
+                  "-c:v libx264",
+                  `-crf ${qual}`,
+                  // `-preset ${dd2}`,
+                  "-c:a copy",
+                  "-i",
+                  `{if${i}}`,
+                  `{of${i}}`,
+                ]
+          ),
           progbar,
-          filesIn.map((f) => f.name + "." + dd2)
+          filesIn.map((f) => `opt.${f.name}`)
         )
         .then((filesOut: File[]) => {
-          console.log(filesOut)
           filesDownloadable = filesOut;
           //add download button for every available downloadable
           asyncFor(filesOut, (file, i) => {
             formAccess("add", "", {
               id: "button",
-              uuid: "button" + (i + 2),
+              uuid: "button" + (i + 5),
               defaults: {
                 visible: true,
                 disabled: false,

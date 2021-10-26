@@ -26,22 +26,25 @@ const GuiRunner = (props) => {
     //loads all code when run button is pressed, 
     const loadAll = async (): Promise<hookCollection> => {
         try {
-            if (typeof SharedArrayBuffer === 'undefined') {
-                const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true });
-                //@ts-ignore
-                globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
-            }
             const coreGlue = await import(`${prefixGB}${currentComponent.file}`);
-
-            const liblist = currentComponent.binariesUsed.map(o => import(`${prefixCB}${o}`));
-            return Promise.all(liblist)
-                .then(l => l.map(v => () => v.default()))
-                .then(l => Promise.all(l))
-                .then(l => asyncBuild(l, async (v, i, r) => {
-                    r[currentComponent.binariesUsed[i]] = await v();
-                })).then(libpreload => coreGlue.default({
-                    libraries: libpreload
-                }));
+            if (currentComponent.binariesUsed) {
+                if (typeof SharedArrayBuffer === 'undefined') {
+                    const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true });
+                    //@ts-ignore
+                    globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
+                }
+                const liblist = currentComponent.binariesUsed.map(o => import(`${prefixCB}${o}`));
+                return Promise.all(liblist)
+                    .then(l => l.map(v => () => v.default()))
+                    .then(l => Promise.all(l))
+                    .then(l => asyncBuild(l, async (v, i, r) => {
+                        r[currentComponent.binariesUsed[i]] = await v();
+                    })).then(libpreload => coreGlue.default({
+                        libraries: libpreload
+                    }));
+            } else {
+                return coreGlue.default({});
+            }
         } catch (e) {
             toast.error(e.toString());
         }
