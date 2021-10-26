@@ -12,7 +12,8 @@ export interface IFaceBlock {
   id: string;
   uuid?: string;
   defaults: { [key: string]: any }; //{ [key: string]: string | boolean | string[] | number };
-  hooks?: { [key: string]: { name: string; additional?: any } }; //https://www.w3schools.com/jsref/dom_obj_event.asp
+  hooks?: { [key: string]: { name: string; additional?: any } };
+  validate?: { [key: string]: any }; //{ [key: string]: string | boolean | string[] | number };
 }
 
 export enum type {

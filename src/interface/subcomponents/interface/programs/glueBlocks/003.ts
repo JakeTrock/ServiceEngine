@@ -7,30 +7,44 @@ async function asyncFor(array, callback) {
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
   const download = imports.libraries.fileUtils.downloadOne;
-  let speed: number = 1;
-  let dd2: string, filesIn: File[], filesDownloadable: File[], currPromise;
+  let qual: number,
+    dd2: string,
+    isfourthree: boolean,
+    filesIn: File[],
+    filesDownloadable: File[],
+    currPromise;
+
   //object containing functions which attach to the form
   return {
-    speedChanger: (event, formAccess, additional) => {
-      speed = event.value;
+    setqual: (event, formAccess, additional, notify) => {
+      qual = event.target.value;
     },
-    //downloads file as from object
-    download: async (event, formAccess, additional) =>
-      download(filesDownloadable[additional.findex]),
+    dropdown: (event, formAccess, additional, notify) => {
+      dd2 = event.target.value;
+    },
+    setfourthree: (event, formAccess, additional, notify) => {
+      isfourthree = event.target.value === "yes";
+    },
     //hook that runs when a file is chosen
-    chooser: (event, formAccess, additional) => {
-      var f = event.files;
+    chooser: (event, formAccess, additional, notify) => {
+      var f = event.target.files;
       if (f.length) {
         let tmp = [];
         for (var i = 0; i < f.length; i++) {
+          if (f[i].name.indexOf("mp4") < 0) {
+            notify("file must be a MP4!");
+            tmp = [];
+          }
           tmp.push(f[i]);
         }
         filesIn = tmp;
       }
     },
-
+    //downloads file as from object
+    download: async (event, formAccess, additional, notify) =>
+      download(filesDownloadable[additional.findex]),
     //hook that runs when the convert button is pressed
-    convert: async (event, formAccess, additional) => {
+    convert: async (event, formAccess, additional, notify) => {
       if (currPromise !== undefined) currPromise.cancel(); //TODO:instead of this make a list with cancel buttons you append to
       const progbar = (prog) => {
         //function which increments the progressbar from within ffmpeg
@@ -62,40 +76,42 @@ const glcode = (imports) => {
           defaults: { visible: true, value: 0, min: 0, max: 1 },
         });
       }
-
       //run conversion from imported library
-      let filesOut = filesIn.map((f) => {
-        const name = f.name;
-        const extension =
-          name.substring(name.lastIndexOf(".") + 1, name.length) || name;
-        return (
-          name.substring(0, name.length - extension.length - 1) + //non extension part
-          speed +
-          "." +
-          extension
-        );
-      });
-      ffmpeg
+      currPromise = ffmpeg
         .basicProcess(
           filesIn,
-          filesOut.map((n, i) => [
-            "-i",
-            `{if${i}}`,
-            `-filter:v`,
-            `setpts=${(1 / speed).toString()}*PTS`,
-            `{of${i}}`,
-          ]),
+          filesIn.map((n, i) =>
+            isfourthree
+              ? [
+                  "-filter:v 'crop=ih/3*4:ih'",
+                  "-c:v libx264",
+                  `-crf ${qual}`,
+                  // `-preset ${dd2}`,
+                  "-c:a copy",
+                  "-i",
+                  `{if${i}}`,
+                  `{of${i}}`,
+                ]
+              : [
+                  "-c:v libx264",
+                  `-crf ${qual}`,
+                  // `-preset ${dd2}`,
+                  "-c:a copy",
+                  "-i",
+                  `{if${i}}`,
+                  `{of${i}}`,
+                ]
+          ),
           progbar,
-          filesOut
+          filesIn.map((f) => `opt.${f.name}`)
         )
         .then((filesOut: File[]) => {
-          console.log("FilesOUT");
           filesDownloadable = filesOut;
           //add download button for every available downloadable
           asyncFor(filesOut, (file, i) => {
             formAccess("add", "", {
               id: "button",
-              uuid: "button" + (i + 2),
+              uuid: "button" + (i + 5),
               defaults: {
                 visible: true,
                 disabled: false,
@@ -115,13 +131,7 @@ const glcode = (imports) => {
             formAccess("del", "ffmbar");
           });
         })
-        .catch((e) => {
-          console.log(e);
-          formAccess("add", "", {
-            id: "label",
-            defaults: { visible: true, size: "1em", label: e },
-          });
-        });
+        .catch((e) => notify(e));
     },
   };
 };

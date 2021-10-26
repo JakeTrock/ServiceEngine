@@ -11,11 +11,12 @@ const glcode = (imports) => {
 
   //object containing functions which attach to the form
   return {
-    dropdown: (event, formAccess, additional) => {
+    dropdown: (event, formAccess, additional, notify) => {
       dd2 = event.target.value;
     },
     //hook that runs when a file is chosen
-    chooser: (event, formAccess, additional) => {
+    chooser: (event, formAccess, additional, notify) => {
+      //TODO: add filetype validator
       var f = event.target.files;
       if (f.length) {
         let tmp = [];
@@ -26,11 +27,10 @@ const glcode = (imports) => {
       }
     },
     //downloads file as from object
-    download: async (event, formAccess, additional) =>
+    download: async (event, formAccess, additional, notify) =>
       download(filesDownloadable[additional.findex]),
     //hook that runs when the convert button is pressed
-    convert: async (event, formAccess, additional) => {
-      if (currPromise !== undefined) currPromise.cancel(); //TODO:instead of this make a list with cancel buttons you append to
+    convert: async (event, formAccess, additional, notify) => {
       const progbar = (prog) => {
         //function which increments the progressbar from within ffmpeg
         formAccess("set", "ffmbar", { defaults: { value: prog } });
@@ -63,13 +63,17 @@ const glcode = (imports) => {
       }
 
       //run conversion from imported library
-      currPromise = ffmpeg
-        .formatToFormat(
+      ffmpeg
+        .basicProcess(
           filesIn,
-          filesIn.map((f) => f.name + "." + dd2),
-          progbar
+          filesIn
+            .map((f) => f.name + "." + dd2)
+            .map((n, i) => ["-i", `{if${i}}`, `{of${i}}`]),
+          progbar,
+          filesIn.map((f) => f.name + "." + dd2)
         )
         .then((filesOut: File[]) => {
+          console.log(filesOut)
           filesDownloadable = filesOut;
           //add download button for every available downloadable
           asyncFor(filesOut, (file, i) => {
@@ -95,12 +99,7 @@ const glcode = (imports) => {
             formAccess("del", "ffmbar");
           });
         })
-        .catch((e) =>
-          formAccess("add", "", {
-            id: "label",
-            defaults: { visible: true, size: "1em", label: e },
-          })
-        );
+        .catch((e) => notify(e));
     },
   };
 };

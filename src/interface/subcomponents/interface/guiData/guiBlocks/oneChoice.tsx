@@ -9,13 +9,13 @@ function OneChoice(props) {
         if (ohooks && ohooks !== {}) {
             //if object has hook kvp, loop thru and attach all functions from hooks to html object
             Object.entries(ohooks).forEach(([key, value]) => {
-                hookset.current.addEventListener(key, value);
+                hookset.current.addEventListener(key, e => (value as Function)({ value: e.target.value }));
             })
         }
     }, []);
     const id = props.uuid;
     const vis = (visible) ? "visible" : "hidden";
-    const labelsArray: string[] = labels !== undefined ? labels.split(",") : [];
+    const labelsArray: string[] = labels !== undefined ? labels : [];
     return (
         <select id={id} required={required} ref={hookset} disabled={disabled} style={{ visibility: vis, fontSize: size }}>
             {labelsArray.map((lbl, i) => (

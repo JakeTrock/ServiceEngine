@@ -37,6 +37,10 @@ const ffmpeg = async () => {
   ) =>
     new Promise<File[]>(async (resolve, reject) => {
       if (!input || input.length === 0) return reject("no files provided!");
+      ffmpegInst.setLogger(({ type, message }) => {
+        if (type === "fferr" && opNames.find((n) => message.indexOf(n) > -1))
+          return reject(message);
+      });
       const all = input.map(
         async (ifile) =>
           new Promise<void>(async (resolve, reject) => {
@@ -60,9 +64,9 @@ const ffmpeg = async () => {
             return ffmpegInst.run(
               ...ra.map((r) => {
                 /*
-                    {if} replaced with input filename
-                    {of}.xyz replaced with output filename
-                  */
+                  {if} replaced with input filename
+                  {of}.xyz replaced with output filename
+                */
                 const pos = Number(r.substring(3).split("}")[0]);
                 if (r.substring(0, 3) === "{if") {
                   return input[pos].name;
@@ -86,36 +90,7 @@ const ffmpeg = async () => {
     });
   //all exported ffmpeg functions
   return {
-    // name: {
-    //   function: () => ffGeneric(),
-    //   names: [""],
-    //   types: [""],
-    // },
-    /*basic format to format converter*/
-    formatToFormat: (input: File[], outNames: string[], progressCB: Function) =>
-      ffGeneric(
-        input,
-        outNames.map((n, i) => ["-i", `{if${i}}`, `{of${i}}`]),
-        progressCB,
-        outNames
-      ),
-    optimizeClip: (input: File[], outNames: string[], progressCB: Function) =>
-      ffGeneric(
-        input,
-        outNames.map((n, i) => [
-          "-filter:v 'crop=ih/3*4:ih'",
-          "-c:v libx264",
-          "-crf 28",
-          "-preset veryfast",
-          "-c:a copy",
-          "-i",
-          `{if${i}}`,
-          `{of${i}}`,
-        ]),
-        progressCB,
-        outNames
-      ),
-    //TODO: addmore
+    basicProcess: ffGeneric,
   };
 };
 

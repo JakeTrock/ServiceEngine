@@ -38,36 +38,53 @@ export const compDefaults: IFaceBlock[] = [
   },
   {
     id: "button",
-    defaults: { visible: true, disabled: true, size: "1em", label: "Button" },
+    defaults: {
+      visible: true,
+      disabled: false,
+      size: "1em",
+      label: "Button",
+    },
   },
   {
     id: "uplButton",
     defaults: {
       visible: true,
-      disabled: true,
+      disabled: false,
       multiple: false,
       size: "1em",
       required: false,
+    },
+    validate: {
+      formats: ["image/jpg", "image/png", "image/gif"],
+      maxSize: 4294967296,
     },
   },
   {
     id: "textbox",
     defaults: {
       visible: true,
-      disabled: true,
+      disabled: false,
       size: "1em",
       value: "default value",
-      multirow: "false",
+      multirow: false,
       required: false,
+    },
+    validate: {
+      minChars: 0,
+      maxChars: 144,
+      useBlacklist: true,
+      useWhitelist: false,
+      wordList: ["badword", "worseword", "terribleword"],
     },
   },
   {
     id: "numbox",
     defaults: {
       visible: true,
-      disabled: true,
+      disabled: false,
       size: "1em",
       value: 3,
+      step: 1,
       min: 0,
       max: 10,
       required: false,
@@ -77,7 +94,7 @@ export const compDefaults: IFaceBlock[] = [
     id: "datebox",
     defaults: {
       visible: true,
-      disabled: true,
+      disabled: false,
       size: "1em",
       value: "1000-01-01T12:00",
       min: "0001-01-01T00:00",
@@ -89,9 +106,9 @@ export const compDefaults: IFaceBlock[] = [
     id: "onechoice",
     defaults: {
       visible: true,
-      disabled: true,
+      disabled: false,
       size: "1em",
-      labels: "apple,banana,melon,berry",
+      labels: ["apple", "banana", "melon", "berry"],
       required: false,
     },
   },
@@ -99,21 +116,55 @@ export const compDefaults: IFaceBlock[] = [
     id: "multchoice",
     defaults: {
       visible: true,
-      disabled: true,
+      disabled: false,
       size: "1em",
       label: "topping",
-      labels: "walnuts,peanuts,chocolate,gummy",
-      checked: "false,true,false,true",
+      labels: ["walnuts", "peanuts", "chocolate", "gummy"],
+      checked: [false, true, false, true],
+    },
+    validate: {
+      maxSelections: 3,
+      exclusiveChoices: [
+        ["walnuts", "peanuts"],
+        ["chocolate", "gummy"],
+      ],
     },
   },
   {
     id: "listbuild",
     defaults: {
       visible: true,
-      disabled: true,
+      disabled: false,
       size: "1em",
       width: "20em",
-      values: "strawberry,chocolate,vanilla,mint",
+      values: ["strawberry", "chocolate", "vanilla", "mint"],
+    },
+    validate: {
+      useBlacklist: true,
+      useWhitelist: false,
+      wordList: ["badword", "worseword", "terribleword"],
+      minChars: 0,
+      maxChars: 144,
+      maxListLength: 10,
+      minListLength: 0,
+    },
+  },
+  {
+    id: "slider",
+    defaults: {
+      visible: true,
+      disabled: false,
+      width: "10em",
+      value: 1,
+      step: 1,
+      min: 0,
+      max: 10,
+    },
+    validate: {
+      badRange: [
+        [2, 3],
+        [7, 9],
+      ],
     },
   },
   {
@@ -129,18 +180,6 @@ export const compDefaults: IFaceBlock[] = [
   {
     id: "canvasbox",
     defaults: { visible: true, width: "10em", height: "10em" },
-  },
-  {
-    id: "slider",
-    defaults: {
-      visible: true,
-      disabled: true,
-      width: "10em",
-      value: 1,
-      step: 1,
-      min: 0,
-      max: 10,
-    },
   },
   { id: "progbar", defaults: { visible: true, value: 50, max: 100 } },
 ];
