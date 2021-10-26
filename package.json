@@ -17,6 +17,7 @@
   },
   "scripts": {
     "prbuild": "react-scripts build && yarn dlx serve -s build",
+    "backbuild": "react-scripts build && node server.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -24,7 +25,7 @@
     "watch": "npm-watch"
   },
   "watch": {
-    "prbuild": {
+    "backbuild": {
       "patterns": [
         "src"
       ],
