@@ -72,7 +72,17 @@ const allutils: utility[] = [
         defaults: { visible: true, disabled: false, size: "1em" },
         hooks: { change: { name: "chooser" } },
         validate: {
-          formats: ["video/mp4", "video/wmv", "video/mpv"],
+          formats: [
+            "video/mp4",
+            "audio/webm",
+            "video/webm",
+            "audio/mpeg",
+            "audio/ogg",
+            "video/ogg",
+            "audio/wav",
+            "audio/aac",
+            "audio/opus",
+          ],
           maxSize: 4294967296,
         },
       },
