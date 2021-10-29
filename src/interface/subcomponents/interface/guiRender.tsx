@@ -8,6 +8,12 @@ import FailComponent from "./guiData/guiBlocks/failComponent";
 
 const processHooks = (schema, makeEvent) => {
     return schema.map(prp => {
+        if (prp.defaults && prp.defaults.childNodes && prp.defaults.childNodes !== []) {
+            if (prp.defaults.childNodes[0].length)
+                prp.defaults.childNodes.map(n => processHooks(n, makeEvent));
+            else
+                prp.defaults.childNodes = processHooks(prp.defaults.childNodes, makeEvent);
+        }
         if (prp.hooks && prp.hooks !== {}) {
             Object.getOwnPropertyNames(prp.hooks).forEach((key) => {
                 if (prp.hooks[key].name && prp.hooks[key].name !== "evfunction") {
@@ -97,7 +103,8 @@ export default function GuiRender(props) {
         <div>
             {currentInterface && processHooks(currentInterface, makeEvent).map((item, i) => (
                 <Fragment key={props.key}>
-                    {React.createElement(compDict[item.id] || FailComponent, { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })}
+                    {React.createElement(compDict[item.id] || FailComponent,
+                        { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })}
                     <br />
                 </Fragment>
             ))}

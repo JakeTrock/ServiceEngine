@@ -367,6 +367,184 @@ const allutils: utility[] = [
         defaults: { visible: true, width: "10em", height: "10em" },
       },
       { id: "progbar", defaults: { visible: true, value: 50, max: 100 } },
+      {
+        id: "container",
+        defaults: {
+          visible: true,
+          disabled: false,
+          collapsible: true, //toggle whether or not theres a vis toggle
+          width: "20em",
+          height: "10em",
+          childNodes: [
+            {
+              id: "label",
+              defaults: {
+                visible: true,
+                size: "1em",
+                label: "Explanatory text",
+              },
+            },
+            {
+              id: "textbox",
+              defaults: {
+                visible: true,
+                disabled: false,
+                size: "1em",
+                value: "default value",
+                multirow: false,
+                required: false,
+              },
+              validate: {
+                minChars: 0,
+                maxChars: 144,
+                useBlacklist: true,
+                useWhitelist: false,
+                wordList: ["badword", "worseword", "terribleword"],
+              },
+              hooks: { change: { name: "returnDat" } },
+            },
+          ],
+          label: "container label",
+        },
+      },
+      {
+        id: "horizontalalign",
+        defaults: {
+          visible: [true, true],
+          width: "50em",
+          height: "20em",
+          childNodes: [
+            [
+              {
+                id: "label",
+                defaults: {
+                  visible: true,
+                  size: "1em",
+                  label: "Explanatory text",
+                },
+              },
+              {
+                id: "textbox",
+                defaults: {
+                  visible: true,
+                  disabled: false,
+                  size: "1em",
+                  value: "default value",
+                  multirow: false,
+                  required: false,
+                },
+                validate: {
+                  minChars: 0,
+                  maxChars: 144,
+                  useBlacklist: true,
+                  useWhitelist: false,
+                  wordList: ["badword", "worseword", "terribleword"],
+                },
+                hooks: { change: { name: "returnDat" } },
+              },
+            ],
+            [
+              {
+                id: "label",
+                defaults: {
+                  visible: true,
+                  size: "1em",
+                  label: "Explanatory text",
+                },
+              },
+              {
+                id: "textbox",
+                defaults: {
+                  visible: true,
+                  disabled: false,
+                  size: "1em",
+                  value: "default value",
+                  multirow: false,
+                  required: false,
+                },
+                validate: {
+                  minChars: 0,
+                  maxChars: 144,
+                  useBlacklist: true,
+                  useWhitelist: false,
+                  wordList: ["badword", "worseword", "terribleword"],
+                },
+                hooks: { change: { name: "returnDat" } },
+              },
+            ],
+          ],
+          labels: ["lbl1", "lbl2"],
+        },
+      },
+      {
+        id: "tabbedview",
+        defaults: {
+          visible: [true, true],
+          labels: ["tabone", "tabtwo"],
+          width: "30em",
+          height: "10em",
+          childNodes: [
+            [
+              {
+                id: "label",
+                defaults: {
+                  visible: true,
+                  size: "1em",
+                  label: "first",
+                },
+              },
+              {
+                id: "textbox",
+                defaults: {
+                  visible: true,
+                  disabled: false,
+                  size: "1em",
+                  value: "first",
+                  multirow: false,
+                  required: false,
+                },
+                validate: {
+                  minChars: 0,
+                  maxChars: 144,
+                  useBlacklist: true,
+                  useWhitelist: false,
+                  wordList: ["badword", "worseword", "terribleword"],
+                },
+                hooks: { change: { name: "returnDat" } },
+              },
+            ],
+            [
+              {
+                id: "label",
+                defaults: {
+                  visible: true,
+                  size: "1em",
+                  label: "second",
+                },
+              },
+              {
+                id: "textbox",
+                defaults: {
+                  visible: true,
+                  disabled: false,
+                  size: "1em",
+                  value: "second",
+                  multirow: false,
+                  required: false,
+                },
+                validate: {
+                  minChars: 0,
+                  maxChars: 144,
+                  useBlacklist: true,
+                  useWhitelist: false,
+                  wordList: ["badword", "worseword", "terribleword"],
+                },
+                hooks: { change: { name: "returnDat" } },
+              },
+            ],
+          ],
+        },
+      },
     ],
     binariesUsed: [],
   },

@@ -12,6 +12,9 @@ import ProgressBar from "./guiBlocks/progressbar";
 import TextBox from "./guiBlocks/textBox";
 import ListBuilder from "./guiBlocks/listBuilder";
 import { IFaceBlock } from "../../../data/interfaces";
+import Container from "./guiBlocks/container";
+import HorizontalAlign from "./guiBlocks/horizontalAlign";
+import TabbedView from "./guiBlocks/tabbedview";
 
 //dictionary of all component names and their corresponding react element
 export const compDict: { [key: string]: (props: any) => JSX.Element } = {
@@ -28,6 +31,9 @@ export const compDict: { [key: string]: (props: any) => JSX.Element } = {
   canvasbox: CanvasFrame,
   slider: Slider,
   progbar: ProgressBar,
+  container: Container,
+  horizontalalign: HorizontalAlign,
+  tabbedview: TabbedView,
 };
 
 //default values of each component, used when creating one from scratch
@@ -182,6 +188,40 @@ export const compDefaults: IFaceBlock[] = [
     defaults: { visible: true, width: "10em", height: "10em" },
   },
   { id: "progbar", defaults: { visible: true, value: 50, max: 100 } },
+  {
+    id: "container",
+    defaults: {
+      visible: true,
+      disabled: false,
+      collapsible: false, //toggle whether or not theres a vis toggle
+      width: "10em",
+      height: "10em",
+      childNodes: [],
+      label: "container label",
+    },
+  },
+  {
+    id: "horizontalalign",
+    defaults: {
+      cells: 2,
+      visible: [true, true],
+      width: "10em",
+      height: "10em",
+      childNodes: [[], []],
+      labels: ["lbl1", "lbl2"],
+    },
+  },
+  {
+    id: "tabbedview",
+    defaults: {
+      cells: 2,
+      visible: [true, true],
+      labels: ["tabone", "tabtwo"],
+      width: "10em",
+      height: "10em",
+      childNodes: [[], []],
+    },
+  },
 ];
 
 //TODO: add colorpicker, component container/tab component

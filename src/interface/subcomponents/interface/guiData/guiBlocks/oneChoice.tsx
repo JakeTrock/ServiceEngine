@@ -4,6 +4,7 @@ function OneChoice(props) {
     const { visible, size, disabled, labels, required } = props.objProps;
     const hookset = React.useRef(null);
     //attach hooks to html
+    //TODO: do we need useEffect?
     React.useEffect(() => {
         const ohooks = props.objHooks;
         if (ohooks && ohooks !== {}) {
