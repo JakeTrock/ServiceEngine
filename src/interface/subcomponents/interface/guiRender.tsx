@@ -74,7 +74,7 @@ export default function GuiRender(props) {
                     const cface = (ci || currentInterface);
                     return cface.map((e: IFaceBlock) => {
                         if (e.uuid === key) {
-                            Object.getOwnPropertyNames(kvpset).forEach(k => {
+                            Object.getOwnPropertyNames(kvpset).forEach(k => {//TODO: add setter for children
                                 if (k === "defaults") {
                                     Object.getOwnPropertyNames(kvpset.defaults).forEach(dk => e["defaults"][dk] = kvpset.defaults[dk]);
                                 } else if (k === "hooks") {
