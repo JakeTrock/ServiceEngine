@@ -113,6 +113,7 @@ export const compDefaults: IFaceBlock[] = [
     defaults: {
       visible: true,
       disabled: false,
+      value: 2,
       size: "1em",
       labels: ["apple", "banana", "melon", "berry"],
       required: false,
@@ -160,6 +161,7 @@ export const compDefaults: IFaceBlock[] = [
     defaults: {
       visible: true,
       disabled: false,
+      required: false,
       width: "10em",
       value: 1,
       step: 1,
@@ -203,7 +205,6 @@ export const compDefaults: IFaceBlock[] = [
   {
     id: "horizontalalign",
     defaults: {
-      cells: 2,
       visible: [true, true],
       width: "10em",
       height: "10em",
@@ -214,7 +215,6 @@ export const compDefaults: IFaceBlock[] = [
   {
     id: "tabbedview",
     defaults: {
-      cells: 2,
       visible: [true, true],
       labels: ["tabone", "tabtwo"],
       width: "10em",
@@ -223,5 +223,3 @@ export const compDefaults: IFaceBlock[] = [
     },
   },
 ];
-
-//TODO: add colorpicker, component container/tab component

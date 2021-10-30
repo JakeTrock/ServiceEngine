@@ -17,17 +17,17 @@ const glcode = (imports) => {
   //object containing functions which attach to the form
   return {
     setqual: (event, formAccess, additional, notify) => {
-      qual = event.target.value;
+      qual = event.value;
     },
     dropdown: (event, formAccess, additional, notify) => {
-      dd2 = event.target.value;
+      dd2 = event.value;
     },
     setfourthree: (event, formAccess, additional, notify) => {
-      isfourthree = event.target.value === "yes";
+      isfourthree = event.value === "yes";
     },
     //hook that runs when a file is chosen
     chooser: (event, formAccess, additional, notify) => {
-      var f = event.target.files;
+      var f = event.files;
       if (f.length) {
         let tmp = [];
         for (var i = 0; i < f.length; i++) {

@@ -2,7 +2,7 @@ import React from "react";
 import { toast } from "react-toastify";
 
 function Slider(props) {//can be optimized i reckon
-    const { visible, disabled, width, value, min, max, step } = props.objProps;
+    const { visible, disabled, width, value, min, max, step, required } = props.objProps;
     const { badRange } = props.validate;
     const hookset = React.useRef(null);
     //attach hooks to html
@@ -26,9 +26,10 @@ function Slider(props) {//can be optimized i reckon
     const vis = (visible) ? "visible" : "hidden";
 
     return (
-        <div style={{display:'flex'}}><input type="range" id={id} disabled={disabled} ref={hookset} style={{ visibility: vis, width }} min={min} max={max} step={step} defaultValue={value} onChange={e => { 
+        <div style={{ display: 'flex' }}><input type="range" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, width }} min={min} max={max} step={step} defaultValue={value} onChange={e => {
             //@ts-ignore
-            e.currentTarget.parentNode.childNodes.item(1).innerHTML=e.target.value }} /><p>{value}</p></div>
+            e.currentTarget.parentNode.childNodes.item(1).innerHTML = e.target.value
+        }} /><p>{value}</p></div>
     );
 }
 

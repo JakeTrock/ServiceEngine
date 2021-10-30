@@ -37,10 +37,11 @@ const ffmpeg = async () => {
   ) =>
     new Promise<File[]>(async (resolve, reject) => {
       if (!input || input.length === 0) return reject("no files provided!");
-      ffmpegInst.setLogger(({ type, message }) => {
-        if (type === "fferr" && opNames.find((n) => message.indexOf(n) > -1))
-          return reject(message);
-      });
+      // ffmpegInst.setLogger(({ type, message }) => {
+      //   if (type === "fferr" && opNames.find((n) => message.indexOf(n) > -1))
+      //     return reject(message);
+      // });
+      //TODO: this is too hair-triggered, how can we better filter this to JUST pick up errors?
       const all = input.map(
         async (ifile) =>
           new Promise<void>(async (resolve, reject) => {

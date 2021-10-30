@@ -7,17 +7,20 @@ async function asyncFor(array, callback) {
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
   const download = imports.libraries.fileUtils.downloadOne;
-  let dd2: string, filesIn: File[], filesDownloadable: File[], currPromise;
+  let dd2: string = "wmv",
+    filesIn: File[],
+    filesDownloadable: File[],
+    currPromise;
 
   //object containing functions which attach to the form
   return {
     dropdown: (event, formAccess, additional, notify) => {
-      dd2 = event.target.value;
+      dd2 = event.value;
     },
     //hook that runs when a file is chosen
     chooser: (event, formAccess, additional, notify) => {
       //TODO: add filetype validator
-      var f = event.target.files;
+      var f = event.files;
       if (f.length) {
         let tmp = [];
         for (var i = 0; i < f.length; i++) {
@@ -73,7 +76,7 @@ const glcode = (imports) => {
           filesIn.map((f) => f.name + "." + dd2)
         )
         .then((filesOut: File[]) => {
-          console.log(filesOut)
+          console.log(filesOut);
           filesDownloadable = filesOut;
           //add download button for every available downloadable
           asyncFor(filesOut, (file, i) => {

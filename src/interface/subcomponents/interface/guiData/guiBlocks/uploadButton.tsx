@@ -3,7 +3,8 @@ import { toast } from "react-toastify";
 
 function UploadButtonBlock(props) {
     const { visible, disabled, size, required, multiple } = props.objProps;
-    const { formats, maxSize } = props.validate;
+    const formats = props.validate?.formats;
+    const maxSize = props.validate?.maxSize || 4294967296;
     const hookset = React.useRef(null);
     React.useEffect(() => {
         const ohooks = props.objHooks;
@@ -12,8 +13,11 @@ function UploadButtonBlock(props) {
             Object.entries(ohooks).forEach(([key, value]) => {
                 hookset.current.addEventListener(key, (e) => {
                     const files = [...e.target.files];
-                    const sizeViolation = !!files.find((f: File) => f.size > (maxSize || 4294967296));
-                    const typeViolation = (formats && files && files.length > 0) ? !!files.find((f: File) => formats.indexOf(f.type) < 0) : false;
+                    const sizeViolation = !!files.find((f: File) => f.size > (maxSize));
+                    const typeViolation = formats && (files && files.length > 0 && !files.find((f: File) => formats.indexOf(f.type) < 0));
+                    console.log(typeof formats);
+                    console.log(files && files.length > 0);
+                    console.log();
                     if (sizeViolation) {//hardcode in the filesize limit for wasm
                         hookset.current.value = "";
                         toast.error("File is too big!");
@@ -28,7 +32,7 @@ function UploadButtonBlock(props) {
     const id = props.uuid;
     const vis = (visible) ? "visible" : "hidden";
     return (
-        <input type="file" id={id} ref={hookset} disabled={disabled} multiple={multiple} accept={formats.join(", ")} required={required} style={{ visibility: vis, fontSize: size }} />
+        <input type="file" id={id} ref={hookset} disabled={disabled} multiple={multiple} accept={formats && formats.join(", ")} required={required} style={{ visibility: vis, fontSize: size }} />
     );
 }
 
