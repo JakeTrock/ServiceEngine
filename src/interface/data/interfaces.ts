@@ -16,6 +16,8 @@ export interface GenIFaceBlock {
   validate?: { [key: string]: any }; //{ [key: string]: string | boolean | string[] | number };
 }
 
+//TODO: some of these properties can be optional, but need fallbacks in their comps
+
 interface label extends GenIFaceBlock {
   readonly id: "label";
   defaults: { visible: boolean; size: string; label: string };

@@ -1,7 +1,7 @@
 import React from "react";
 import { toast } from "react-toastify";
 
-function UploadButtonBlock(props) {
+function UploadButtonBlock(props) {//TODO:make this a drag and drop
     const { visible, disabled, size, required, multiple } = props.objProps;
     const formats = props.validate?.formats;
     const maxSize = props.validate?.maxSize || 4294967296;
