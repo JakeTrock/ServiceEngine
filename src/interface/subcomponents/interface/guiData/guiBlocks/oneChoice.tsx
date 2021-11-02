@@ -17,7 +17,7 @@ function OneChoice(props) {
     const vis = (visible === false) ? "hidden" : "visible";
     return (
         <select id={id} required={required} ref={hookset} disabled={disabled} style={{ visibility: vis, fontSize: size || "1em" }}>
-            <option selected value={labels[value]}>{labels[value]}</option>
+            <option selected value={labels[value]}>{labels.length < value ? labels[0] : labels[value]}</option>
             {labels && labels.map((lbl, i) => i !== value && (
                 <option key={i} value={lbl}>{lbl}</option>
             ))}
