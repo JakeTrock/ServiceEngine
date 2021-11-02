@@ -7,7 +7,7 @@ function TabbedView(props) {
     const { visible, labels, width, height, childNodes } = props.objProps;
     const id = props.uuid;
     const [activeTab, setActiveTab] = React.useState<string>(labels[0]);
-    const vis = (visible) ? "visible" : "hidden";
+    const vis = (visible === false) ? "hidden" : "visible";
     const hookset = React.useRef(null);
     //attach hooks to html
     React.useEffect(() => {

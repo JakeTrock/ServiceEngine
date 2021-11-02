@@ -4,7 +4,6 @@ function OneChoice(props) {
     const { visible, size, disabled, value, labels, required } = props.objProps;
     const hookset = React.useRef(null);
     //attach hooks to html
-    //TODO: do we need useEffect?
     React.useEffect(() => {
         const ohooks = props.objHooks;
         if (ohooks && ohooks !== {}) {
@@ -15,9 +14,9 @@ function OneChoice(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
+    const vis = (visible === false) ? "hidden" : "visible";
     return (
-        <select id={id} required={required} ref={hookset} disabled={disabled} style={{ visibility: vis, fontSize: size }}>
+        <select id={id} required={required} ref={hookset} disabled={disabled} style={{ visibility: vis, fontSize: size || "1em" }}>
             <option selected value={labels[value]}>{labels[value]}</option>
             {labels && labels.map((lbl, i) => i !== value && (
                 <option key={i} value={lbl}>{lbl}</option>
