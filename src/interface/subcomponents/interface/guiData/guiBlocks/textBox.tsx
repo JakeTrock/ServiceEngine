@@ -3,7 +3,15 @@ import { toast } from "react-toastify";
 
 function TextBox(props) {
     const { visible, disabled, size, value, multirow, required } = props.objProps;
-    const { maxChars, minChars, useBlacklist, useWhitelist, wordList } = props.validate;
+    const {
+        maxChars,
+        minChars,
+        useBlacklist,
+        useWhitelist,
+        wordList,
+        validateRegex,
+        validateMessage
+    } = props.validate;
     const hookset = React.useRef(null);
     //attach hooks to html
     React.useEffect(() => {
@@ -18,9 +26,14 @@ function TextBox(props) {
                     const wlistViolation = useBlacklist ?
                         wordList.find(w => val.indexOf(w) > -1) :
                         (useWhitelist ? wordList.find(w => val.indexOf(w) < 0) : true);
+                    const regexViolation = val.match(validateRegex);
+
                     if (badlen) {
                         hookset.current.value = hookset.current.value.substring(0, maxChars - 1 + (minChars || 0));
                         toast(`The length of this textbox is limited to between ${minChars || 0} and ${maxChars} characters`)
+                    } else if (regexViolation) {
+                        hookset.current.value = "";
+                        toast(validateMessage);
                     } else if (wlistViolation) {
                         hookset.current.value = "";
                         toast('Please do not type words that are restricted')

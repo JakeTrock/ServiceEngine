@@ -57,6 +57,8 @@ interface textbox extends GenIFaceBlock {
     required: boolean;
   };
   validate?: {
+    validateRegex: RegExp;
+    validateMessage: string;
     minChars: number;
     maxChars: number;
     useBlacklist: boolean;
@@ -85,7 +87,7 @@ interface datebox extends GenIFaceBlock {
     visible: boolean;
     disabled: boolean;
     size: string;
-    value: string; //TODO:make these type date
+    value: string;
     min: string;
     max: string;
     required: boolean;
@@ -130,6 +132,8 @@ interface listbuild extends GenIFaceBlock {
     values: string[];
   };
   validate?: {
+    validateRegex: RegExp;
+    validateMessage: string;
     useBlacklist: boolean;
     useWhitelist: boolean;
     wordList: string[];

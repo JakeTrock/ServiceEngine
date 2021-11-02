@@ -15,9 +15,6 @@ function UploadButtonBlock(props) {//TODO:make this a drag and drop
                     const files = [...e.target.files];
                     const sizeViolation = !!files.find((f: File) => f.size > (maxSize));
                     const typeViolation = formats && (files && files.length > 0 && !files.find((f: File) => formats.indexOf(f.type) < 0));
-                    console.log(typeof formats);
-                    console.log(files && files.length > 0);
-                    console.log();
                     if (sizeViolation) {//hardcode in the filesize limit for wasm
                         hookset.current.value = "";
                         toast.error("File is too big!");

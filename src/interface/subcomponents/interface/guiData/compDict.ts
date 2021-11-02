@@ -76,6 +76,8 @@ export const compDefaults: IFaceBlock[] = [
       required: false,
     },
     validate: {
+      validateRegex: /\d/,
+      validateMessage: "must not contain any numbers!",
       minChars: 0,
       maxChars: 144,
       useBlacklist: true,
@@ -149,6 +151,8 @@ export const compDefaults: IFaceBlock[] = [
     validate: {
       useBlacklist: true,
       useWhitelist: false,
+      validateRegex: /\d/,
+      validateMessage: "must not contain any numbers!",
       wordList: ["badword", "worseword", "terribleword"],
       minChars: 0,
       maxChars: 144,

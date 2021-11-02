@@ -290,6 +290,8 @@ const allutils: utility[] = [
           required: false,
         },
         validate: {
+          validateRegex: /\d/,
+          validateMessage: "must not contain any numbers!",
           minChars: 0,
           maxChars: 144,
           useBlacklist: true,
@@ -366,6 +368,8 @@ const allutils: utility[] = [
           values: ["strawberry", "chocolate", "vanilla", "mint"],
         },
         validate: {
+          validateRegex: /\d/,
+          validateMessage: "must not contain any numbers!",
           useBlacklist: true,
           useWhitelist: false,
           wordList: ["badword", "worseword", "terribleword"],

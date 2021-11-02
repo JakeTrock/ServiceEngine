@@ -11,6 +11,8 @@ function ListBuilder(props) {
         maxChars,
         maxListLength,
         minListLength,
+        validateRegex,
+        validateMessage
     } = props.validate;
     const id = props.uuid;
     const vis = (visible) ? "visible" : "hidden";
@@ -33,10 +35,11 @@ function ListBuilder(props) {
         });
         if (ohooks && ohooks !== {}) {
             //typical hook attachment loop
-            Object.entries(ohooks).forEach(([key, value]) => {//TODO: add regex, this only updates after change
+            Object.entries(ohooks).forEach(([key, value]) => {
                 hookset.current.addEventListener(key, (e) => {
                     const nodeVals = Array.from(e.currentTarget.childNodes[0].childNodes).filter((t: any) => t.tagName === "INPUT").map((n: any) => n.value);
                     if (maxChars && minChars && minChars > maxChars) return toast("invalid max/min values");
+                    if ((!validateRegex && validateMessage) || (validateRegex && !validateMessage)) return toast("must have error message for failed regex/vice versa.");
                     const badlen = (maxChars && minChars) ?
                         nodeVals.find(v => (v.length > maxChars || v.length < minChars)) :
                         (!maxChars && !minChars) ? false :
@@ -48,14 +51,19 @@ function ListBuilder(props) {
                         wordList.find(w => nodeVals.find(v => v.indexOf(w) > -1)) :
                         (useWhitelist ? wordList.find(w => nodeVals.find(v => v.indexOf(w) < 0)) : true);
 
+                    const regexViolation = nodeVals.find(w => w.match(validateRegex));
+
                     const lengthViolation = ((maxListLength && nodeVals.length > maxListLength) ||
                         (minListLength && nodeVals.length < minListLength))
                     if (badlen) {
                         setAllVals(values);
                         toast(`The length of these textboxes are limited to between ${minChars || 0} and ${maxChars} characters`)
                     } else if (wlistViolation) {
-                        setAllVals(values)
+                        setAllVals(values);
                         toast('Please do not type words that are restricted')
+                    } else if (regexViolation) {
+                        setAllVals(values);
+                        toast(validateMessage);
                     } else if (lengthViolation) {
                         setAllVals(values)
                         toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
@@ -69,7 +77,6 @@ function ListBuilder(props) {
         <>
             <fieldset id={id} ref={hookset} disabled={disabled}>
                 <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis, fontSize: size }}>
-                    <p>{allVals}</p>
                     {allVals.map((lbl, i) => (
                         <React.Fragment key={lbl}>
                             <input type="text" defaultValue={lbl} onChange={(e) => {
