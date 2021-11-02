@@ -5,8 +5,8 @@ function MultiChoice(props) {
     const { visible, size, label, disabled, labels, checked } = props.objProps;
     const { maxSelections, exclusiveChoices } = props.validate;
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
-    let checkedArray: boolean[] = checked !== undefined ? JSON.parse(JSON.stringify(checked)) : [];
+    const vis = (visible === false) ? "hidden" : "visible";
+    let checkedArray: boolean[] = checked !== undefined ? JSON.parse(JSON.stringify(checked)) : labels.map(n => false);
     const labelsArray: string[] = labels !== undefined ? labels : [];
     const hookset = React.useRef(null);
     //attach hooks to html
@@ -40,7 +40,6 @@ function MultiChoice(props) {
                         checkedArray = JSON.parse(JSON.stringify(checked));
                         toast(`You can make at most ${maxSelections} selections!`)
                     } else if (hasExclusive.length > 0) {
-                        console.log(hasExclusive)
                         Array.from(hookset.current.childNodes)
                             .filter((t: any) => t.tagName === "INPUT")
                             .forEach((c: any, i) => c.checked = checked[i]);

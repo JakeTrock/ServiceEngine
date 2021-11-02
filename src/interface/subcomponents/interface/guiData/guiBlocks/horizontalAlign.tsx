@@ -5,7 +5,7 @@ import FailComponent from "./failComponent";
 function HorizontalAlign(props) {
     const { visible, width, height, childNodes } = props.objProps;
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
+    const vis = (visible === false) ? "hidden" : "visible";
     const hookset = React.useRef(null);
     //attach hooks to html
     React.useEffect(() => {

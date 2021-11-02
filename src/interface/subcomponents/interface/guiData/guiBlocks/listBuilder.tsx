@@ -15,8 +15,8 @@ function ListBuilder(props) {
         validateMessage
     } = props.validate;
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
-    const [allVals, setAllVals] = React.useState<string[]>(values);
+    const vis = (visible === false) ? "hidden" : "visible";
+    const [allVals, setAllVals] = React.useState<string[]>(values || []);
 
     const hookset = React.useRef(null);
     React.useEffect(() => {
@@ -51,7 +51,7 @@ function ListBuilder(props) {
                         wordList.find(w => nodeVals.find(v => v.indexOf(w) > -1)) :
                         (useWhitelist ? wordList.find(w => nodeVals.find(v => v.indexOf(w) < 0)) : true);
 
-                    const regexViolation = nodeVals.find(w => w.match(validateRegex));
+                    const regexViolation = validateRegex && validateMessage && nodeVals.find(w => w.match(validateRegex));
 
                     const lengthViolation = ((maxListLength && nodeVals.length > maxListLength) ||
                         (minListLength && nodeVals.length < minListLength))

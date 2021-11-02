@@ -26,7 +26,7 @@ function NumBox(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
+    const vis = (visible === false) ? "hidden" : "visible";
     return (
         <input type="number" id={id} disabled={disabled} required={required} step={step} ref={hookset} style={{ visibility: vis, fontSize: size }} min={min} max={max} defaultValue={value} />
     );

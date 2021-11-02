@@ -33,9 +33,9 @@ function DateBox(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
+    const vis = (visible === false) ? "hidden" : "visible";
     return (
-        <input type="datetime-local" id={id} ref={hookset} disabled={disabled} defaultValue={value} style={{ visibility: vis, fontSize: size }}
+        <input type="datetime-local" id={id} ref={hookset} disabled={disabled} defaultValue={value} style={{ visibility: vis, fontSize: size || "1em" }}
             min={min} max={max} required={required}></input>
     );
 }

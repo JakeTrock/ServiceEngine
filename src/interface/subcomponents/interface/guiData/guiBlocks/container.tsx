@@ -5,7 +5,7 @@ import FailComponent from "./failComponent";
 function Container(props) {
     const { visible, disabled, collapsible, width, height, childNodes, label } = props.objProps;
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
+    const vis = (visible === false) ? "hidden" : "visible";
     const hookset = React.useRef(null);
     const [active, setActive] = React.useState<Boolean>(false);
     //attach hooks to html

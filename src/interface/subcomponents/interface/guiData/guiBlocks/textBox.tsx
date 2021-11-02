@@ -18,15 +18,15 @@ function TextBox(props) {
         const ohooks = props.objHooks;
         if (ohooks && ohooks !== {}) {
             //if object has hook kvp, loop thru and attach all functions from hooks to html object
-            Object.entries(ohooks).forEach(([key, value]) => {//TODO: add regex
+            Object.entries(ohooks).forEach(([key, value]) => {
                 hookset.current.addEventListener(key, (e) => {
                     const val = e.target.value;
                     if (maxChars && minChars && minChars > maxChars) return toast("invalid max/min values");
                     const badlen = (maxChars && val.length > maxChars) || (minChars && val.length < minChars);
-                    const wlistViolation = useBlacklist ?
+                    const wlistViolation = wordList && (useBlacklist ?
                         wordList.find(w => val.indexOf(w) > -1) :
-                        (useWhitelist ? wordList.find(w => val.indexOf(w) < 0) : true);
-                    const regexViolation = val.match(validateRegex);
+                        (useWhitelist ? wordList.find(w => val.indexOf(w) < 0) : true));
+                    const regexViolation = validateRegex && validateMessage && val.match(validateRegex);
 
                     if (badlen) {
                         hookset.current.value = hookset.current.value.substring(0, maxChars - 1 + (minChars || 0));
@@ -43,12 +43,12 @@ function TextBox(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible) ? "visible" : "hidden";
+    const vis = (visible === false) ? "hidden" : "visible";
     return (
         <>
-            {multirow ?
-                <textarea id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, fontSize: size }} defaultValue={value} /> :
-                <input type="text" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, fontSize: size }} defaultValue={value} />}
+            {multirow || false ?
+                <textarea id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, fontSize: size || "1em" }} defaultValue={value} /> :
+                <input type="text" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, fontSize: size || "1em" }} defaultValue={value} />}
         </>
     );
 }
