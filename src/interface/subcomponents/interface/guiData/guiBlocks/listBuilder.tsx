@@ -13,7 +13,7 @@ function ListBuilder(props) {
         minListLength,
         validateRegex,
         validateMessage
-    } = props.validate;
+    } = props.validate || {};
     const id = props.uuid;
     const vis = (visible === false) ? "hidden" : "visible";
     const [allVals, setAllVals] = React.useState<string[]>(values || []);

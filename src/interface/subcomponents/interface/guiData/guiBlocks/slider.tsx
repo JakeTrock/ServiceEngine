@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 function Slider(props) {//can be optimized i reckon
     const { visible, disabled, width, value, min, max, step, required } = props.objProps;
-    const { badRange } = props.validate;
+    const { badRange } = props.validate || {};
     const hookset = React.useRef(null);
     //attach hooks to html
     React.useEffect(() => {

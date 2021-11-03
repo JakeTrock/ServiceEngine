@@ -11,7 +11,7 @@ function TextBox(props) {
         wordList,
         validateRegex,
         validateMessage
-    } = props.validate;
+    } = props.validate || {};
     const hookset = React.useRef(null);
     //attach hooks to html
     React.useEffect(() => {

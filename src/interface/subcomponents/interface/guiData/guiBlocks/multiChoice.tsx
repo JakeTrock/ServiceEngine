@@ -3,7 +3,10 @@ import { toast } from "react-toastify";
 
 function MultiChoice(props) {
     const { visible, size, label, disabled, labels, checked } = props.objProps;
-    const { maxSelections, exclusiveChoices } = props.validate;
+    const {
+        maxSelections,
+        exclusiveChoices
+    } = props.validate || [];
     const id = props.uuid;
     const vis = (visible === false) ? "hidden" : "visible";
     let checkedArray: boolean[] = checked !== undefined ? JSON.parse(JSON.stringify(checked)) : labels.map(n => false);
