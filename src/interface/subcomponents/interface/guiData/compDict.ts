@@ -65,7 +65,7 @@ export const compDefaults: IFaceBlock[] = [
       maxSize: 4294967296,
     },
   },
-  /*{
+  {
     id: "textbox",
     defaults: {
       visible: true,
@@ -84,7 +84,7 @@ export const compDefaults: IFaceBlock[] = [
       useWhitelist: false,
       wordList: ["badword", "worseword", "terribleword"],
     },
-  },*/
+  },
   {
     id: "numbox",
     defaults: {
@@ -98,7 +98,7 @@ export const compDefaults: IFaceBlock[] = [
       required: false,
     },
   },
-  /*{
+  {
     id: "datebox",
     defaults: {
       visible: true,
@@ -109,7 +109,7 @@ export const compDefaults: IFaceBlock[] = [
       max: "2000-01-01T24:00",
       required: false,
     },
-  },*/
+  },
   {
     id: "onechoice",
     defaults: {
@@ -121,7 +121,7 @@ export const compDefaults: IFaceBlock[] = [
       required: false,
     },
   },
-  /*{
+  {
     id: "multchoice",
     defaults: {
       visible: true,
@@ -178,7 +178,7 @@ export const compDefaults: IFaceBlock[] = [
         [7, 9],
       ],
     },
-  },*/
+  },
   {
     id: "mediabox",
     defaults: {
