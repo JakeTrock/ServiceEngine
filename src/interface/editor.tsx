@@ -26,6 +26,7 @@ import './subcomponents/interface/guiData/interfaceScriptToolbox';
 import { BlocklyWorkspace } from 'react-blockly';
 import Blockly from "blockly";
 import { genToolbox } from "./subcomponents/interface/guiData/interfaceScriptToolbox";
+import fileUtils from "./subcomponents/interface/programs/codeBlocks/fileUtils"
 import GuiEditPanel from "./subcomponents/interface/guiEditor";
 import GuiRender from "./subcomponents/interface/guiRender";
 import eventTypes from "./subcomponents/interface/guiData/eventTypes";
@@ -144,6 +145,8 @@ const Editor = (props) => {
 
   const handleErr = (e) => toast.error(e.toString());
 
+  const downloadResult = async () => (await fileUtils()).downloadOne(new File([JSON.stringify(ifSchema)], "interface.txt"))
+
   function genScript(workspace) {
     const code = Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(workspace));
     console.log(code)
@@ -192,6 +195,9 @@ const Editor = (props) => {
         </Tab>
         <Tab label="Test">
           {/* TODO:implement */}
+        </Tab>
+        <Tab label="Save" onClick={downloadResult}>
+
         </Tab>
       </TabsContainer>
     </>
