@@ -1,109 +1,97 @@
 import React from "react";
 import { toast } from "react-toastify";
+import { IFaceBlock } from "../../../../data/interfaces";
+import { compDict } from "../compDict";
+import FailComponent from "./failComponent";
 
 function ListBuilder(props) {
-    const { visible, size, width, values, disabled } = props.objProps;
+    const { visible, size, width, childNodesCurrent, childNodesPossible, disabled } = props.objProps;
     const {
-        useBlacklist,
-        useWhitelist,
-        wordList,
-        minChars,
-        maxChars,
         maxListLength,
         minListLength,
-        validateRegex,
-        validateMessage
     } = props.validate || {};
     const id = props.uuid;
     const vis = (visible === false) ? "hidden" : "visible";
-    const [allVals, setAllVals] = React.useState<string[]>(values || []);
-
+    const [allComps, setAllComps] = React.useState<IFaceBlock[]>(childNodesCurrent);
+    const [allVals, setAllVals] = React.useState<(string | number | boolean | object)[]>(childNodesCurrent.map(s => s.defaults.value));
     const hookset = React.useRef(null);
     React.useEffect(() => {
         const ohooks = props.objHooks;
-        const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(hookset.current), 'value');
-        //shim for weird onchange behaviour
-        Object.defineProperty(hookset.current, 'value', {
-            set: function (t) {
-                const event = new Event('change');
-                hookset.current.dispatchEvent(event);
-                return descriptor.set.apply(this, arguments);
-            },
-            get: function () {
-                return descriptor.get.apply(this);
-            }
-        });
         if (ohooks && ohooks !== {}) {
             //typical hook attachment loop
             Object.entries(ohooks).forEach(([key, value]) => {
                 hookset.current.addEventListener(key, (e) => {
-                    const nodeVals = Array.from(e.currentTarget.childNodes[0].childNodes).filter((t: any) => t.tagName === "INPUT").map((n: any) => n.value);
-                    if (maxChars && minChars && minChars > maxChars) return toast("invalid max/min values");
-                    if ((!validateRegex && validateMessage) || (validateRegex && !validateMessage)) return toast("must have error message for failed regex/vice versa.");
-                    const badlen = (maxChars && minChars) ?
-                        nodeVals.find(v => (v.length > maxChars || v.length < minChars)) :
-                        (!maxChars && !minChars) ? false :
-                            (maxChars && !minChars) ?
-                                nodeVals.find(v => (v.length > maxChars)) :
-                                nodeVals.find(v => (v.length < minChars));
-
-                    const wlistViolation = useBlacklist ?
-                        wordList.find(w => nodeVals.find(v => v.indexOf(w) > -1)) :
-                        (useWhitelist ? wordList.find(w => nodeVals.find(v => v.indexOf(w) < 0)) : true);
-
-                    const regexViolation = validateRegex && validateMessage && nodeVals.find(w => w.match(validateRegex));
-
-                    const lengthViolation = ((maxListLength && nodeVals.length > maxListLength) ||
-                        (minListLength && nodeVals.length < minListLength))
-                    if (badlen) {
-                        setAllVals(values);
-                        toast(`The length of these textboxes are limited to between ${minChars || 0} and ${maxChars} characters`)
-                    } else if (wlistViolation) {
-                        setAllVals(values);
-                        toast('Please do not type words that are restricted')
-                    } else if (regexViolation) {
-                        setAllVals(values);
-                        toast(validateMessage);
-                    } else if (lengthViolation) {
-                        setAllVals(values)
-                        toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
-                    } else return (value as Function)({ values: nodeVals });
+                    const lengthViolation = ((maxListLength && allVals.length > maxListLength) ||
+                        (minListLength && allVals.length < minListLength))
+                    if (lengthViolation) {
+                        return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
+                    } else return (value as Function)({ values: allVals });
                 });
             })
         }
-    }, []);
+    }, [allComps, allVals, maxListLength, minListLength, props.objHooks]);
+
+
+    const adder = (<div style={{ border: "1px solid black" }}>
+        <select>
+            {childNodesPossible && Object.getOwnPropertyNames(childNodesPossible).map((lbl, i) => (
+                <option key={i} value={lbl}>{lbl}</option>
+            ))}
+        </select>
+        <button type="button" onClick={(e) => {
+            //@ts-ignore
+            const newVal = e.currentTarget.parentNode.childNodes.item(0).value;
+            if (newVal !== "") {
+                if (maxListLength && allVals.length + 1 > maxListLength) {
+                    return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
+                } else {
+                    setAllVals([...allVals, childNodesPossible[newVal].defaults.value]);
+                    setAllComps([...allComps, childNodesPossible[newVal]])
+                    //@ts-ignore
+                    e.currentTarget.parentNode.childNodes.item(0).value = "";
+                }
+            }
+        }}>+</button>
+    </div>);
+
+    const minusButton = (i) => (<button type="button" onClick={() => {
+        if (minListLength && allVals.length - 1 < minListLength) {
+            return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
+        } else {
+            setAllVals(allVals.slice(0, i).concat(allVals.slice(i + 1, allVals.length)))
+            setAllComps(JSON.parse(JSON.stringify(allComps.slice(0, i).concat(allComps.slice(i + 1, allComps.length)))))
+        }
+    }}>-</button>);
 
     return (
         <>
             <fieldset id={id} ref={hookset} disabled={disabled}>
-                <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis, fontSize: size }}>
-                    {allVals.map((lbl, i) => (
-                        <React.Fragment key={lbl}>
-                            <input type="text" defaultValue={lbl} onChange={(e) => {
-                                setAllVals(allVals.map((v, j) => {
-                                    if (i === j)
-                                        return e.target.value;
-                                    else return v;
-                                }));
-                            }} />
-                            <button type="button" onClick={() => {
-                                console.log(allVals.slice(0, i).concat(allVals.slice(i + 1, allVals.length)))
-                                setAllVals(JSON.parse(JSON.stringify(allVals.slice(0, i).concat(allVals.slice(i + 1, allVals.length)))))
-                            }}>-</button>
+                <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis, fontSize: size || "1em" }}>
+                    {allComps.map((item, i) => (
+                        <React.Fragment key={id + i + item.id}>
+                            {
+                                React.createElement(compDict[item.id] || FailComponent,
+                                    {
+                                        key: id + i + item.uuid, uuid: item.uuid, objProps: item.defaults, objHooks: {
+                                            ...item.hooks, "change": (e) =>
+                                                setAllVals(vals => {
+                                                    const list = vals.map((item, j) => {
+                                                        if (j === i) {
+                                                            return e.value;
+                                                        } else {
+                                                            return item;
+                                                        }
+                                                    });
+                                                    return list
+                                                })
+                                        }, validate: item.validate
+                                    })
+                            }
+
+                            {(maxListLength && minListLength) ? maxListLength !== minListLength && minusButton(i) : minusButton(i)}
                         </React.Fragment>
                     ))}
-                    <div style={{ border: "1px solid black" }}>
-                        <input type="text" />
-                        <button type="button" onClick={(e) => {
-                            //@ts-ignore
-                            const newVal = e.currentTarget.parentNode.childNodes.item(0).value;
-                            if (newVal !== "") {
-                                setAllVals([...allVals, newVal]);
-                                //@ts-ignore
-                                e.currentTarget.parentNode.childNodes.item(0).value = "";
-                            }
-                        }}>+</button>
-                    </div>
+                    {maxListLength ? (allVals.length < maxListLength) && adder : adder}
                 </div>
             </fieldset>
         </>

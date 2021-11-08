@@ -104,7 +104,7 @@ export default function GuiRender(props) {
             {currentInterface && processHooks(currentInterface, makeEvent).map((item, i) => (
                 <Fragment key={props.key}>
                     {React.createElement(compDict[item.id] || FailComponent,
-                        { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })}
+                        { key: i, uuid: item.uuid || Math.random().toString(36).substr(2), objProps: item.defaults, objHooks: item.hooks, validate: item.validate })}
                     <br />
                 </Fragment>
             ))}

@@ -3,7 +3,7 @@ const glcode = (imports) => {
   return {
     returnDat: (event, formAccess, additional, notify) => {
       console.log(event);
-
+      console.log(JSON.stringify(event));
       // console.log(event.target.value||event);
     },
   };

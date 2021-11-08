@@ -20,7 +20,7 @@ function NumBox(props) {
                     } else if (catchall) {
                         hookset.current.value = min;
                         toast('Misc. validation error on numberbox. Try using the arrows on the side.')
-                    } else return (value as Function)({ value: val });
+                    } else return (value as Function)({ value: Number(val) });
                 });
             })
         }

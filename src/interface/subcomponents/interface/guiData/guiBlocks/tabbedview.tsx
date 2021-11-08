@@ -26,19 +26,18 @@ function TabbedView(props) {
                 {labels.map((lbl) => <li
                     className={activeTab === lbl ? 'tab-list-item tab-list-active' : 'tab-list-item'}
                     onClick={() => setActiveTab(lbl)}
-                    key={lbl}
+                    key={id + lbl}
                 >
                     {lbl}
                 </li>)}
             </ol>
 
 
-            <div key={props.key} id={id} ref={hookset} style={{ display: "flex", overflow: "scroll", visibility: vis, width, height }}>
+            <div id={id} ref={hookset} style={{ display: "flex", overflow: "scroll", visibility: vis, width, height }}>
                 {childNodes && childNodes !== [] && childNodes.map((node, i) => labels.indexOf(activeTab) == i && (
-                    <React.Fragment key={i}>
-                        {node.map((el, j) =>
-                            (React.createElement(compDict[el.id] || FailComponent,
-                                { key: i, uuid: el.uuid, objProps: el.defaults, objHooks: el.hooks, validate: el.validate }))
+                    <React.Fragment key={id + i}>
+                        {node.map((el, j) => (React.createElement(compDict[el.id] || FailComponent,
+                            { key: id + (i + el.id + j), uuid: el.uuid, objProps: el.defaults, objHooks: el.hooks, validate: el.validate }))
                         )}
                         < br />
                     </React.Fragment>

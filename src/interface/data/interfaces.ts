@@ -85,6 +85,15 @@ interface numbox extends GenIFaceBlock {
   };
 }
 
+interface checkbox extends GenIFaceBlock {
+  readonly id: "checkbox";
+  defaults: {
+    visible?: boolean;
+    disabled?: boolean;
+    value?: boolean;
+  };
+}
+
 interface datebox extends GenIFaceBlock {
   readonly id: "datebox";
   defaults: {
@@ -107,44 +116,6 @@ interface onechoice extends GenIFaceBlock {
     value?: number;
     labels: string[];
     required?: boolean;
-  };
-}
-
-interface multchoice extends GenIFaceBlock {
-  readonly id: "multchoice";
-  defaults: {
-    visible?: boolean;
-    disabled?: boolean;
-    size?: string;
-    label: string;
-    labels: string[];
-    checked?: boolean[];
-  };
-  validate?: {
-    maxSelections?: number;
-    exclusiveChoices?: string[][];
-  };
-}
-
-interface listbuild extends GenIFaceBlock {
-  readonly id: "listbuild";
-  defaults: {
-    visible?: boolean;
-    disabled?: boolean;
-    size?: string;
-    width?: string;
-    values?: string[];
-  };
-  validate?: {
-    validateRegex?: RegExp;
-    validateMessage?: string;
-    useBlacklist?: boolean;
-    useWhitelist?: boolean;
-    wordList?: string[];
-    minChars?: number;
-    maxChars?: number;
-    maxListLength?: number;
-    minListLength?: number;
   };
 }
 
@@ -194,6 +165,48 @@ interface progbar extends GenIFaceBlock {
   };
 }
 
+interface listbuild extends GenIFaceBlock {
+  readonly id: "listbuild";
+  defaults: {
+    visible?: boolean;
+    disabled?: boolean;
+    size?: string;
+    width?: string;
+    childNodesCurrent: GenIFaceBlock[];
+    childNodesPossible: { [key: string]: GenIFaceBlock };
+  };
+  validate?: {
+    maxListLength?: number;
+    minListLength?: number;
+  };
+}
+
+interface kvpbuild extends GenIFaceBlock {
+  readonly id: "kvpbuild";
+  defaults: {
+    visible?: boolean;
+    disabled?: boolean;
+    size?: string;
+    width?: string;
+    labelsCurrent: string[];
+    childNodesCurrent: GenIFaceBlock[];
+    childNodesPossible: { [key: string]: GenIFaceBlock };
+  };
+  validate?: {
+    maxListLength?: number;
+    minListLength?: number;
+    keyWhitelist?:
+      | string[]
+      | {
+          [key: string]: {
+            keyRegex?: RegExp;
+            keyRegexMsg?: string;
+          };
+        };
+    allowExtendedChoice?: boolean;
+  };
+}
+
 interface container extends GenIFaceBlock {
   readonly id: "container";
   defaults: {
@@ -233,12 +246,13 @@ export type IFaceBlock =
   | label
   | button
   | uplButton
+  | checkbox
   | textbox
   | numbox
   | datebox
   | onechoice
-  | multchoice
   | listbuild
+  | kvpbuild
   | slider
   | mediabox
   | canvasbox

@@ -20,12 +20,12 @@ function Container(props) {
     }, []);
 
     return (
-        <fieldset id={id} key={props.key} ref={hookset} disabled={disabled} style={{ overflow: "scroll", visibility: vis, width, height: (active) ? height : "0em" }}>
+        <fieldset id={id} ref={hookset} disabled={disabled} style={{ overflow: "scroll", visibility: vis, width, height: (active) ? height : "0em" }}>
             <legend>{collapsible && <h5 style={{ display: "inline" }} onClick={() => setActive(!active)}>{active ? "⯆" : "⯈"}</h5>}{label}</legend>
             {active && childNodes && childNodes !== [] && childNodes.map((item, i) => (
-                <React.Fragment key={i}>
+                <React.Fragment key={id + i}>
                     {React.createElement(compDict[item.id] || FailComponent,
-                        { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })}
+                        { key: id + item.id + i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })}
                     <br />
                 </React.Fragment>
             ))}

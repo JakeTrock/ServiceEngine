@@ -4,7 +4,6 @@ import UploadButtonBlock from "./guiBlocks/uploadButton";
 import NumBox from "./guiBlocks/numBox";
 import DateBox from "./guiBlocks/dateBox";
 import OneChoice from "./guiBlocks/oneChoice";
-import MultiChoice from "./guiBlocks/multiChoice";
 import MediaFrame from "./guiBlocks/mediaFrame";
 import CanvasFrame from "./guiBlocks/canvasFrame";
 import Slider from "./guiBlocks/slider";
@@ -15,18 +14,21 @@ import { IFaceBlock } from "../../../data/interfaces";
 import Container from "./guiBlocks/container";
 import HorizontalAlign from "./guiBlocks/horizontalAlign";
 import TabbedView from "./guiBlocks/tabbedview";
+import KvpBuilder from "./guiBlocks/kvpBuilder";
+import CheckBox from "./guiBlocks/checkBox";
 
 //dictionary of all component names and their corresponding react element
 export const compDict: { [key: string]: (props: any) => JSX.Element } = {
   label: TextBlock,
   button: ButtonBlock,
   uplButton: UploadButtonBlock,
+  checkbox: CheckBox,
   textbox: TextBox,
   numbox: NumBox,
   datebox: DateBox,
   onechoice: OneChoice,
-  multchoice: MultiChoice,
   listbuild: ListBuilder,
+  kvpbuild: KvpBuilder,
   mediabox: MediaFrame,
   canvasbox: CanvasFrame,
   slider: Slider,
@@ -63,6 +65,14 @@ export const compDefaults: IFaceBlock[] = [
     validate: {
       formats: ["image/jpg", "image/png", "image/gif"],
       maxSize: 4294967296,
+    },
+  },
+  {
+    id: "checkbox",
+    defaults: {
+      visible: true,
+      disabled: false,
+      value: false,
     },
   },
   {
@@ -122,45 +132,6 @@ export const compDefaults: IFaceBlock[] = [
     },
   },
   {
-    id: "multchoice",
-    defaults: {
-      visible: true,
-      disabled: false,
-      size: "1em",
-      label: "topping",
-      labels: ["walnuts", "peanuts", "chocolate", "gummy"],
-      checked: [false, true, false, true],
-    },
-    validate: {
-      maxSelections: 3,
-      exclusiveChoices: [
-        ["walnuts", "peanuts"],
-        ["chocolate", "gummy"],
-      ],
-    },
-  },
-  {
-    id: "listbuild",
-    defaults: {
-      visible: true,
-      disabled: false,
-      size: "1em",
-      width: "20em",
-      values: ["strawberry", "chocolate", "vanilla", "mint"],
-    },
-    validate: {
-      useBlacklist: true,
-      useWhitelist: false,
-      validateRegex: /\d/,
-      validateMessage: "must not contain any numbers!",
-      wordList: ["badword", "worseword", "terribleword"],
-      minChars: 0,
-      maxChars: 144,
-      maxListLength: 10,
-      minListLength: 0,
-    },
-  },
-  {
     id: "slider",
     defaults: {
       visible: true,
@@ -194,6 +165,39 @@ export const compDefaults: IFaceBlock[] = [
     defaults: { visible: true, width: "10em", height: "10em" },
   },
   { id: "progbar", defaults: { visible: true, value: 50, max: 100 } },
+  {
+    id: "listbuild",
+    defaults: {
+      visible: true,
+      disabled: false,
+      size: "1em",
+      width: "20em",
+      childNodesCurrent: [],
+      childNodesPossible: {},
+    },
+    validate: {
+      maxListLength: 10,
+      minListLength: 0,
+    },
+  },
+  {
+    id: "kvpbuild",
+    defaults: {
+      visible: true,
+      disabled: false,
+      size: "1em",
+      width: "20em",
+      labelsCurrent: [],
+      childNodesCurrent: [],
+      childNodesPossible: {},
+    },
+    validate: {
+      maxListLength: 10,
+      minListLength: 0,
+      keyWhitelist: [],
+      allowExtendedChoice: true,
+    },
+  },
   {
     id: "container",
     defaults: {

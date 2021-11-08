@@ -19,14 +19,14 @@ function HorizontalAlign(props) {
     }, []);
 
     return (
-        <div key={props.key} id={id} ref={hookset} style={{ display: "flex", overflowX: "scroll", visibility: vis, width, height }}>
+        <div id={id} ref={hookset} style={{ display: "flex", overflowX: "scroll", visibility: vis, width, height }}>
             {childNodes && childNodes !== [] && childNodes.map((nodes, i) => (
-                <div style={{ overflowY: "scroll" }}>
-                    {nodes.map((item, i) => (
-                        <React.Fragment key={i}>
+                <div key={id + i} style={{ overflowY: "scroll" }}>
+                    {nodes.map((item, j) => (
+                        <React.Fragment key={id + i + " " + j}>
                             {
                                 React.createElement(compDict[item.id] || FailComponent,
-                                    { key: i, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })
+                                    { key: id + i + item.id + j, uuid: item.uuid, objProps: item.defaults, objHooks: item.hooks, validate: item.validate })
                             }
                             < br />
                         </React.Fragment>

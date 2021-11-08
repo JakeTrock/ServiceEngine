@@ -84,7 +84,7 @@ function GuiEditPanel(props) {
                     }}
                 >
                     {ifOrder.map((item, i) => (
-                        <div style={selection === item ? { width: "100%", border: "1px solid lightgreen"} : { width: "100%"}} onClick={() => setSelection(item)}>
+                        <div style={selection === item ? { width: "100%", border: "1px solid lightgreen" } : { width: "100%" }} onClick={() => setSelection(item)}>
                             {React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults })}
                             <br />
                         </div>
@@ -94,18 +94,53 @@ function GuiEditPanel(props) {
 
             <div className="split right">
                 {selection !== undefined && selection.defaults && Object.keys(selection.defaults).map((key, i) => (
-                    <div key={i} style={{ paddingLeft: "1em" }}><p>{key}</p><input type="text" value={selection.defaults[key]} onChange={(e) => {
-                        if(Array.isArray(selection.defaults[key])){
-                            selection.defaults[key] = e.target.value.split(',')
+                    <div key={i} style={{ paddingLeft: "1em" }}><p>{key}</p>{() => {
+                        const type = typeof selection.defaults[key];
+                        // {React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults })}
+                        if (type === "boolean") {
+                            return React.createElement("input", {
+                                type: "checkbox", defaultChecked: selection.defaults[key], onChange: (e) => {
+                                    //@ts-ignore
+                                    selection.defaults[key] = e.target.value
+                                    setSelection(selection);
+                                }
+                            });
+                        } else if (type === "number") {
+                            return React.createElement("input", {
+                                type: "number", defaultChecked: selection.defaults[key], onChange: (e) => {
+                                    //@ts-ignore
+                                    selection.defaults[key] = e.target.value
+                                    setSelection(selection);
+                                }
+                            });
+                        } else if (type === "string") {
+                            return React.createElement("input", {
+                                type: "text", defaultChecked: selection.defaults[key], onChange: (e) => {
+                                    //@ts-ignore
+                                    selection.defaults[key] = e.target.value
+                                    setSelection(selection);
+                                }
+                            });
+                        } else if (Array.isArray(selection.defaults[key])) {
+                            const childType = typeof selection.defaults[key][0];
+                            if (childType === "boolean") {
+
+                            } else if (childType === "number") {
+
+                            } else if (childType === "string") {
+                                // React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults })
+                            } else if (childType === "object") {
+
+                            }
+                            // selection.defaults[key] = e.target.value.split(',')
                         }
-                        else selection.defaults[key] = e.target.value
                         setIf(ifOrder.map((i) => {
                             if (i.uuid === selection.uuid) {
                                 return selection;
                             }
                             return i;
                         }));
-                    }} /></div>
+                    }}</div>
                 ))}
             </div>
         </div >
