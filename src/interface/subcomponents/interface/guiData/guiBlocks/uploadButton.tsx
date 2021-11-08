@@ -27,9 +27,9 @@ function UploadButtonBlock(props) {//TODO:make this a drag and drop
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     return (
-        <input type="file" id={id} ref={hookset} disabled={disabled} multiple={multiple} accept={formats && formats.join(", ")} required={required} style={{ visibility: vis, fontSize: size||"1em" }} />
+        <input type="file" id={id} ref={hookset} disabled={disabled} multiple={multiple} accept={formats && formats.join(", ")} required={required} style={{ visibility: vis(), fontSize: size||"1em" }} />
     );
 }
 

@@ -23,10 +23,10 @@ function Slider(props) {//can be optimized i reckon
         }
     }, []);//badRange: [[2,3],[7,9]],
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
 
     return (
-        <div style={{ display: 'flex' }}><input type="range" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, width }} min={min} max={max} step={step} defaultValue={value} onChange={e => {
+        <div style={{ display: 'flex' }}><input type="range" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis(), width }} min={min} max={max} step={step} defaultValue={value} onChange={e => {
             //@ts-ignore
             e.currentTarget.parentNode.childNodes.item(1).innerHTML = e.target.value
         }} /><p>{value}</p></div>

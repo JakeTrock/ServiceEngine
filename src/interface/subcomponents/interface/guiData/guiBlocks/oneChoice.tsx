@@ -14,9 +14,9 @@ function OneChoice(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = ()=> (visible === false) ? "hidden" : "visible";
     return (
-        <select id={id} required={required} ref={hookset} disabled={disabled} defaultValue={labels[value]} style={{ visibility: vis, fontSize: size || "1em" }}>
+        <select id={id} required={required} ref={hookset} disabled={disabled} defaultValue={labels[value]} style={{ visibility: vis(), fontSize: size || "1em" }}>
             {labels && labels.map((lbl, i) => (
                 <option key={i} value={lbl}>{lbl}</option>
             ))}

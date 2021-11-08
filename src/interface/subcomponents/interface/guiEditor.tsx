@@ -123,7 +123,13 @@ function GuiEditPanel(props) {
                         } else if (Array.isArray(selection.defaults[key])) {
                             const childType = typeof selection.defaults[key][0];
                             if (childType === "boolean") {
-
+                                return React.createElement(compDict["listbuild"], {
+                                    defaultChecked: selection.defaults[key], onChange: (e) => {
+                                        //@ts-ignore
+                                        selection.defaults[key] = e.target.value
+                                        setSelection(selection);
+                                    }
+                                });
                             } else if (childType === "number") {
 
                             } else if (childType === "string") {

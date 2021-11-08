@@ -43,12 +43,12 @@ function TextBox(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     return (
         <>
             {multirow || false ?
-                <textarea id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, fontSize: size || "1em" }} defaultValue={value} /> :
-                <input type="text" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis, fontSize: size || "1em" }} defaultValue={value} />}
+                <textarea id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis(), fontSize: size || "1em" }} defaultValue={value} /> :
+                <input type="text" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: vis(), fontSize: size || "1em" }} defaultValue={value} />}
         </>
     );
 }

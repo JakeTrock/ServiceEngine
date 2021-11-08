@@ -35,8 +35,8 @@ interface button extends GenIFaceBlock {
     label: string;
   };
 }
-interface uplButton extends GenIFaceBlock {
-  readonly id: "uplButton";
+interface uplbutton extends GenIFaceBlock {
+  readonly id: "uplbutton";
   defaults: {
     visible?: boolean;
     disabled?: boolean;
@@ -199,8 +199,7 @@ interface kvpbuild extends GenIFaceBlock {
       | string[]
       | {
           [key: string]: {
-            keyRegex?: RegExp;
-            keyRegexMsg?: string;
+            inputMatch?: string;
           };
         };
     allowExtendedChoice?: boolean;
@@ -245,7 +244,7 @@ interface tabbedview extends GenIFaceBlock {
 export type IFaceBlock =
   | label
   | button
-  | uplButton
+  | uplbutton
   | checkbox
   | textbox
   | numbox

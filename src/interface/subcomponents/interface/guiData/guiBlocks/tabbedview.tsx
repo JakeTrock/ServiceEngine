@@ -7,7 +7,7 @@ function TabbedView(props) {
     const { visible, labels, width, height, childNodes } = props.objProps;
     const id = props.uuid;
     const [activeTab, setActiveTab] = React.useState<string>(labels[0]);
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     const hookset = React.useRef(null);
     //attach hooks to html
     React.useEffect(() => {
@@ -33,7 +33,7 @@ function TabbedView(props) {
             </ol>
 
 
-            <div id={id} ref={hookset} style={{ display: "flex", overflow: "scroll", visibility: vis, width, height }}>
+            <div id={id} ref={hookset} style={{ display: "flex", overflow: "scroll", visibility: vis(), width, height }}>
                 {childNodes && childNodes !== [] && childNodes.map((node, i) => labels.indexOf(activeTab) == i && (
                     <React.Fragment key={id + i}>
                         {node.map((el, j) => (React.createElement(compDict[el.id] || FailComponent,

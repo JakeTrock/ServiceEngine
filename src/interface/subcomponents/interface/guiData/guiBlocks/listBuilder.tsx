@@ -11,7 +11,7 @@ function ListBuilder(props) {
         minListLength,
     } = props.validate || {};
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     const [allComps, setAllComps] = React.useState<IFaceBlock[]>(childNodesCurrent);
     const [allVals, setAllVals] = React.useState<(string | number | boolean | object)[]>(childNodesCurrent.map(s => s.defaults.value));
     const hookset = React.useRef(null);
@@ -66,7 +66,7 @@ function ListBuilder(props) {
     return (
         <>
             <fieldset id={id} ref={hookset} disabled={disabled}>
-                <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis, fontSize: size || "1em" }}>
+                <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis(), fontSize: size || "1em" }}>
                     {allComps.map((item, i) => (
                         <React.Fragment key={id + i + item.id}>
                             {

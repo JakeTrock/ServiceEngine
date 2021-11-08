@@ -5,7 +5,7 @@ import FailComponent from "./failComponent";
 function Container(props) {
     const { visible, disabled, collapsible, width, height, childNodes, label } = props.objProps;
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     const hookset = React.useRef(null);
     const [active, setActive] = React.useState<Boolean>(false);
     //attach hooks to html
@@ -20,7 +20,7 @@ function Container(props) {
     }, []);
 
     return (
-        <fieldset id={id} ref={hookset} disabled={disabled} style={{ overflow: "scroll", visibility: vis, width, height: (active) ? height : "0em" }}>
+        <fieldset id={id} ref={hookset} disabled={disabled} style={{ overflow: "scroll", visibility: vis(), width, height: (active) ? height : "0em" }}>
             <legend>{collapsible && <h5 style={{ display: "inline" }} onClick={() => setActive(!active)}>{active ? "⯆" : "⯈"}</h5>}{label}</legend>
             {active && childNodes && childNodes !== [] && childNodes.map((item, i) => (
                 <React.Fragment key={id + i}>

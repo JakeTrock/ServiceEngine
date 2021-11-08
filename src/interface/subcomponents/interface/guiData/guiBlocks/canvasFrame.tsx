@@ -14,9 +14,9 @@ function CanvasFrame(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     return (
-        <canvas id={id} ref={hookset} style={{ visibility: vis, width, height, backgroundColor: "white" }} />
+        <canvas id={id} ref={hookset} style={{ visibility: vis(), width, height, backgroundColor: "white" }} />
     );
 }
 

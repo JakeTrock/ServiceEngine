@@ -14,9 +14,9 @@ function ProgressBar(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     return (
-        <progress id={id} ref={hookset} style={{ visibility: vis }} value={value} max={max}></progress>
+        <progress id={id} ref={hookset} style={{ visibility: vis() }} value={value} max={max}></progress>
     );
 }
 

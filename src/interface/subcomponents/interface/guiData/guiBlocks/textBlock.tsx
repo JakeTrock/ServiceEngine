@@ -14,9 +14,9 @@ function TextBlock(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     return (
-        <p id={id} ref={hookset} style={{ visibility: vis, fontSize: size || "1em" }}>{label}</p>
+        <p id={id} ref={hookset} style={{ visibility: vis(), fontSize: size || "1em" }}>{label}</p>
     );
 }
 

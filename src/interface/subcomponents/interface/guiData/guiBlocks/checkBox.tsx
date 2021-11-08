@@ -15,9 +15,9 @@ function CheckBox(props) {
         }
     }, [onOff]);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     return (
-        <input type="checkbox" id={id} defaultChecked={onOff} disabled={disabled} onClick={() => setOnOff(v => !v)} ref={hookset} style={{ visibility: vis }} />
+        <input type="checkbox" id={id} defaultChecked={onOff} disabled={disabled} onClick={() => setOnOff(v => !v)} ref={hookset} style={{ visibility: vis() }} />
     );
 }
 

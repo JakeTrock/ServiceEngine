@@ -14,8 +14,8 @@ const allutils: utility[] = [
         defaults: { visible: true, size: "1em", label: "Input files:" },
       },
       {
-        id: "uplButton",
-        uuid: "uplButton1",
+        id: "uplbutton",
+        uuid: "uplbutton1",
         defaults: {
           visible: true,
           multiple: true,
@@ -80,8 +80,8 @@ const allutils: utility[] = [
         defaults: { visible: true, size: "1em", label: "Input files:" },
       },
       {
-        id: "uplButton",
-        uuid: "uplButton1",
+        id: "uplbutton",
+        uuid: "uplbutton1",
         defaults: {
           visible: true,
           disabled: false,
@@ -154,8 +154,8 @@ const allutils: utility[] = [
         defaults: { visible: true, size: "1em", label: "Input files:" },
       },
       {
-        id: "uplButton",
-        uuid: "uplButton1",
+        id: "uplbutton",
+        uuid: "uplbutton1",
         defaults: {
           required: true,
           visible: true,
@@ -274,7 +274,7 @@ const allutils: utility[] = [
         hooks: { change: { name: "returnDat" } },
       },
       {
-        id: "uplButton",
+        id: "uplbutton",
         defaults: {
           visible: true,
           disabled: false,
@@ -517,8 +517,7 @@ const allutils: utility[] = [
           keyWhitelist: {
             name: {},
             eggs: {
-              keyRegex: /\d/,
-              keyRegexMsg: "must be numbers!",
+              inputMatch: "number",
             },
           },
           allowExtendedChoice: true,

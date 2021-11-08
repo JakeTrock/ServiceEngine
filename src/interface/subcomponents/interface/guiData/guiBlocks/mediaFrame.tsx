@@ -14,10 +14,10 @@ function MediaFrame(props) {
         }
     }, []);
     const id = props.uuid;
-    const vis = (visible === false) ? "hidden" : "visible";
+    const vis = () => (visible === false) ? "hidden" : "visible";
     return (
-        (hasVideo === "true") ? <video id={id} ref={hookset} style={{ visibility: vis, width, height }} controls={hasControls} /> :
-            <audio id={id} ref={hookset} style={{ visibility: vis, width, height }} controls={hasControls} />
+        (hasVideo === "true") ? <video id={id} ref={hookset} style={{ visibility: vis(), width, height }} controls={hasControls} /> :
+            <audio id={id} ref={hookset} style={{ visibility: vis(), width, height }} controls={hasControls} />
     );
 }
 

@@ -21,7 +21,7 @@ import CheckBox from "./guiBlocks/checkBox";
 export const compDict: { [key: string]: (props: any) => JSX.Element } = {
   label: TextBlock,
   button: ButtonBlock,
-  uplButton: UploadButtonBlock,
+  uplbutton: UploadButtonBlock,
   checkbox: CheckBox,
   textbox: TextBox,
   numbox: NumBox,
@@ -54,7 +54,7 @@ export const compDefaults: IFaceBlock[] = [
     },
   },
   {
-    id: "uplButton",
+    id: "uplbutton",
     defaults: {
       visible: true,
       disabled: false,
