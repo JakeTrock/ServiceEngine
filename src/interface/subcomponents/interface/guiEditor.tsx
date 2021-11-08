@@ -24,7 +24,6 @@ function GuiEditPanel(props) {
         setifOrder(ifo);
         parentCallback(ifo);
     };
-    console.log(ifOrder)
     return (
         <div className="parentDiv">
             <div className="split left">

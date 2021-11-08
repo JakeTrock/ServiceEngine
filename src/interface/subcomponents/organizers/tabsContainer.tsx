@@ -13,13 +13,13 @@ const TabsContainer = (props) => {
         <div className="tabs">
             <ol className="tab-list">
                 {children.map((child) => {
-                    const { label } = child.props;
+                    const { label, onClick } = child.props;
                     return (
                         <Tab
                             activeTab={activeTab}
                             key={label}
                             label={label}
-                            onClick={onClickTabItem}
+                            onClick={onClick ? onClick: onClickTabItem}
                         />
                     );
                 })}
