@@ -34,9 +34,9 @@ const Switchboard = () => {
         <Route path="/runner/:uuid">
           <Runner />
         </Route>
-        { <Route path="/editor/:uuid">
+        <Route path="/editor/:uuid">
           <Editor />
-        </Route> }
+        </Route>
 
         <Route path="/">
           <Welcome />

@@ -5,7 +5,7 @@ const Welcome = () => {
     return (
         <div style={{ textAlign: "center" }}>
             <h1>Welcome to Sengine!</h1>
-            <a href="/all">
+            <a id ="sma" href="/all">
                 <h2>Start Converting!</h2>
             </a><br />
             <img src={selogo} alt="Logo" />

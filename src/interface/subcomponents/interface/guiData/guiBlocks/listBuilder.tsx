@@ -1,19 +1,18 @@
 import React from "react";
 import { toast } from "react-toastify";
-import { IFaceBlock } from "../../../../data/interfaces";
 import { compDict } from "../compDict";
 import FailComponent from "./failComponent";
 
 function ListBuilder(props) {
-    const { visible, size, width, childNodesCurrent, childNodesPossible, disabled } = props.objProps;
+    const { visible, size, width, value, childNodesCurrent, childNodesPossible, disabled } = props.objProps;
     const {
         maxListLength,
         minListLength,
     } = props.validate || {};
     const id = props.uuid;
     const vis = () => (visible === false) ? "hidden" : "visible";
-    const [allComps, setAllComps] = React.useState<IFaceBlock[]>(childNodesCurrent);
-    const [allVals, setAllVals] = React.useState<(string | number | boolean | object)[]>(childNodesCurrent.map(s => s.defaults.value));
+    const [allComps, setAllComps] = React.useState<string[]>(childNodesCurrent);
+    const [allVals, setAllVals] = React.useState<(string | number | boolean | object)[]>(value);
     const hookset = React.useRef(null);
     React.useEffect(() => {
         const ohooks = props.objHooks;
@@ -38,7 +37,7 @@ function ListBuilder(props) {
                 <option key={i} value={lbl}>{lbl}</option>
             ))}
         </select>
-        <button type="button" onClick={(e) => {
+        <button className="smbutton" type="button" onClick={(e) => {
             //@ts-ignore
             const newVal = e.currentTarget.parentNode.childNodes.item(0).value;
             if (newVal !== "") {
@@ -54,7 +53,7 @@ function ListBuilder(props) {
         }}>+</button>
     </div>);
 
-    const minusButton = (i) => (<button type="button" onClick={() => {
+    const minusButton = (i) => (<button className="smbutton" type="button" onClick={() => {
         if (minListLength && allVals.length - 1 < minListLength) {
             return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
         } else {
@@ -68,12 +67,12 @@ function ListBuilder(props) {
             <fieldset id={id} ref={hookset} disabled={disabled}>
                 <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis(), fontSize: size || "1em" }}>
                     {allComps.map((item, i) => (
-                        <React.Fragment key={id + i + item.id}>
+                        <React.Fragment key={id + i + childNodesPossible[item].id}>
                             {
-                                React.createElement(compDict[item.id] || FailComponent,
+                                React.createElement(compDict[childNodesPossible[item].id] || FailComponent,
                                     {
-                                        key: id + i + item.uuid, uuid: item.uuid, objProps: item.defaults, objHooks: {
-                                            ...item.hooks, "change": (e) =>
+                                        key: id + i + childNodesPossible[item].uuid, uuid: childNodesPossible[item].uuid, objProps: childNodesPossible[item].defaults, objHooks: {
+                                            ...childNodesPossible[item].hooks, "change": (e) =>
                                                 setAllVals(vals => {
                                                     const list = vals.map((item, j) => {
                                                         if (j === i) {
@@ -84,7 +83,7 @@ function ListBuilder(props) {
                                                     });
                                                     return list
                                                 })
-                                        }, validate: item.validate
+                                        }, validate: childNodesPossible[item].validate
                                     })
                             }
 

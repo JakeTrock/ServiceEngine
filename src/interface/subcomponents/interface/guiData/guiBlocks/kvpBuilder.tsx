@@ -1,11 +1,10 @@
 import React from "react";
 import { toast } from "react-toastify";
-import { IFaceBlock } from "../../../../data/interfaces";
 import { compDict } from "../compDict";
 import FailComponent from "./failComponent";
 
 function KvpBuilder(props) {
-    const { visible, size, width, labelsCurrent, childNodesCurrent, childNodesPossible, disabled } = props.objProps;
+    const { visible, size, width, value, childNodesCurrent, childNodesPossible, disabled } = props.objProps;
     const {
         maxListLength,
         minListLength,
@@ -14,23 +13,8 @@ function KvpBuilder(props) {
     } = props.validate || {};
     const id = props.uuid;
     const vis = () => (visible === false) ? "hidden" : "visible";
-    const getAllKeys = () => {
-        if (Array.isArray(keyWhitelist))
-            return keyWhitelist
-        else
-            return Object.getOwnPropertyNames(keyWhitelist)
-    };
-    const initJSON = (() => {
-        let finalJson = {};
-        if (labelsCurrent.length !== childNodesCurrent.length) {
-            toast("Must have same number of labels and inputs!")
-            return {};
-        }
-        childNodesCurrent.forEach((s, i) => finalJson[labelsCurrent[i]] = s.defaults.value)
-        return finalJson;
-    })();
-    const [allComps, setAllComps] = React.useState<IFaceBlock[]>(childNodesCurrent);
-    const [allVals, setAllVals] = React.useState<{ [key: string]: string | number | boolean | object }>(initJSON);
+    const [allComps, setAllComps] = React.useState<string[]>(childNodesCurrent || []);
+    const [allVals, setAllVals] = React.useState<{ [key: string]: string | number | boolean | object }>(value || {});
     const [selectableNodes, setSelectableNodes] = React.useState<string[]>(Object.getOwnPropertyNames(childNodesPossible));
     const hookset = React.useRef(null);
     const keybox = React.useRef(null);
@@ -54,7 +38,8 @@ function KvpBuilder(props) {
 
     const addercond = () => {
         const mll = !maxListLength || Object.getOwnPropertyNames(allVals).length < maxListLength;
-        const dupe = !keyWhitelist || (keyWhitelist && allowExtendedChoice) || (keyWhitelist && !allowExtendedChoice && Object.getOwnPropertyNames(allVals).length < getAllKeys().length);
+        const dupe = !keyWhitelist || (keyWhitelist && allowExtendedChoice) ||
+            (keyWhitelist && !allowExtendedChoice && Object.getOwnPropertyNames(allVals).length < Object.getOwnPropertyNames(keyWhitelist).length);
         return mll && dupe;
     }
 
@@ -75,11 +60,11 @@ function KvpBuilder(props) {
                         return toast("Please choose an accompanying pairing type!");
                     } else {
                         setAllVals(av => {
-                            if (childNodesPossible[newVal].defaults) {//TODO:everything should return a value, this will eventually be depricated
-                                let nav = av;//insert new default value into list
+                            let nav = av;//insert new default value into list
+                            if (childNodesPossible[newVal].defaults)
                                 nav[keyVal] = childNodesPossible[newVal].defaults.value;
-                                return nav;
-                            }
+                            else nav[keyVal] = undefined;
+                            return nav;
                         });
                         setAllComps([...allComps, childNodesPossible[newVal]])
                         setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
@@ -92,14 +77,16 @@ function KvpBuilder(props) {
 
     const optlist = (() => {
         const allvals = Object.getOwnPropertyNames(allVals);
-        const allkeys = getAllKeys();
-        return allkeys.filter(n => allvals.indexOf(n) < 0);
+        if (keyWhitelist) {
+            const allkeys = Object.getOwnPropertyNames(keyWhitelist);
+            return allkeys.filter(n => allvals.indexOf(n) < 0);
+        } else return allvals;
     })().map((lbl, i) => (
         <option key={i} value={lbl}>{lbl}</option>
     ));
 
 
-    const minusButton = (i) => (<button type="button" onClick={() => {
+    const minusButton = (i) => (<button className="smbutton" type="button" onClick={() => {
         if (minListLength && Object.getOwnPropertyNames(allVals).length - 1 < minListLength) {
             return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
         } else {
@@ -116,8 +103,8 @@ function KvpBuilder(props) {
         <>
             <fieldset id={id} ref={hookset} disabled={disabled}>
                 <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis(), fontSize: size || "1em" }}>
-                    {allComps.map((item, i) => (
-                        <React.Fragment key={id + i + item.id}>
+                    {allComps.map((item, i) => childNodesPossible[item] && (
+                        <React.Fragment key={id + i + childNodesPossible[item].id}>
                             <input type="text" defaultValue={Object.getOwnPropertyNames(allVals)[i]} onChange={(e) =>
                                 setAllVals(vals => {
                                     if (keyWhitelist && keyWhitelist[e.target.value]) {
@@ -136,10 +123,10 @@ function KvpBuilder(props) {
                                     return finalJson
                                 })} /> :
                             {
-                                React.createElement(compDict[item.id] || FailComponent,
+                                React.createElement(compDict[childNodesPossible[item].id] || FailComponent,
                                     {
-                                        key: id + i + item.uuid, uuid: item.uuid, objProps: item.defaults, objHooks: {
-                                            ...item.hooks, "change": (e) =>
+                                        key: id + i + childNodesPossible[item].uuid, uuid: childNodesPossible[item].uuid, objProps: childNodesPossible[item].defaults, objHooks: {
+                                            ...childNodesPossible[item].hooks, "change": (e) =>
                                                 setAllVals(vals => {
                                                     if (keyWhitelist && keyWhitelist[e.value] && keyWhitelist[e.value].keyRegex && !e.value.match(keyWhitelist[e.value].keyRegex)) {
                                                         toast(keyWhitelist[e.value].keyRegexMsg)
@@ -151,7 +138,7 @@ function KvpBuilder(props) {
                                                         return vals;
                                                     } else return vals;
                                                 })
-                                        }, validate: item.validate
+                                        }, validate: childNodesPossible[item].validate
                                     })
                             }
 
@@ -182,7 +169,7 @@ function KvpBuilder(props) {
                                 <option key={i} value={lbl}>{lbl}</option>
                             ))}
                         </select>
-                        <button type="button" onClick={(e) => kvpAdd()}>+</button>
+                        <button className="smbutton" type="button" onClick={() => kvpAdd()}>+</button>
                     </div>)}
                 </div>
             </fieldset>

@@ -6,7 +6,7 @@ const NotFoundPage = () => {
     <>
       <title>Not found</title>
       <h1>Page not found</h1>
-      <a href="/">Go home</a>
+      <a id ="sma" href="/">Go home</a>
     </>
   );
 };

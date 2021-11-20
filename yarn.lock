@@ -4555,13 +4555,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.6":
-  version: 2.3.1
-  resolution: "classnames@npm:2.3.1"
-  checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
-  languageName: node
-  linkType: hard
-
 "clean-css@npm:^4.2.3":
   version: 4.2.3
   resolution: "clean-css@npm:4.2.3"
@@ -13050,21 +13043,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-sortablejs@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "react-sortablejs@npm:6.0.0"
-  dependencies:
-    classnames: ^2.2.6
-    tiny-invariant: ^1.1.0
-  peerDependencies:
-    "@types/sortablejs": ^1.10.0
-    react: ^16.9.0
-    react-dom: ^16.9.0
-    sortablejs: ^1.10.0
-  checksum: 28c496b2e1618996ecf11e5cc3d5560e2f398b53e5a5f86f4e34f02dcca77f1c4cf52c1a2aca41ccd7b4392e82558481929759a11844bcd44727a58ba7b3bd49
-  languageName: node
-  linkType: hard
-
 "react-toastify@npm:^7.0.4":
   version: 7.0.4
   resolution: "react-toastify@npm:7.0.4"
@@ -13992,9 +13970,7 @@ resolve@^2.0.0-next.3:
     react-helmet: ^6.1.0
     react-router-dom: ^5.2.0
     react-scripts: ^4.0.3
-    react-sortablejs: ^6.0.0
     react-toastify: ^7.0.4
-    sortablejs: ^1.14.0
     typescript: ^4.4.4
     uuid: ^8.3.2
     wasm-imagemagick: ^1.2.8
@@ -14298,13 +14274,6 @@ resolve@^2.0.0-next.3:
   dependencies:
     is-plain-obj: ^1.0.0
   checksum: 5963fd191a2a185a5ec86f06e47721e8e04713eda43bb04ae60d2a8afb21241553dd5bc9d863ed2bd7c3d541b609b0c8d0e58836b1a3eb6764c09c094bcc8b00
-  languageName: node
-  linkType: hard
-
-"sortablejs@npm:^1.14.0":
-  version: 1.14.0
-  resolution: "sortablejs@npm:1.14.0"
-  checksum: 7b9d2cbb0331f3f259b8703a17174ff46a941b6d59c77c75ca05a5bd484bf2b409a9c1d21344f9c933939880450803b254825c7c7d7f88034e8c7e675420b389
   languageName: node
   linkType: hard
 
@@ -15158,13 +15127,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tiny-invariant@npm:^1.1.0":
-  version: 1.2.0
-  resolution: "tiny-invariant@npm:1.2.0"
-  checksum: e09a718a7c4a499ba592cdac61f015d87427a0867ca07f50c11fd9b623f90cdba18937b515d4a5e4f43dac92370498d7bdaee0d0e7a377a61095e02c4a92eade
-  languageName: node
-  linkType: hard
-
 "tiny-warning@npm:^1.0.0, tiny-warning@npm:^1.0.3":
   version: 1.0.3
   resolution: "tiny-warning@npm:1.0.3"
@@ -15496,11 +15458,11 @@ typescript@^4.4.4:
 
 "typescript@patch:typescript@^4.4.4#~builtin<compat/typescript>":
   version: 4.4.4
-  resolution: "typescript@patch:typescript@npm%3A4.4.4#~builtin<compat/typescript>::version=4.4.4&hash=32657b"
+  resolution: "typescript@patch:typescript@npm%3A4.4.4#~builtin<compat/typescript>::version=4.4.4&hash=d8b4e7"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: c97c33903f1eb4f9e178649befdfc859d93157db1eccd1e521e84976ec6861db53412d8018e5e4c5d09268771c65498d42caa64bd881878346c3644f6b7cd202
+  checksum: 4a639b6886be13616582ab82abdb4ffbbf5b0458069d13c10cd5d44fc1cafa33eab005e8ac8691ad8fae249fee85844bb7d523263c4568fe9a2ca31cd3c91c3d
   languageName: node
   linkType: hard
 

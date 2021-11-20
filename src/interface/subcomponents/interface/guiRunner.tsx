@@ -64,7 +64,7 @@ const GuiRunner = (props) => {
             </Helmet>
             <div id="serviceContainer">
                 {(currentComponent.scheme && exports) ? <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} /> :
-                    <button onClick={() => saveHooks()}>▶️ load and start program</button>}
+                    <button className="smbutton" onClick={() => saveHooks()}>▶️ load and start program</button>}
             </div>
         </div>
     );

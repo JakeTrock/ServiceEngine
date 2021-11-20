@@ -1,19 +1,3 @@
-// import * as React from "react";
-// import './data/styles.css';
-
-// const NotFoundPage = () => {
-//   return (
-//     <>
-//       <title>Not found</title>
-//       <h1>Page not found</h1>
-//       <a href="/">Go home</a>
-//     </>
-//   );
-// };
-
-// export default NotFoundPage;
-
-
 import React from "react";
 import './data/styles.css';
 import { toast } from 'react-toastify';
@@ -28,7 +12,6 @@ import Blockly from "blockly";
 import { genToolbox } from "./subcomponents/interface/guiData/interfaceScriptToolbox";
 import fileUtils from "./subcomponents/interface/programs/codeBlocks/fileUtils"
 import GuiEditPanel from "./subcomponents/interface/guiEditor";
-import GuiRender from "./subcomponents/interface/guiRender";
 import eventTypes from "./subcomponents/interface/guiData/eventTypes";
 
 const blocklywsconfig = {
@@ -168,7 +151,7 @@ const Editor = (props) => {
 
 
   return (
-    <>
+    <div style={{ width: "50%" }}>
       <TabsContainer>
         <Tab label="Settings and Libraries">
           {/* TODO:implement */}
@@ -200,7 +183,7 @@ const Editor = (props) => {
 
         </Tab>
       </TabsContainer>
-    </>
+    </div>
   );
 };
 

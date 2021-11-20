@@ -16,8 +16,6 @@ export interface GenIFaceBlock {
   validate?: { [key: string]: any }; //{ [key: string]: string | boolean | string[] | number };
 }
 
-//TODO: some of these properties can be optional, but need fallbacks in their comps
-
 interface label extends GenIFaceBlock {
   readonly id: "label";
   defaults: {
@@ -26,6 +24,7 @@ interface label extends GenIFaceBlock {
     label: string;
   };
 }
+
 interface button extends GenIFaceBlock {
   readonly id: "button";
   defaults: {
@@ -172,10 +171,12 @@ interface listbuild extends GenIFaceBlock {
     disabled?: boolean;
     size?: string;
     width?: string;
-    childNodesCurrent: GenIFaceBlock[];
+    value: (string | number | boolean | object)[];
+    childNodesCurrent: string[];
     childNodesPossible: { [key: string]: GenIFaceBlock };
   };
   validate?: {
+    //TODO:should validate be merged?
     maxListLength?: number;
     minListLength?: number;
   };
@@ -188,20 +189,20 @@ interface kvpbuild extends GenIFaceBlock {
     disabled?: boolean;
     size?: string;
     width?: string;
-    labelsCurrent: string[];
-    childNodesCurrent: GenIFaceBlock[];
+    value?: {
+      [key: string]: string | number | boolean | object;
+    };
+    childNodesCurrent?: string[];
     childNodesPossible: { [key: string]: GenIFaceBlock };
   };
   validate?: {
     maxListLength?: number;
     minListLength?: number;
-    keyWhitelist?:
-      | string[]
-      | {
-          [key: string]: {
-            inputMatch?: string;
-          };
-        };
+    keyWhitelist?: {
+      [key: string]: {
+        inputMatch?: string;
+      };
+    };
     allowExtendedChoice?: boolean;
   };
 }

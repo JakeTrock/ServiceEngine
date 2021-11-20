@@ -17,7 +17,7 @@ function ButtonBlock(props) {
     const id = props.uuid;
     const vis = () => (visible === false) ? "hidden" : "visible";
     return (
-        <button id={id} ref={hookset} disabled={disabled} style={{ visibility: vis(), fontSize: size || "1em" }}>{label}</button>
+        <button className="smbutton" id={id} ref={hookset} disabled={disabled} style={{ visibility: vis(), fontSize: size || "1em" }}>{label}</button>
     );
 }
 

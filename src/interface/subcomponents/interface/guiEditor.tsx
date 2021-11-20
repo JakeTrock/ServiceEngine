@@ -1,154 +1,111 @@
 import React from "react";
-import '../../data/splitpanel.css';
-import { ReactSortable } from "react-sortablejs";
 import { v4 as uuidv4 } from 'uuid';
 import { IFaceBlock } from "../../data/interfaces";
 import { compDict, compDefaults } from "./guiData/compDict";
+import '../../data/ctxmenu.css';
+import { toast } from "react-toastify";
+
+const categories = {
+    "label": "feedback",
+    "button": "input",
+    "uplbutton": "input",
+    "checkbox": "input",
+    "textbox": "input",
+    "numbox": "input",
+    "datebox": "input",
+    "onechoice": "input",
+    "slider": "input",
+    "mediabox": "feedback",
+    "canvasbox": "feedback",
+    "progbar": "input",
+    "listbuild": "multiinput",
+    "kvpbuild": "multiinput",
+    "container": "holders",
+    "horizontalalign": "holders",
+    "tabbedview": "holders"
+};
+
+const insOptions = (() => {
+    let op = {
+        feedback: {},
+        input: {},
+        multiinput: {},
+        holders: {}
+    };
+    compDefaults.forEach((cv) => {
+        return op[categories[cv.id]][cv.id] = JSON.stringify(cv, null, 2) + ",\n"
+    });
+    return op;
+})();
 
 function GuiEditPanel(props) {
-    const [ifOrder, setifOrder] = React.useState<IFaceBlock[]>([]);
-    const [selection, setSelection] = React.useState<IFaceBlock>();
-
-    React.useEffect(() => {
-        let iv = props.initValues;
-        if (iv && iv.length > 0) {
-            setifOrder(iv);
-            setSelection(ifOrder[0]);
-        }
-    }, []);
+    const [ifOrder, setifOrder] = React.useState<IFaceBlock[]>((props.initValues && props.initValues.length > 0) ? props.initValues : []);
+    const mcedit = React.useRef(null);
+    const rtclick = React.useRef(null);
 
     const parentCallback = (e) => props.parentCallback(e);
 
-    const setIf = (ifo) => {
-        ifo = ifo.filter(i => i !== undefined);
-        setifOrder(ifo);
-        parentCallback(ifo);
+
+    React.useEffect(() => {
+        mcedit.current!.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+            rtclick.current!.style.display = "block";
+            rtclick.current!.style.left = (event.pageX - 10) + "px";
+            rtclick.current!.style.top = (event.pageY - 10) + "px";
+        }, false);
+        mcedit.current!.addEventListener("click", function (event) {
+            rtclick.current!.style.display = "";
+            rtclick.current!.style.left = "";
+            rtclick.current!.style.top = "";
+        }, false);
+    }, [mcedit.current, rtclick.current]);
+
+    const updTxt = () => {
+        try {
+            const inst = mcedit.current!.value.replace("\n", "");
+            if (inst.match(/,(?=\s*[\)\}\]])/)) return toast("you must remove all trailing commas!");
+            let ifo = JSON.parse(inst);
+            ifo = ifo.filter(i => i !== undefined);//TODO:validate more
+            setifOrder(ifo);
+            parentCallback(ifo);
+        } catch (err) {
+            console.log(err)
+            toast(err);
+        }
     };
+
+    const insText = (txt) => {
+        if (mcedit.current!.selectionStart || mcedit.current!.selectionStart == '0') {
+            var startPos = mcedit.current!.selectionStart;
+            var endPos = mcedit.current!.selectionEnd;
+            mcedit.current!.value = mcedit.current!.value.substring(0, startPos)
+                + txt
+                + mcedit.current!.value.substring(endPos, mcedit.current!.value.length);
+        } else {
+            mcedit.current!.value += txt;
+        }
+    };
+
+    const exitclk = function (e) {
+        rtclick.current!.style.display = 'none';
+    }
+
     return (
-        <div className="parentDiv">
-            <div className="split left">
-                <ReactSortable
-                    animation={200}
-                    group={{
-                        name: "shared",
-                        pull: true,
-                        put: false,
-                        revertClone: true
-                    }}
-                    list={compDefaults}
-                    setList={() => { }}
-                >
-                    {compDefaults.map((item, i) => (
-                        <>
-                            <div key={`${i}-${item.id}`} id={`${i}-${item.id}`} style={{ width: "100%", backgroundColor: "white", border: "1px solid black" }}>
-                                {React.createElement(compDict[item.id], { key: i, id: item.id, objProps: item.defaults })}
-                            </div><br />
-                        </>
-                    )
-                    )}
-                </ReactSortable>
-            </div>
-
-            <div className="split center">
-                <ReactSortable
-                    id="holder"
-                    style={{ width: "100%", height: "100%", backgroundColor: "rgb(168, 168, 168)" }}
-                    group={{
-                        name: "shared",
-                        pull: false,
-                        put: true
-                    }}
-                    list={ifOrder}
-                    setList={() => { }}
-                    removeOnSpill={true}
-                    onAdd={(e) => {
-                        //workaround deep copy
-                        //@ts-ignore
-                        const idv = e.item.id.split("-")[1];
-                        if (idv) {
-                            const target = JSON.parse(JSON.stringify(compDefaults.filter((i) => i.id === idv)[0]));
-                            target.uuid = `${idv}-${uuidv4()}`;
-                            if (target.hasOwnProperty("disabled")) {
-                                target.disabled = false;
-                            }
-                            ifOrder.splice(e.newIndex, 0, target);
-                            setIf(ifOrder);
-                            setSelection(target);
-                        }
-                    }}
-                    onUpdate={(e) => {
-                        let ifodupe = ifOrder;
-                        ifodupe.splice(e.newIndex, 0, ifodupe.splice(e.oldIndex, 1)[0]);
-                        setIf(ifodupe);
-                    }}
-                >
-                    {ifOrder.map((item, i) => (
-                        <div style={selection === item ? { width: "100%", border: "1px solid lightgreen" } : { width: "100%" }} onClick={() => setSelection(item)}>
-                            {React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults })}
-                            <br />
-                        </div>
-                    ))}
-                </ReactSortable>
-            </div>
-
-            <div className="split right">
-                {selection !== undefined && selection.defaults && Object.keys(selection.defaults).map((key, i) => (
-                    <div key={i} style={{ paddingLeft: "1em" }}><p>{key}</p>{() => {
-                        const type = typeof selection.defaults[key];
-                        // {React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults })}
-                        if (type === "boolean") {
-                            return React.createElement("input", {
-                                type: "checkbox", defaultChecked: selection.defaults[key], onChange: (e) => {
-                                    //@ts-ignore
-                                    selection.defaults[key] = e.target.value
-                                    setSelection(selection);
-                                }
-                            });
-                        } else if (type === "number") {
-                            return React.createElement("input", {
-                                type: "number", defaultChecked: selection.defaults[key], onChange: (e) => {
-                                    //@ts-ignore
-                                    selection.defaults[key] = e.target.value
-                                    setSelection(selection);
-                                }
-                            });
-                        } else if (type === "string") {
-                            return React.createElement("input", {
-                                type: "text", defaultChecked: selection.defaults[key], onChange: (e) => {
-                                    //@ts-ignore
-                                    selection.defaults[key] = e.target.value
-                                    setSelection(selection);
-                                }
-                            });
-                        } else if (Array.isArray(selection.defaults[key])) {
-                            const childType = typeof selection.defaults[key][0];
-                            if (childType === "boolean") {
-                                return React.createElement(compDict["listbuild"], {
-                                    defaultChecked: selection.defaults[key], onChange: (e) => {
-                                        //@ts-ignore
-                                        selection.defaults[key] = e.target.value
-                                        setSelection(selection);
-                                    }
-                                });
-                            } else if (childType === "number") {
-
-                            } else if (childType === "string") {
-                                // React.createElement(compDict[item.id], { key: i, uuid: item.uuid, objProps: item.defaults })
-                            } else if (childType === "object") {
-
-                            }
-                            // selection.defaults[key] = e.target.value.split(',')
-                        }
-                        setIf(ifOrder.map((i) => {
-                            if (i.uuid === selection.uuid) {
-                                return selection;
-                            }
-                            return i;
-                        }));
-                    }}</div>
+        <div onClick={exitclk} style={{ height: "100%" }}>
+            <p>hint: right click to insert templates</p><br />
+            <button className="smbutton" onClick={updTxt}>save</button><br />
+            <textarea defaultValue={JSON.stringify(ifOrder, null, 2) || "[\n\n]"} style={{ height: "60vh", width: "40vh", fontFamily: "tahoma" }} ref={mcedit}></textarea>
+            <menu id="ctxMenu" ref={rtclick}>
+                {Object.getOwnPropertyNames(insOptions).map((o, y) => (
+                    <menu key={o + y} title={o}>
+                        {Object.getOwnPropertyNames(insOptions[o]).map((e, i) => (
+                            <menu key={o + e + i} style={{ color: "blue" }} onClick={() => insText(insOptions[o][e])} title={e}></menu>
+                        ))}
+                    </menu>
                 ))}
-            </div>
-        </div >
+            </menu>
+
+        </div>
     );
 }
 

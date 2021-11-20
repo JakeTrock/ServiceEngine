@@ -355,41 +355,8 @@ const allutils: utility[] = [
           disabled: false,
           size: "1em",
           width: "20em",
-          childNodesCurrent: [
-            {
-              id: "textbox",
-              defaults: {
-                visible: true,
-                disabled: false,
-                size: "1em",
-                value: "default value",
-                multirow: false,
-                required: false,
-              },
-              validate: {
-                validateRegex: /\d/,
-                validateMessage: "must not contain any numbers!",
-                minChars: 0,
-                maxChars: 144,
-                useBlacklist: true,
-                useWhitelist: false,
-                wordList: ["badword", "worseword", "terribleword"],
-              },
-            },
-            {
-              id: "numbox",
-              defaults: {
-                visible: true,
-                disabled: false,
-                size: "1em",
-                value: 3,
-                step: 1,
-                min: 0,
-                max: 10,
-                required: false,
-              },
-            },
-          ],
+          value: ["henrietta", 7],
+          childNodesCurrent: ["textbox", "numbox"],
           childNodesPossible: {
             text: {
               id: "textbox",
@@ -439,42 +406,11 @@ const allutils: utility[] = [
           disabled: false,
           size: "1em",
           width: "20em",
-          labelsCurrent: ["name", "eggs"],
-          childNodesCurrent: [
-            {
-              id: "textbox",
-              defaults: {
-                visible: true,
-                disabled: false,
-                size: "1em",
-                value: "default value",
-                multirow: false,
-                required: false,
-              },
-              validate: {
-                validateRegex: /\d/,
-                validateMessage: "must not contain any numbers!",
-                minChars: 0,
-                maxChars: 144,
-                useBlacklist: true,
-                useWhitelist: false,
-                wordList: ["badword", "worseword", "terribleword"],
-              },
-            },
-            {
-              id: "numbox",
-              defaults: {
-                visible: true,
-                disabled: false,
-                size: "1em",
-                value: 3,
-                step: 1,
-                min: 0,
-                max: 10,
-                required: false,
-              },
-            },
-          ],
+          value: {
+            name: "Henrietta",
+            eggs: 50,
+          },
+          childNodesCurrent: ["text", "number"],
           childNodesPossible: {
             text: {
               id: "textbox",
