@@ -1,5 +1,4 @@
 import React from "react";
-import { v4 as uuidv4 } from 'uuid';
 import { IFaceBlock } from "../../data/interfaces";
 import { compDict, compDefaults } from "./guiData/compDict";
 import '../../data/ctxmenu.css';

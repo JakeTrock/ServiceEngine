@@ -30,7 +30,7 @@ export default function GuiRender(props) {
     const setCurrentInterface = props.setScheme;
     //function which attaches the event function from the imported function based on the name string provided
     const makeEvent = (evv) => {
-        const evfunction = (e) => props.exports[evv.name](e, formAccess, evv.additional || {}, toast);
+        const evfunction = (e) => props.exports![evv.name](e, formAccess, evv.additional || {}, toast);
         return evfunction;
     };
 

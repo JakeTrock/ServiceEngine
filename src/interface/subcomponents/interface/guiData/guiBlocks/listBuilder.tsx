@@ -24,7 +24,7 @@ function ListBuilder(props) {
                         (minListLength && allVals.length < minListLength))
                     if (lengthViolation) {
                         return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
-                    } else return (value as Function)({ values: allVals });
+                    } else return (value as Function)({ value: allVals });
                 });
             })
         }
@@ -45,9 +45,9 @@ function ListBuilder(props) {
                     return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
                 } else {
                     setAllVals([...allVals, childNodesPossible[newVal].defaults.value]);
-                    setAllComps([...allComps, childNodesPossible[newVal]])
+                    setAllComps([...allComps, newVal]);
                     //@ts-ignore
-                    e.currentTarget.parentNode.childNodes.item(0).value = "";
+                    // e.currentTarget.parentNode.childNodes.item(0).value = "";
                 }
             }
         }}>+</button>

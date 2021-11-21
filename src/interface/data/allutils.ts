@@ -358,7 +358,7 @@ const allutils: utility[] = [
           value: ["henrietta", 7],
           childNodesCurrent: ["textbox", "numbox"],
           childNodesPossible: {
-            text: {
+            textbox: {
               id: "textbox",
               defaults: {
                 visible: true,
@@ -378,7 +378,7 @@ const allutils: utility[] = [
                 wordList: ["badword", "worseword", "terribleword"],
               },
             },
-            number: {
+            numbox: {
               id: "numbox",
               defaults: {
                 visible: true,

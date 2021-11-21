@@ -8,6 +8,11 @@
     overflow: scroll;
   }
   
+  .leftHnH {
+    left: 0;
+    width: 50%;
+  }
+
   .left {
     left: 0;
     width: 20%;
@@ -22,6 +27,11 @@
   .right {
     right: 0;
     width: 20%;
+  }
+
+  .rightHnH {
+    right: 0;
+    width: 50%;
   }
   
   .target {
