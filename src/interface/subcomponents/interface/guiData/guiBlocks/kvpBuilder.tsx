@@ -48,7 +48,6 @@ function KvpBuilder(props) {
             const keyVal = keybox.current.value;
             const newVal = valbox.current.value;
             if (keyVal !== "" && newVal !== "") {
-                console.log(keyVal, newVal)
                 if (maxListLength && Object.getOwnPropertyNames(allVals).length + 1 > maxListLength) {
                     return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
                 }
@@ -60,13 +59,13 @@ function KvpBuilder(props) {
                         return toast("Please choose an accompanying pairing type!");
                     } else {
                         setAllVals(av => {
-                            let nav = av;//insert new default value into list
+                            let nav = JSON.parse(JSON.stringify(av));//insert new default value into list
                             if (childNodesPossible[newVal].defaults)
                                 nav[keyVal] = childNodesPossible[newVal].defaults.value;
                             else nav[keyVal] = undefined;
                             return nav;
                         });
-                        setAllComps([...allComps, childNodesPossible[newVal]])
+                        setAllComps([...allComps, newVal])
                         setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
                         keybox.current.value = "";
                     }
@@ -90,15 +89,19 @@ function KvpBuilder(props) {
         if (minListLength && Object.getOwnPropertyNames(allVals).length - 1 < minListLength) {
             return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
         } else {
-            setAllVals((vals) => {
+            setAllVals((av) => {
+                const vals = JSON.parse(JSON.stringify(av));
                 const pnames = Object.getOwnPropertyNames(vals);
                 delete vals[pnames[i]];
                 return vals;
             })
-            setAllComps(JSON.parse(JSON.stringify(allComps.slice(0, i).concat(allComps.slice(i + 1, allComps.length)))))
+            setAllComps((ac)=>{
+                const comps = [...ac]
+                comps.splice(i, 1);
+                return comps;
+            })
         }
     }}>-</button>);
-
     return (
         <>
             <fieldset id={id} ref={hookset} disabled={disabled}>
