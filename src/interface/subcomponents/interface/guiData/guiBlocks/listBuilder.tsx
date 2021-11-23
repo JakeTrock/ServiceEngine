@@ -1,5 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
+import helpers from "../../../../data/helpers";
 import { compDict } from "../compDict";
 import FailComponent from "./failComponent";
 
@@ -10,22 +11,82 @@ function ListBuilder(props) {
         minListLength,
     } = props.validate || {};
     const id = props.uuid;
-    const vis = () => (visible === false) ? "hidden" : "visible";
+
     const [allComps, setAllComps] = React.useState<string[]>(childNodesCurrent);
     const [allVals, setAllVals] = React.useState<(string | number | boolean | object)[]>(value);
     const hookset = React.useRef(null);
+
+    React.useEffect(() => {
+        const ohooks = props.objHooks;
+        if (ohooks && Object.getOwnPropertyNames(ohooks).includes("change")) {
+            return (ohooks["change"] as Function)({
+                comps: allComps,
+                value: allVals
+            })
+        }
+    }, [allComps, allVals, props.objHooks]);
+
     React.useEffect(() => {
         const ohooks = props.objHooks;
         if (ohooks && ohooks !== {}) {
             //typical hook attachment loop
-            Object.entries(ohooks).forEach(([key, value]) => {
-                hookset.current.addEventListener(key, (e) => {
-                    const lengthViolation = ((maxListLength && allVals.length > maxListLength) ||
-                        (minListLength && allVals.length < minListLength))
-                    if (lengthViolation) {
-                        return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
-                    } else return (value as Function)({ value: allVals });
-                });
+            Object.entries(ohooks).forEach(([key, func]) => {
+                switch (key) {
+                    case "clickIn": hookset.current.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        return (func as Function)({
+                            value: allVals
+                        })
+                    }); break;
+                    case "doubleClickIn": hookset.current.addEventListener("dblclick", (e) => {
+                        e.preventDefault();
+                        return (func as Function)({
+                            value: allVals
+                        })
+                    }); break;
+                    case "clickOut": hookset.current.addEventListener("blur", (e) => {
+                        e.preventDefault();
+                        return (func as Function)({
+                            value: allVals
+                        })
+                    }); break;
+                    case "mouseIn": hookset.current.addEventListener("mouseover", (e) => {
+                        e.preventDefault();
+                        return (func as Function)({
+                            value: allVals
+                        })
+                    }); break;
+                    case "mouseOut": hookset.current.addEventListener("mouseout", (e) => {
+                        e.preventDefault();
+                        return (func as Function)({
+                            value: allVals
+                        })
+                    }); break;
+                    case "load": (func as Function)({
+                        comps: allComps,
+                        value: allVals
+                    }); break;
+                    case "keyPressed": hookset.current.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        return (func as Function)({
+                            key: e.keyCode,
+                            shift: e.shiftKey,
+                            value: allVals
+                        })
+                    }); break;
+                    case "scroll": hookset.current.addEventListener("wheel", (e) => {
+                        e.preventDefault();
+                        const x = e.deltaX;
+                        const y = e.deltaY;
+                        return (func as Function)({
+                            x,
+                            y,
+                            value: allVals
+                        })
+                    }); break;
+                    default:
+                        toast("invalid event type");
+                }
             })
         }
     }, [allComps, allVals, maxListLength, minListLength, props.objHooks]);
@@ -65,7 +126,7 @@ function ListBuilder(props) {
     return (
         <>
             <fieldset id={id} ref={hookset} disabled={disabled}>
-                <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: vis(), fontSize: size || "1em" }}>
+                <div style={{ backgroundColor: "white", border: "1px solid black", overflow: "scroll", width, visibility: helpers.toggleVis(visible), fontSize: size || "1em" }}>
                     {allComps.map((item, i) => (
                         <React.Fragment key={id + i + childNodesPossible[item].id}>
                             {
@@ -88,6 +149,7 @@ function ListBuilder(props) {
                             }
 
                             {(maxListLength && minListLength) ? maxListLength !== minListLength && minusButton(i) : minusButton(i)}
+                            <br />
                         </React.Fragment>
                     ))}
                     {maxListLength ? (allVals.length < maxListLength) && adder : adder}

@@ -8,12 +8,52 @@ export interface utility {
   file: string;
 }
 
+interface eventref {
+  name: string;
+  additional?: any; //TODO: firmer typing may be needed later
+}
+
 export interface GenIFaceBlock {
   readonly id: string;
-  uuid?: string;
-  defaults: { [key: string]: any }; //{ [key: string]: string | boolean | string[] | number };
-  hooks?: { [key: string]: { name: string; additional?: any } };
-  validate?: { [key: string]: any }; //{ [key: string]: string | boolean | string[] | number };
+  uuid?: string; //TODO: perhaps make this manditory later
+  defaults: {
+    [key: string]:
+      | string
+      | boolean
+      | boolean[]
+      | string[]
+      | number
+      | GenIFaceBlock[]
+      | GenIFaceBlock[][]
+      | (string | number | boolean | object)[]
+      | { [key: string]: string | number | boolean | object }
+      | { [key: string]: GenIFaceBlock };
+  };
+  hooks?: {
+    change?: eventref;
+    clickIn?: eventref;
+    doubleClickIn?: eventref;
+    clickOut?: eventref;
+    mouseIn?: eventref;
+    mouseOut?: eventref;
+    load?: eventref;
+    keyPressed?: eventref;
+    scroll?: eventref;
+  };
+  validate?: {
+    [key: string]:
+      | string
+      | boolean
+      | string[]
+      | number
+      | RegExp
+      | number[][]
+      | {
+          [key: string]: {
+            inputMatch?: string;
+          };
+        };
+  };
 }
 
 interface label extends GenIFaceBlock {

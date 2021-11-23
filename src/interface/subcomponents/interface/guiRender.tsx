@@ -17,7 +17,7 @@ const processHooks = (schema, makeEvent) => {
         if (prp.hooks && prp.hooks !== {}) {
             Object.getOwnPropertyNames(prp.hooks).forEach((key) => {
                 if (prp.hooks[key].name && prp.hooks[key].name !== "evfunction") {
-                    prp.hooks[key] = makeEvent(prp.hooks[key]);
+                    prp.hooks[key] = makeEvent(prp.hooks[key], prp.uuid);
                 }
             })
         }
@@ -29,8 +29,8 @@ export default function GuiRender(props) {
     const currentInterface = props.scheme;
     const setCurrentInterface = props.setScheme;
     //function which attaches the event function from the imported function based on the name string provided
-    const makeEvent = (evv) => {
-        const evfunction = (e) => props.exports![evv.name](e, formAccess, evv.additional || {}, toast);
+    const makeEvent = (evv, uuid) => {
+        const evfunction = (e) => props.exports![evv.name](e, formAccess, Object.assign({}, (evv.additional || {}), { id: uuid }), toast);
         return evfunction;
     };
 

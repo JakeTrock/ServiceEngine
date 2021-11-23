@@ -62,7 +62,7 @@ const allutils: utility[] = [
           size: "1em",
           label: "Convert file(s)",
         },
-        hooks: { click: { name: "convert" } },
+        hooks: { clickIn: { name: "convert" } },
       },
     ],
     binariesUsed: ["ffmpeg", "fileUtils"],
@@ -136,7 +136,7 @@ const allutils: utility[] = [
           size: "1em",
           label: "Convert file(s)",
         },
-        hooks: { click: { name: "convert" } },
+        hooks: { clickIn: { name: "convert" } },
       },
     ],
     binariesUsed: ["ffmpeg", "fileUtils"],
@@ -238,7 +238,7 @@ const allutils: utility[] = [
           size: "1em",
           label: "Run process",
         },
-        hooks: { click: { name: "convert" } },
+        hooks: { clickIn: { name: "convert" } },
       },
     ],
     binariesUsed: ["ffmpeg", "fileUtils"],
@@ -253,6 +253,7 @@ const allutils: utility[] = [
       {
         id: "label",
         defaults: { visible: true, size: "1em", label: "Explanatory text" },
+        hooks: { clickIn: { name: "returnDat" } },
       },
       {
         id: "button",
@@ -262,7 +263,7 @@ const allutils: utility[] = [
           size: "1em",
           label: "Button",
         },
-        hooks: { change: { name: "returnDat" } },
+        hooks: { clickIn: { name: "returnDat" } },
       },
       {
         id: "checkbox",
@@ -397,7 +398,7 @@ const allutils: utility[] = [
           maxListLength: 10,
           minListLength: 0,
         },
-        hooks: { click: { name: "returnDat" } },
+        hooks: { clickIn: { name: "returnDat" } },
       },
       {
         id: "kvpbuild",
@@ -458,7 +459,7 @@ const allutils: utility[] = [
           },
           allowExtendedChoice: true,
         },
-        hooks: { click: { name: "returnDat" } },
+        hooks: { clickIn: { name: "returnDat" } },
       },
       {
         id: "slider",
@@ -489,12 +490,18 @@ const allutils: utility[] = [
           width: "10em",
           height: "10em",
         },
+        hooks: { change: { name: "returnDat" } },
       },
       {
         id: "canvasbox",
         defaults: { visible: true, width: "10em", height: "10em" },
+        hooks: { clickIn: { name: "returnDat" } },
       },
-      { id: "progbar", defaults: { visible: true, value: 50, max: 100 } },
+      {
+        id: "progbar",
+        defaults: { visible: true, value: 50, max: 100 },
+        hooks: { doubleClickIn: { name: "returnDat" } },
+      },
       {
         id: "container",
         defaults: {
@@ -534,6 +541,7 @@ const allutils: utility[] = [
           ],
           label: "container label",
         },
+        hooks: { mouseIn: { name: "returnDat" } },
       },
       {
         id: "horizontalalign",
@@ -603,6 +611,7 @@ const allutils: utility[] = [
           ],
           labels: ["lbl1", "lbl2"],
         },
+        hooks: { scroll: { name: "returnDat" } },
       },
       {
         id: "tabbedview",
@@ -672,6 +681,7 @@ const allutils: utility[] = [
             ],
           ],
         },
+        hooks: { change: { name: "returnDat" } },
       },
     ],
     binariesUsed: [],
