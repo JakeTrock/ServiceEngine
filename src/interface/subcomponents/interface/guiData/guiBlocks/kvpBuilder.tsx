@@ -156,13 +156,15 @@ function KvpBuilder(props) {
                 delete vals[pnames[i]];
                 return vals;
             })
-            setAllComps((ac)=>{
+            setAllComps((ac) => {
                 const comps = [...ac]
                 comps.splice(i, 1);
                 return comps;
             })
         }
     }}>-</button>);
+
+
     return (
         <>
             <fieldset id={id} ref={hookset} disabled={disabled}>
@@ -176,6 +178,7 @@ function KvpBuilder(props) {
                                         return vals;
                                     }
                                     let finalJson = {};
+                                    //TODO: there are no dupe vals, rectify this
                                     //this may seem jank but it's just incase the user allows duplicates
                                     Object.entries(vals).forEach(([key, value], j) => {
                                         if (j === i) {
@@ -189,7 +192,12 @@ function KvpBuilder(props) {
                             {
                                 React.createElement(compDict[childNodesPossible[item].id] || FailComponent,
                                     {
-                                        key: id + i + childNodesPossible[item].uuid, uuid: childNodesPossible[item].uuid, objProps: childNodesPossible[item].defaults, objHooks: {
+                                        key: id + i + childNodesPossible[item].uuid, uuid: childNodesPossible[item].uuid, objProps: (() => {
+                                            //make value the one from values instead
+                                            let tmp = childNodesPossible[item].defaults;
+                                            if (tmp.hasOwnProperty("value")) tmp["value"] = allVals[Object.getOwnPropertyNames(allVals)[i]];
+                                            return tmp;
+                                        })(), objHooks: {
                                             ...childNodesPossible[item].hooks, "change": (e) =>
                                                 setAllVals(vals => {
                                                     if (keyWhitelist && keyWhitelist[e.value] && keyWhitelist[e.value].keyRegex && !e.value.match(keyWhitelist[e.value].keyRegex)) {

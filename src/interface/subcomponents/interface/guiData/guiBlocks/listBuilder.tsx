@@ -132,7 +132,12 @@ function ListBuilder(props) {
                             {
                                 React.createElement(compDict[childNodesPossible[item].id] || FailComponent,
                                     {
-                                        key: id + i + childNodesPossible[item].uuid, uuid: childNodesPossible[item].uuid, objProps: childNodesPossible[item].defaults, objHooks: {
+                                        key: id + i + childNodesPossible[item].uuid, uuid: childNodesPossible[item].uuid, objProps: (() => {
+                                            //make value the one from values instead
+                                            let tmp = childNodesPossible[item].defaults;
+                                            if (tmp.hasOwnProperty("value")) tmp["value"] = allVals[Object.getOwnPropertyNames(allVals)[i]];
+                                            return tmp;
+                                        })(), objHooks: {
                                             ...childNodesPossible[item].hooks, "change": (e) =>
                                                 setAllVals(vals => {
                                                     const list = vals.map((item, j) => {
