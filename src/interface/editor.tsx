@@ -12,10 +12,11 @@ import Blockly from "blockly";
 import { genToolbox } from "./subcomponents/interface/guiData/interfaceScriptToolbox";
 import fileUtils from "./subcomponents/interface/programs/codeBlocks/fileUtils"
 import GuiEditPanel from "./subcomponents/interface/guiEditor";
-import eventTypes from "./subcomponents/interface/guiData/eventTypes";
 import GuiRunner from "./subcomponents/interface/guiRunner";
 import GuiRender from "./subcomponents/interface/guiRender";
 import { v4 as uuidv4 } from 'uuid';
+
+const allevts = ["change", "clickIn", "doubleClickIn", "clickOut", " mouseIn", "mouseOut", "load", "keyPressed", "scroll"];
 
 const blocklywsconfig = {
   collapse: true,
@@ -70,9 +71,6 @@ const Editor = (props) => {
   const [libraries, setLibraries] = React.useState<string[]>([]);
 
   React.useEffect(() => {
-    const allevts = (() => {
-      return eventTypes.map((e) => [e, e]);
-    })();
 
     ifSchema.forEach((e) => {
       //TODO: also make blocks which allow certain defaults props to be changed
@@ -97,7 +95,7 @@ const Editor = (props) => {
         this.appendDummyInput().appendField("Event Trigger");
         this.appendValueInput("performedon").setCheck("domobject");
         this.appendDummyInput().appendField(
-          new Blockly.FieldDropdown(allevts),
+          new Blockly.FieldDropdown(allevts as any[]),//TODO: may be error hotpoint
           "trigger"
         );
         this.appendValueInput("result").setCheck("function");

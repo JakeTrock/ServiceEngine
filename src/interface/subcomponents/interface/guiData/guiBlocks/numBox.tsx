@@ -37,7 +37,7 @@ function NumBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value,
+                            value: hookset.current.value
                         })
                     }); break;
                     case "doubleClickIn": hookset.current.addEventListener("dblclick", (e) => {
@@ -48,7 +48,7 @@ function NumBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value,
+                            value: hookset.current.value
                         })
                     }); break;
                     case "clickOut": hookset.current.addEventListener("blur", (e) => {
@@ -59,7 +59,7 @@ function NumBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value,
+                            value: hookset.current.value
                         })
                     }); break;
                     case "mouseIn": hookset.current.addEventListener("mouseover", (e) => {
@@ -70,7 +70,7 @@ function NumBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value,
+                            value: hookset.current.value
                         })
                     }); break;
                     case "mouseOut": hookset.current.addEventListener("mouseout", (e) => {
@@ -81,7 +81,7 @@ function NumBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value,
+                            value: hookset.current.value
                         })
                     }); break;
                     case "load": (func as Function)({ value }); break;
@@ -90,7 +90,7 @@ function NumBox(props) {
                         return (func as Function)({
                             key: e.keyCode,
                             shift: e.shiftKey,
-                            value,
+                            value: hookset.current.value
                         })
                     }); break;
                     case "scroll": hookset.current.addEventListener("wheel", (e) => {
@@ -100,7 +100,7 @@ function NumBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value,
+                            value: hookset.current.value
                         })
                     }); break;
                     default:

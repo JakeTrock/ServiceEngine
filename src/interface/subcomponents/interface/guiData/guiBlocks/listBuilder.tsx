@@ -32,6 +32,7 @@ function ListBuilder(props) {
             //typical hook attachment loop
             Object.entries(ohooks).forEach(([key, func]) => {
                 switch (key) {
+                    case "change": break;
                     case "clickIn": hookset.current.addEventListener("click", (e) => {
                         e.preventDefault();
                         return (func as Function)({
@@ -134,8 +135,9 @@ function ListBuilder(props) {
                                     {
                                         key: id + i + childNodesPossible[item].uuid, uuid: childNodesPossible[item].uuid, objProps: (() => {
                                             //make value the one from values instead
-                                            let tmp = childNodesPossible[item].defaults;
-                                            if (tmp.hasOwnProperty("value")) tmp["value"] = allVals[Object.getOwnPropertyNames(allVals)[i]];
+                                            let tmp = JSON.parse(JSON.stringify(childNodesPossible[item].defaults));
+                                            if (tmp.hasOwnProperty("value") && i < value.length - 1)
+                                                tmp["value"] = value[i];
                                             return tmp;
                                         })(), objHooks: {
                                             ...childNodesPossible[item].hooks, "change": (e) =>
