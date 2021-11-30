@@ -1,4 +1,5 @@
 import { createFFmpeg } from "@ffmpeg/ffmpeg";
+import helpers from "../../../../data/helpers";
 const outFormatTranslate = {
   //Aud
   wav: "audio/wav",
@@ -10,21 +11,8 @@ const outFormatTranslate = {
   mpv: "video/mpv",
 };
 
-async function asyncForEach(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
-
-async function asyncMap(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    array[index] = await callback(array[index], index, array);
-  }
-  return array;
-}
-
 //https://github.com/ffmpegwasm/ffmpeg.wasm/blob/master/docs/api.md
-const ffmpeg = async () => {
+const init = async () => {
   //initialize ffmpeg instance
   const ffmpegInst = createFFmpeg({ log: true });
   await ffmpegInst.load();
@@ -60,7 +48,7 @@ const ffmpeg = async () => {
       );
       return Promise.allSettled(all)
         .then(async () =>
-          asyncForEach(runargs, (ra) => {
+          helpers.asyncForEach(runargs, (ra) => {
             ffmpegInst.setProgress(({ ratio }) => opProgresscb(ratio));
             return ffmpegInst.run(
               ...ra.map((r) => {
@@ -79,7 +67,7 @@ const ffmpeg = async () => {
           })
         )
         .then(() =>
-          asyncMap(opNames, async (n) => {
+          helpers.asyncMap(opNames, async (n) => {
             const f = await ffmpegInst.FS("readFile", n);
             return new File([f], n, {
               type: outFormatTranslate[n],
@@ -95,4 +83,4 @@ const ffmpeg = async () => {
   };
 };
 
-export default ffmpeg;
+export default init;

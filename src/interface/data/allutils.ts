@@ -36,7 +36,7 @@ const allutils: utility[] = [
         defaults: {
           visible: true,
           disabled: false,
-          value: 2,
+          value: "webm",
           size: "1em",
           labels: [
             "mp4",
@@ -197,7 +197,7 @@ const allutils: utility[] = [
           disabled: false,
           required: true,
           size: "1em",
-          value: 5,
+          value: "veryfast",
           labels: [
             "ultrafast",
             "superfast",
@@ -224,7 +224,7 @@ const allutils: utility[] = [
           disabled: false,
           size: "1em",
           labels: ["yes", "no"],
-          value: 0,
+          value: "no",
           required: false,
         },
         hooks: { change: { name: "setfourthree" } },
@@ -343,7 +343,7 @@ const allutils: utility[] = [
           visible: true,
           disabled: false,
           size: "1em",
-          value: 1,
+          value: "apple",
           labels: ["apple", "banana", "melon", "berry"],
           required: false,
         },

@@ -363,6 +363,7 @@ const mkBlocks = (blkNames: string[], type) =>
   });
 
 const genToolbox = (blkNames: string[], funcNames: string[]) => {
+  console.log(blkNames, funcNames);
   const nct = toolbox.concat([
     {
       kind: "CATEGORY",

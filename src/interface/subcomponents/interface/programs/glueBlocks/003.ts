@@ -1,8 +1,4 @@
-async function asyncFor(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
+import helpers from "../../../../data/helpers";
 
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
@@ -108,28 +104,30 @@ const glcode = (imports) => {
         .then((filesOut: File[]) => {
           filesDownloadable = filesOut;
           //add download button for every available downloadable
-          asyncFor(filesOut, (file, i) => {
-            formAccess("add", "", {
-              id: "button",
-              uuid: "button" + (i + 5),
-              defaults: {
-                visible: true,
-                disabled: false,
-                size: "1em",
-                label: "Download " + file.name,
-              },
-              hooks: {
-                click: {
-                  name: "download",
-                  additional: { findex: i },
+          helpers
+            .asyncFor(filesOut, (file, i) => {
+              formAccess("add", "", {
+                id: "button",
+                uuid: "button" + (i + 5),
+                defaults: {
+                  visible: true,
+                  disabled: false,
+                  size: "1em",
+                  label: "Download " + file.name,
                 },
-              },
+                hooks: {
+                  click: {
+                    name: "download",
+                    additional: { findex: i },
+                  },
+                },
+              });
+            })
+            .then(() => {
+              currPromise = undefined;
+              formAccess("del", "convertinglabel");
+              formAccess("del", "ffmbar");
             });
-          }).then(() => {
-            currPromise = undefined;
-            formAccess("del", "convertinglabel");
-            formAccess("del", "ffmbar");
-          });
         })
         .catch((e) => notify(e));
     },

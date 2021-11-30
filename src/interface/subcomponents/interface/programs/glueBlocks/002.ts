@@ -1,8 +1,4 @@
-async function asyncFor(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
+import helpers from "../../../../data/helpers";
 
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
@@ -92,7 +88,7 @@ const glcode = (imports) => {
           console.log("FilesOUT");
           filesDownloadable = filesOut;
           //add download button for every available downloadable
-          asyncFor(filesOut, (file, i) => {
+          helpers.asyncFor(filesOut, (file, i) => {
             formAccess("add", "", {
               id: "button",
               uuid: "button" + (i + 2),

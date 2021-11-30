@@ -94,26 +94,42 @@ function ListBuilder(props) {
 
 
     const adder = (<div style={{ border: "1px solid black" }}>
-        <select>
-            {childNodesPossible && Object.getOwnPropertyNames(childNodesPossible).map((lbl, i) => (
-                <option key={i} value={lbl}>{lbl}</option>
-            ))}
-        </select>
-        <button className="smbutton" type="button" onClick={(e) => {
-            //@ts-ignore
-            const newVal = e.currentTarget.parentNode.childNodes.item(0).value;
-            if (newVal !== "") {
-                if (maxListLength && allVals.length + 1 > maxListLength) {
-                    return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
-                } else {
-                    setAllVals([...allVals, childNodesPossible[newVal].defaults.value]);
-                    setAllComps([...allComps, newVal]);
+        {childNodesPossible && childNodesPossible.length > 1 ?
+            <>
+                <select>
+                    {Object.getOwnPropertyNames(childNodesPossible).map((lbl, i) => (
+                        <option key={i} value={lbl}>{lbl}</option>
+                    ))}
+                </select>
+                <button className="smbutton" type="button" onClick={(e) => {
                     //@ts-ignore
-                    // e.currentTarget.parentNode.childNodes.item(0).value = "";
+                    const newVal = e.currentTarget.parentNode.childNodes.item(0).value;
+                    if (newVal !== "") {
+                        if (maxListLength && allVals.length + 1 > maxListLength) {
+                            return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
+                        } else {
+                            setAllVals([...allVals, childNodesPossible[newVal].defaults.value]);
+                            setAllComps([...allComps, newVal]);
+                            //@ts-ignore
+                            // e.currentTarget.parentNode.childNodes.item(0).value = "";
+                        }
+                    }
+                }}>+</button>
+            </> : <button className="smbutton" type="button" style={{ width: "90%" }} onClick={(e) => {
+                //@ts-ignore
+                const newVal = Object.getOwnPropertyNames(childNodesPossible)[0];
+                if (newVal !== "") {
+                    if (maxListLength && allVals.length + 1 > maxListLength) {
+                        return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
+                    } else {
+                        setAllVals([...allVals, childNodesPossible[newVal].defaults.value]);
+                        setAllComps([...allComps, newVal]);
+                        //@ts-ignore
+                        // e.currentTarget.parentNode.childNodes.item(0).value = "";
+                    }
                 }
-            }
-        }}>+</button>
-    </div>);
+            }}>+</button>}
+    </div >);
 
     const minusButton = (i) => (<button className="smbutton" type="button" onClick={() => {
         if (minListLength && allVals.length - 1 < minListLength) {

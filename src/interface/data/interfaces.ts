@@ -8,6 +8,10 @@ export interface utility {
   file: string;
 }
 
+export interface libraryHook {
+  default: Function;
+}
+
 interface eventref {
   name: string;
   additional?: any; //TODO: firmer typing may be needed later
@@ -152,7 +156,7 @@ interface onechoice extends GenIFaceBlock {
     visible?: boolean;
     disabled?: boolean;
     size?: string;
-    value?: number;
+    value?: string;
     labels: string[];
     required?: boolean;
   };
@@ -302,9 +306,12 @@ export type IFaceBlock =
   | tabbedview;
 
 export enum type {
-  File,
-  string,
-  number,
+  "File",
+  "File[]",
+  "string",
+  "string[]",
+  "number",
+  "number[]"
 }
 
 export interface exportCollection {

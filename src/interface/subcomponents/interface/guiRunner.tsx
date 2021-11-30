@@ -3,19 +3,39 @@ import { toast } from 'react-toastify';
 import '../../data/styles.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { Helmet } from "react-helmet";
-import { hookCollection, IFaceBlock, utility } from "../../data/interfaces";
+import { hookCollection, IFaceBlock, libraryHook, utility } from "../../data/interfaces";
 import GuiRender from "./guiRender";
+import helpers from "../../data/helpers";
 
 
 const prefixCB = "./programs/codeBlocks/";
 const prefixGB = "./programs/glueBlocks/";
 
-async function asyncBuild(array, callback) {
-    let r = {};
-    for (let index = 0; index < array.length; index++) {
-        await callback(array[index], index, r);
+//loads all code when run button is pressed, 
+const loadAll = async (component): Promise<hookCollection> => {
+    try {
+        const coreGlue = await import(`${prefixGB}${component.file}`);
+        if (component.binariesUsed) {
+            if (typeof SharedArrayBuffer === 'undefined') {
+                const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true });
+                //@ts-ignore
+                globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
+            }
+            const liblist = component.binariesUsed.map(o => import(`${prefixCB}${o}`));
+            return Promise.all(liblist)
+                .then(l => l.map(v => () => (v as libraryHook).default()))//stage init of all functions
+                .then(l => Promise.all(l))//init all functions
+                .then(l => helpers.asyncBuild(l, async (correspondingFunction, index, returned) => {
+                    returned[component.binariesUsed[index]] = await correspondingFunction();
+                })).then(libpreload => coreGlue.default({//load component into user code
+                    libraries: libpreload
+                }));
+        } else {
+            return coreGlue.default({});
+        }
+    } catch (e) {
+        toast.error(e.toString());
     }
-    return r;
 }
 
 const GuiRunner = (props) => {
@@ -23,35 +43,8 @@ const GuiRunner = (props) => {
     const [exports, setExports] = React.useState<hookCollection>();//all references to functions in a dictionary so the gui can attach
     const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[] | []>(currentComponent.scheme);//current gui scheme
 
-    //loads all code when run button is pressed, 
-    const loadAll = async (): Promise<hookCollection> => {
-        try {
-            const coreGlue = await import(`${prefixGB}${currentComponent.file}`);
-            if (currentComponent.binariesUsed) {
-                if (typeof SharedArrayBuffer === 'undefined') {
-                    const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true });
-                    //@ts-ignore
-                    globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
-                }
-                const liblist = currentComponent.binariesUsed.map(o => import(`${prefixCB}${o}`));
-                return Promise.all(liblist)
-                    .then(l => l.map(v => () => v.default()))
-                    .then(l => Promise.all(l))
-                    .then(l => asyncBuild(l, async (v, i, r) => {
-                        r[currentComponent.binariesUsed[i]] = await v();
-                    })).then(libpreload => coreGlue.default({
-                        libraries: libpreload
-                    }));
-            } else {
-                return coreGlue.default({});
-            }
-        } catch (e) {
-            toast.error(e.toString());
-        }
-    }
-
     //run loadall, pipe all hooks into the hook state so the form can attach
-    const saveHooks = () => loadAll().then(cmpt => setExports(cmpt));
+    const saveHooks = () => loadAll(currentComponent).then(cmpt => setExports(cmpt));
 
     return (
         <div id="helper">

@@ -1,8 +1,4 @@
-async function asyncFor(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
+import helpers from "../../../../data/helpers";
 
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
@@ -20,7 +16,7 @@ const glcode = (imports) => {
     //hook that runs when a file is chosen
     chooser: (event, formAccess, additional, notify) => {
       //TODO: add filetype validator
-      var f = event.files;
+      var f = event.value;
       if (f.length) {
         let tmp = [];
         for (var i = 0; i < f.length; i++) {
@@ -79,7 +75,7 @@ const glcode = (imports) => {
           console.log(filesOut);
           filesDownloadable = filesOut;
           //add download button for every available downloadable
-          asyncFor(filesOut, (file, i) => {
+          helpers.asyncFor(filesOut, (file, i) => {
             formAccess("add", "", {
               id: "button",
               uuid: "button" + (i + 2),

@@ -125,7 +125,7 @@ export const compDefaults: IFaceBlock[] = [
     defaults: {
       visible: true,
       disabled: false,
-      value: 2,
+      value: "apple",
       size: "1em",
       labels: ["apple", "banana", "melon", "berry"],
       required: false,

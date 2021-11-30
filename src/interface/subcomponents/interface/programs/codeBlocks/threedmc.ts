@@ -1,5 +1,3 @@
-const threedmc=()=>{
+const init = () => {};
 
-}
-
-export default threedmc;
+export default init;

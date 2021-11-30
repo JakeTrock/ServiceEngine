@@ -8,6 +8,10 @@ function OneChoice(props) {
 
     //attach hooks to html
     React.useEffect(() => {
+        if (value && labels.indexOf(value) < 0) {
+            toast("your default value must be contained in labels!");
+            return;
+        }
         const ohooks = props.objHooks;
         if (ohooks && ohooks !== {}) {
             //if object has hook kvp, loop thru and attach all functions from hooks to html object
@@ -24,7 +28,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || labels[value as number]
+                            value: e.target.value || value
                         })
                     }); break;
                     case "doubleClickIn": hookset.current.addEventListener("dblclick", (e) => {
@@ -35,7 +39,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || labels[value as number]
+                            value: e.target.value || value
                         })
                     }); break;
                     case "clickOut": hookset.current.addEventListener("blur", (e) => {
@@ -46,7 +50,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || labels[value as number]
+                            value: e.target.value || value
                         })
                     }); break;
                     case "mouseIn": hookset.current.addEventListener("mouseover", (e) => {
@@ -57,7 +61,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || labels[value as number]
+                            value: e.target.value || value
                         })
                     }); break;
                     case "mouseOut": hookset.current.addEventListener("mouseout", (e) => {
@@ -68,7 +72,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || labels[value as number]
+                            value: e.target.value || value
                         })
                     }); break;
                     case "load": (func as Function)({ value: labels[value as number] }); break;
@@ -77,7 +81,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             key: e.keyCode,
                             shift: e.shiftKey,
-                            value: e.target.value || labels[value as number]
+                            value: e.target.value || value
                         })
                     }); break;
                     case "scroll": hookset.current.addEventListener("wheel", (e) => {
@@ -87,7 +91,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || labels[value as number]
+                            value: e.target.value || value
                         })
                     }); break;
                     default:
@@ -99,7 +103,8 @@ function OneChoice(props) {
     const id = props.uuid;
 
     return (
-        <select id={id} required={required} ref={hookset} disabled={disabled} defaultValue={labels[value]} style={{ visibility: helpers.toggleVis(visible), fontSize: size || "1em" }}>
+        <select id={id} required={required} ref={hookset} disabled={disabled} defaultValue={value} style={{ visibility: helpers.toggleVis(visible), fontSize: size || "1em" }}>
+            {!value && <option value={null}>none</option>}
             {labels && labels.map((lbl, i) => (
                 <option key={i} value={lbl}>{lbl}</option>
             ))}

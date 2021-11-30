@@ -1,4 +1,5 @@
 import { execute, MagickInputFile } from "wasm-imagemagick";
+import helpers from "../../../../data/helpers";
 
 const outFormatTranslate = {
   //TODO:addmore
@@ -10,26 +11,20 @@ const outFormatTranslate = {
   tiff: "image/tiff",
 };
 
-async function asyncMap(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    array[index] = await callback(array[index], index, array);
-  }
-  return array;
-}
-
-const magick = async () => {
+const init = async () => {
   const magickGeneric = async (input: File[], runargs: string[]) =>
     new Promise<File[]>(async (resolve, reject) => {
       var richNames = [];
 
-      return asyncMap(input, async (f, i) => {
-        const fileArrayBuffer = await f.arrayBuffer();
-        richNames[i] = f.name;
-        return {
-          name: f.name,
-          content: new Uint8Array(fileArrayBuffer),
-        };
-      })
+      return helpers
+        .asyncMap(input, async (f, i) => {
+          const fileArrayBuffer = await f.arrayBuffer();
+          richNames[i] = f.name;
+          return {
+            name: f.name,
+            content: new Uint8Array(fileArrayBuffer),
+          };
+        })
         .then(async (inputFiles: MagickInputFile[]) => {
           const commands: string[] = runargs.map((ra) => {
             /**
@@ -67,20 +62,11 @@ const magick = async () => {
         .catch((e) => reject(e));
     });
   return {
-    // name: {
-    //   function: () => magickGeneric(),
-    //   names: [""],
-    //   types: [""],
-    // },
-    formatToFormat: {
-      function: (input: File[], outNames: string[]) =>
-        magickGeneric(
-          input,
-          outNames.map((n, i) => `convert ${input[i].name} ${n}`)
-        ),
-      names: ["input file", "output format"],
-      types: ["File", "string"],
-    },
+    formatToFormat: (input: File[], outNames: string[]) =>
+      magickGeneric(
+        input,
+        outNames.map((n, i) => `convert ${input[i].name} ${n}`)
+      ),
   };
 };
 
@@ -89,4 +75,4 @@ Don't forget to do this when you build:
 cp node_modules/wasm-imagemagick/dist/magick.wasm .
 cp node_modules/wasm-imagemagick/dist/magick.js .
 */
-export default magick;
+export default init;

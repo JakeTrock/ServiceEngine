@@ -1,13 +1,7 @@
 import JSZip from "jszip";
+import helpers from "../../../../data/helpers";
 
-async function asyncMap(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    array[index] = await callback(array[index], index, array);
-  }
-  return array;
-}
-
-const fileUtils = async () => {
+const init = async () => {
   function save(file: File) {
     if (file) {
       const url = window.URL.createObjectURL(file);
@@ -25,7 +19,7 @@ const fileUtils = async () => {
     downloadMany: async (inputs: File[]) => {
       if (inputs.length > 0) {
         var zip = new JSZip();
-        asyncMap(inputs, async (f) => zip.file(f.name, f.arrayBuffer())).then(
+        helpers.asyncMap(inputs, async (f) => zip.file(f.name, f.arrayBuffer())).then(
           () =>
             zip.generateAsync({ type: "blob" }).then(function (content) {
               save(
@@ -38,4 +32,4 @@ const fileUtils = async () => {
   };
 };
 
-export default fileUtils;
+export default init;
