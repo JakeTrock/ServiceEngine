@@ -14,10 +14,10 @@ function ButtonBlock(props) {
             //if object has hook kvp, loop thru and attach all functions from hooks to html object
             Object.entries(ohooks).forEach(([key, func]) => {
                 switch (key) {
-                    case "clickIn":
+                    case "change":
                         hookset.current.addEventListener("click", ()=>(func as Function)({ value: label }))
                         break;
-                    case "change":
+                    case "clickIn":
                         hookset.current.addEventListener("click", ()=>(func as Function)({ value: label }))
                         break;
                     case "doubleClickIn":

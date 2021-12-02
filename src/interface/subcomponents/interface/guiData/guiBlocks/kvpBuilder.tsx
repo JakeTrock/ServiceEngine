@@ -38,6 +38,7 @@ function KvpBuilder(props) {
             //typical hook attachment loop
             Object.entries(ohooks).forEach(([key, func]) => {
                 switch (key) {
+                    case "change": break;
                     case "clickIn": hookset.current.addEventListener("click", (e) => {
                         e.preventDefault();
                         return (func as Function)({

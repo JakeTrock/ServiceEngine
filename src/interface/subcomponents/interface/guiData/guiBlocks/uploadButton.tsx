@@ -26,12 +26,12 @@ function UploadButtonBlock(props) {//TODO:make this a drag and drop
             Object.entries(ohooks).forEach(([key, func]) => {
 
                 switch (key) {
-                    case "clickIn":
-                        hookset.current.addEventListener("click", () => (func as Function)({ value: [...hookset.current!.files] }))
-                        break;
                     case "change":
                         hookset.current.addEventListener("change", () => (func as Function)({ value: [...hookset.current!.files] }))
                         break;
+                    case "clickIn":
+                        hookset.current.addEventListener("click", () => (func as Function)({ value: [...hookset.current!.files] }))
+                        break; 
                     case "doubleClickIn":
                         hookset.current.addEventListener("dblclick", () => (func as Function)({ value: [...hookset.current!.files] }))
                         break;

@@ -67,6 +67,7 @@ interface label extends GenIFaceBlock {
     size?: string;
     label: string;
   };
+  //TODO:interface the hooks, be more specific
 }
 
 interface button extends GenIFaceBlock {
@@ -305,20 +306,31 @@ export type IFaceBlock =
   | horizontalalign
   | tabbedview;
 
-export enum type {
-  "File",
-  "File[]",
-  "string",
-  "string[]",
-  "number",
-  "number[]"
+
+
+export enum type {//TODO: add more esoteric ones like bit streams
+  file,
+  string,
+  number,
+  bool,
+  function
 }
+
+export enum pname{
+  list,
+  twodlist,
+  threedlist,
+}
+ 
 
 export interface exportCollection {
   [key: string]: {
     function: any;
     names: string[];
-    types: type[];
+    types: {
+      primative:type,
+      
+    }[];
   };
 }
 

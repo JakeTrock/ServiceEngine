@@ -12,8 +12,8 @@ interface exportCollection {
 const db: exportCollection = {
   ffmpeg: {
     basicProcess: {
-      names: [],
-      types: [],
+      names: ["input", "runargs", "onProgresscb", "opNames"],
+      types: [type.file, type.string, type.function],
     },
   },
   fileUtils: {

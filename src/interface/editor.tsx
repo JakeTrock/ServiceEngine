@@ -17,8 +17,7 @@ import GuiRender from "./subcomponents/interface/guiRender";
 import { v4 as uuidv4 } from 'uuid';
 import helpers from "./data/helpers";
 import getBlockMeta from "./subcomponents/interface/programs/codeBlocks/getBlockMeta";
-
-const allevts = ["change", "clickIn", "doubleClickIn", "clickOut", " mouseIn", "mouseOut", "load", "keyPressed", "scroll"];
+import { hookDict } from "./subcomponents/interface/guiData/compDict";
 
 const getAllLibNames = () => {
   //this is a shim placeholder, replace when an established server with a text spine for libraries is implemented
@@ -119,36 +118,24 @@ const Editor = (props) => {
   React.useEffect(() => {
     ifSchema.forEach((e) => {
       //TODO: also make blocks which allow certain defaults props to be changed
-      Blockly.Blocks[e.uuid] = {
+      Blockly.Blocks[e.id+e.uuid] = {
         init: function () {
-          this.appendDummyInput().appendField(e.uuid);
-          this.setOutput(true, null);
+          this.appendDummyInput().appendField(e.id+e.uuid);
           this.setColour(230);
-          this.setTooltip("");
+          hookDict[e.id].forEach(hk=>{
+            this.appendValueInput(hk).setCheck("function");
+          });
+          this.setTooltip("runs a function when a hook is triggered");
           this.setHelpUrl("");
         },
       };
       //@ts-ignore
-      Blockly.JavaScript[e.uuid] = function (block) {
+      Blockly.JavaScript[e.id+e.uuid] = function (block) {
         //@ts-ignore
-        return [e.uuid, Blockly.JavaScript.ORDER_NONE];
+        return [e.id+e.uuid, Blockly.JavaScript.ORDER_NONE];
       };
     });
 
-    Blockly.Blocks["eventtrigger"] = {
-      init: function () {
-        this.appendDummyInput().appendField("Event Trigger");
-        this.appendValueInput("performedon").setCheck("domobject");
-        this.appendDummyInput().appendField(
-          new Blockly.FieldDropdown(allevts as any[]),//TODO: may be error hotpoint
-          "trigger"
-        );
-        this.appendValueInput("result").setCheck("function");
-        this.setColour(315);
-        this.setTooltip("runs a function when a hook is triggered");
-        this.setHelpUrl("");
-      },
-    };
   }, [ifSchema]);
 
   React.useEffect(() => {
@@ -252,16 +239,16 @@ const Editor = (props) => {
             }} />
           </Tab>
           <Tab label="Program">
-            {/* {scripts && <BlocklyWorkspace
+            {scripts && <BlocklyWorkspace
               toolboxConfiguration={genToolbox(
-                ifSchema.map((iface) => iface.uuid),
+                ifSchema,
                 initVals.binariesUsed
               )}
               initialXml={scripts}
               className="fill-height"
               workspaceConfiguration={blocklywsconfig}
               onWorkspaceChange={genScript}
-            />} TODO: remove until module metadata files are implemented */}
+            />}
           </Tab>
           <Tab label="Interface">
             <GuiEditPanel initValues={ifSchema} parentCallback={setifSchema} />

@@ -35,37 +35,31 @@ export default function GuiRender(props) {
     };
 
     //function which allows the form to be manipulated from the program which it runs. 
-    const formAccess = (action: "get" | "set" | "add" | "del", key: string, kvpset) => {//TODO:make this into a switch statement
+    const formAccess = (action: "get" | "set" | "add" | "del", key: string | number, kvpset) => {//TODO:make this into a switch statement
         if (action && currentInterface.length) {
             //delete form element, provide a uuid in the key slot and any match will be deleted
             if (action === "del" && key) {
+                if (key && (typeof key !== "number" || key > currentInterface.length || key < 0)) return;//if key, must be (valid) number
                 setCurrentInterface(ci => {
                     const cface = (ci || currentInterface);
-                    const v = cface.filter((e: IFaceBlock) => e.uuid !== key);
+                    const v = typeof key === "number" ? cface.splice(key, 1) : cface.filter((e: IFaceBlock) => e.uuid !== key);
                     return v;
                 });
-            }
+            }//TODO insertion index key is not yet tested, may not work/properly
             //add form element, provide the component as json, or a key of a default element to clone and it will be inserted
             //if no uuid is provided, one will be generated
-            if (action === "add") {
-                let concat;
-                if (kvpset && kvpset !== {}) {
-                    concat = kvpset;
-                } else {
-                    const cmpFind = compDefaults.find((e: IFaceBlock) => e.id === key);
-                    if (cmpFind)
-                        concat = cmpFind;
-                    else return;
-                }
-
-                if (!concat.uuid) concat.uuid = Math.random().toString(36).substr(2);
+            if (action === "add" && kvpset && kvpset !== {}) {
+                if (key && (typeof key !== "number" || key > currentInterface.length || key < 0)) return;//if key, must be (valid) number
                 setCurrentInterface((ci) => {
                     const nci = (ci || currentInterface);
-                    if (!nci.find((e: IFaceBlock) => e.uuid && e.uuid === concat.uuid)) {
-                        const ncurr: IFaceBlock[] = [...nci, concat];
+                    if (!kvpset.uuid) kvpset.uuid = Math.random().toString(36).substr(2);
+                    if (!nci.find((e: IFaceBlock) => e.uuid && e.uuid === kvpset.uuid)) {
+                        // const ncurr: IFaceBlock[] = [...nci, kvpset];
+                        const ncurr: IFaceBlock[] = nci.splice(key || nci.length, 0, kvpset);
                         return ncurr;
-                    } else return nci;
-                });//TODO:add location index insert l8r
+                    }
+                    return nci;
+                });//TODO insertion index key is not yet tested, may not work/properly
             }
             //set value of a form element, provide a uuid in the key slot and the component that matches it will have any keys which are specified changed to new values
             if (action === "set" && key && kvpset) {
@@ -89,6 +83,7 @@ export default function GuiRender(props) {
                         } else return e;
                     })
                 });
+                return currentInterface;
             }
         }
         //get function, returns the whole interface, or just one element who has its uuid specified

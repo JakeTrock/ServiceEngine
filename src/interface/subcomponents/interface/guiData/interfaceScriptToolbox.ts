@@ -1,3 +1,5 @@
+import { IFaceBlock } from "../../../data/interfaces";
+
 const toolbox = [
   {
     kind: "CATEGORY",
@@ -48,7 +50,13 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="controls_repeat_ext">\n          <value name="TIMES">\n            <shadow type="math_number">\n              <field name="NUM">10</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="controls_repeat_ext"> \
+<value name="TIMES"> \
+  <shadow type="math_number"> \
+    <field name="NUM">10</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "controls_repeat_ext",
       },
       {
@@ -59,7 +67,23 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="controls_for">\n          <value name="FROM">\n            <shadow type="math_number">\n              <field name="NUM">1</field>\n            </shadow>\n          </value>\n          <value name="TO">\n            <shadow type="math_number">\n              <field name="NUM">10</field>\n            </shadow>\n          </value>\n          <value name="BY">\n            <shadow type="math_number">\n              <field name="NUM">1</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="controls_for"> \
+<value name="FROM"> \
+  <shadow type="math_number"> \
+    <field name="NUM">1</field> \
+  </shadow> \
+</value> \
+<value name="TO"> \
+  <shadow type="math_number"> \
+    <field name="NUM">10</field> \
+  </shadow> \
+</value> \
+<value name="BY"> \
+  <shadow type="math_number"> \
+    <field name="NUM">1</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "controls_for",
       },
       {
@@ -88,19 +112,42 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_arithmetic">\n          <value name="A">\n            <shadow type="math_number">\n              <field name="NUM">1</field>\n            </shadow>\n          </value>\n          <value name="B">\n            <shadow type="math_number">\n              <field name="NUM">1</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_arithmetic"> \
+<value name="A"> \
+  <shadow type="math_number"> \
+    <field name="NUM">1</field> \
+  </shadow> \
+</value> \
+<value name="B"> \
+  <shadow type="math_number"> \
+    <field name="NUM">1</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_arithmetic",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_single">\n          <value name="NUM">\n            <shadow type="math_number">\n              <field name="NUM">9</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_single"> \
+<value name="NUM"> \
+  <shadow type="math_number"> \
+    <field name="NUM">9</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_single",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_trig">\n          <value name="NUM">\n            <shadow type="math_number">\n              <field name="NUM">45</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_trig"> \
+<value name="NUM"> \
+  <shadow type="math_number"> \
+    <field name="NUM">45</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_trig",
       },
       {
@@ -111,19 +158,37 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_number_property">\n          <value name="NUMBER_TO_CHECK">\n            <shadow type="math_number">\n              <field name="NUM">0</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_number_property"> \
+<value name="NUMBER_TO_CHECK"> \
+  <shadow type="math_number"> \
+    <field name="NUM">0</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_number_property",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_change">\n          <value name="DELTA">\n            <shadow type="math_number">\n              <field name="NUM">1</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_change"> \
+<value name="DELTA"> \
+  <shadow type="math_number"> \
+    <field name="NUM">1</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_change",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_round">\n          <value name="NUM">\n            <shadow type="math_number">\n              <field name="NUM">3.1</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_round"> \
+<value name="NUM"> \
+  <shadow type="math_number"> \
+    <field name="NUM">3.1</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_round",
       },
       {
@@ -134,19 +199,57 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_modulo">\n          <value name="DIVIDEND">\n            <shadow type="math_number">\n              <field name="NUM">64</field>\n            </shadow>\n          </value>\n          <value name="DIVISOR">\n            <shadow type="math_number">\n              <field name="NUM">10</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_modulo"> \
+<value name="DIVIDEND"> \
+  <shadow type="math_number"> \
+    <field name="NUM">64</field> \
+  </shadow> \
+</value> \
+<value name="DIVISOR"> \
+  <shadow type="math_number"> \
+    <field name="NUM">10</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_modulo",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_constrain">\n          <value name="VALUE">\n            <shadow type="math_number">\n              <field name="NUM">50</field>\n            </shadow>\n          </value>\n          <value name="LOW">\n            <shadow type="math_number">\n              <field name="NUM">1</field>\n            </shadow>\n          </value>\n          <value name="HIGH">\n            <shadow type="math_number">\n              <field name="NUM">100</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_constrain"> \
+<value name="VALUE"> \
+  <shadow type="math_number"> \
+    <field name="NUM">50</field> \
+  </shadow> \
+</value> \
+<value name="LOW"> \
+  <shadow type="math_number"> \
+    <field name="NUM">1</field> \
+  </shadow> \
+</value> \
+<value name="HIGH"> \
+  <shadow type="math_number"> \
+    <field name="NUM">100</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_constrain",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="math_random_int">\n          <value name="FROM">\n            <shadow type="math_number">\n              <field name="NUM">1</field>\n            </shadow>\n          </value>\n          <value name="TO">\n            <shadow type="math_number">\n              <field name="NUM">100</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="math_random_int"> \
+<value name="FROM"> \
+  <shadow type="math_number"> \
+    <field name="NUM">1</field> \
+  </shadow> \
+</value> \
+<value name="TO"> \
+  <shadow type="math_number"> \
+    <field name="NUM">100</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "math_random_int",
       },
       {
@@ -175,61 +278,124 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_append">\n          <value name="TEXT">\n            <shadow type="text"></shadow>\n          </value>\n        </block>',
+          '<block type="text_append"> \
+<value name="TEXT"> \
+  <shadow type="text"></shadow> \
+</value> \
+</block>',
         type: "text_append",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_length">\n          <value name="VALUE">\n            <shadow type="text">\n              <field name="TEXT">abc</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="text_length"> \
+<value name="VALUE"> \
+  <shadow type="text"> \
+    <field name="TEXT">abc</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "text_length",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_isEmpty">\n          <value name="VALUE">\n            <shadow type="text">\n              <field name="TEXT"></field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="text_isEmpty"> \
+<value name="VALUE"> \
+  <shadow type="text"> \
+    <field name="TEXT"></field> \
+  </shadow> \
+</value> \
+</block>',
         type: "text_isEmpty",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_indexOf">\n          <value name="VALUE">\n            <block type="variables_get">\n              <field name="VAR">text</field>\n            </block>\n          </value>\n          <value name="FIND">\n            <shadow type="text">\n              <field name="TEXT">abc</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="text_indexOf"> \
+<value name="VALUE"> \
+  <block type="variables_get"> \
+    <field name="VAR">text</field> \
+  </block> \
+</value> \
+<value name="FIND"> \
+  <shadow type="text"> \
+    <field name="TEXT">abc</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "text_indexOf",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_charAt">\n          <value name="VALUE">\n            <block type="variables_get">\n              <field name="VAR">text</field>\n            </block>\n          </value>\n        </block>',
+          '<block type="text_charAt"> \
+<value name="VALUE"> \
+  <block type="variables_get"> \
+    <field name="VAR">text</field> \
+  </block> \
+</value> \
+</block>',
         type: "text_charAt",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_getSubstring">\n          <value name="STRING">\n            <block type="variables_get">\n              <field name="VAR">text</field>\n            </block>\n          </value>\n        </block>',
+          '<block type="text_getSubstring"> \
+<value name="STRING"> \
+  <block type="variables_get"> \
+    <field name="VAR">text</field> \
+  </block> \
+</value> \
+</block>',
         type: "text_getSubstring",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_changeCase">\n          <value name="TEXT">\n            <shadow type="text">\n              <field name="TEXT">abc</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="text_changeCase"> \
+<value name="TEXT"> \
+  <shadow type="text"> \
+    <field name="TEXT">abc</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "text_changeCase",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_trim">\n          <value name="TEXT">\n            <shadow type="text">\n              <field name="TEXT">abc</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="text_trim"> \
+<value name="TEXT"> \
+  <shadow type="text"> \
+    <field name="TEXT">abc</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "text_trim",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_print">\n          <value name="TEXT">\n            <shadow type="text">\n              <field name="TEXT">abc</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="text_print"> \
+<value name="TEXT"> \
+  <shadow type="text"> \
+    <field name="TEXT">abc</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "text_print",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="text_prompt_ext">\n          <value name="TEXT">\n            <shadow type="text">\n              <field name="TEXT">abc</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="text_prompt_ext"> \
+<value name="TEXT"> \
+  <shadow type="text"> \
+    <field name="TEXT">abc</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "text_prompt_ext",
       },
     ],
@@ -243,7 +409,9 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="lists_create_with">\n          <mutation items="0"></mutation>\n        </block>',
+          '<block type="lists_create_with"> \
+<mutation items="0"></mutation> \
+</block>',
         type: "lists_create_with",
       },
       {
@@ -254,7 +422,13 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="lists_repeat">\n          <value name="NUM">\n            <shadow type="math_number">\n              <field name="NUM">5</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="lists_repeat"> \
+<value name="NUM"> \
+  <shadow type="math_number"> \
+    <field name="NUM">5</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "lists_repeat",
       },
       {
@@ -270,31 +444,61 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="lists_indexOf">\n          <value name="VALUE">\n            <block type="variables_get">\n              <field name="VAR">list</field>\n            </block>\n          </value>\n        </block>',
+          '<block type="lists_indexOf"> \
+<value name="VALUE"> \
+  <block type="variables_get"> \
+    <field name="VAR">list</field> \
+  </block> \
+</value> \
+</block>',
         type: "lists_indexOf",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="lists_getIndex">\n          <value name="VALUE">\n            <block type="variables_get">\n              <field name="VAR">list</field>\n            </block>\n          </value>\n        </block>',
+          '<block type="lists_getIndex"> \
+<value name="VALUE"> \
+  <block type="variables_get"> \
+    <field name="VAR">list</field> \
+  </block> \
+</value> \
+</block>',
         type: "lists_getIndex",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="lists_setIndex">\n          <value name="LIST">\n            <block type="variables_get">\n              <field name="VAR">list</field>\n            </block>\n          </value>\n        </block>',
+          '<block type="lists_setIndex"> \
+<value name="LIST"> \
+  <block type="variables_get"> \
+    <field name="VAR">list</field> \
+  </block> \
+</value> \
+</block>',
         type: "lists_setIndex",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="lists_getSublist">\n          <value name="LIST">\n            <block type="variables_get">\n              <field name="VAR">list</field>\n            </block>\n          </value>\n        </block>',
+          '<block type="lists_getSublist"> \
+<value name="LIST"> \
+  <block type="variables_get"> \
+    <field name="VAR">list</field> \
+  </block> \
+</value> \
+</block>',
         type: "lists_getSublist",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="lists_split">\n          <value name="DELIM">\n            <shadow type="text">\n              <field name="TEXT">,</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="lists_split"> \
+<value name="DELIM"> \
+  <shadow type="text"> \
+    <field name="TEXT">,</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "lists_split",
       },
       {
@@ -323,13 +527,45 @@ const toolbox = [
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="colour_rgb">\n          <value name="RED">\n            <shadow type="math_number">\n              <field name="NUM">100</field>\n            </shadow>\n          </value>\n          <value name="GREEN">\n            <shadow type="math_number">\n              <field name="NUM">50</field>\n            </shadow>\n          </value>\n          <value name="BLUE">\n            <shadow type="math_number">\n              <field name="NUM">0</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="colour_rgb"> \
+<value name="RED"> \
+  <shadow type="math_number"> \
+    <field name="NUM">100</field> \
+  </shadow> \
+</value> \
+<value name="GREEN"> \
+  <shadow type="math_number"> \
+    <field name="NUM">50</field> \
+  </shadow> \
+</value> \
+<value name="BLUE"> \
+  <shadow type="math_number"> \
+    <field name="NUM">0</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "colour_rgb",
       },
       {
         kind: "BLOCK",
         blockxml:
-          '<block type="colour_blend">\n          <value name="COLOUR1">\n            <shadow type="colour_picker">\n              <field name="COLOUR">#ff0000</field>\n            </shadow>\n          </value>\n          <value name="COLOUR2">\n            <shadow type="colour_picker">\n              <field name="COLOUR">#3333ff</field>\n            </shadow>\n          </value>\n          <value name="RATIO">\n            <shadow type="math_number">\n              <field name="NUM">0.5</field>\n            </shadow>\n          </value>\n        </block>',
+          '<block type="colour_blend"> \
+<value name="COLOUR1"> \
+  <shadow type="colour_picker"> \
+    <field name="COLOUR">#ff0000</field> \
+  </shadow> \
+</value> \
+<value name="COLOUR2"> \
+  <shadow type="colour_picker"> \
+    <field name="COLOUR">#3333ff</field> \
+  </shadow> \
+</value> \
+<value name="RATIO"> \
+  <shadow type="math_number"> \
+    <field name="NUM">0.5</field> \
+  </shadow> \
+</value> \
+</block>',
         type: "colour_blend",
       },
     ],
@@ -353,43 +589,31 @@ const toolbox = [
   },
 ];
 
-const mkBlocks = (blkNames: string[], type) =>
-  blkNames.map((blk) => {
-    return {
-      kind: "BLOCK",
-      blockxml: `<block type="${blk}"></block>`,
-      type,
-    };
-  });
+const mkBlocks = (blk: IFaceBlock) => {
+  return {
+    kind: "BLOCK", //TODO: insert hooks into xml
+    blockxml: `<block type="${blk.id + blk.uuid}"></block>`,
+    type: "domblock",
+  };
+};
 
-const genToolbox = (blkNames: string[], funcNames: string[]) => {
+const genToolbox = (blkNames: IFaceBlock[], funcNames: string[]) => {
   console.log(blkNames, funcNames);
   const nct = toolbox.concat([
     {
       kind: "CATEGORY",
-      contents: [
-        {
-          kind: "BLOCK",
-          blockxml: '<block type="eventtrigger"></block>',
-          type: "eventtrigger",
-        },
-        {
-          kind: "BLOCK",
-          blockxml: '<block type="document"></block>',
-          type: "domobject",
-        },
-      ].concat(mkBlocks(blkNames, "domobject")),
+      contents: blkNames.map((b) => mkBlocks(b)) as any,
       id: "catEvGui",
       colour: "220",
       name: "Events and GUI",
     },
-    {
-      kind: "CATEGORY",
-      contents: mkBlocks(funcNames, "import_func"),
-      id: "catImported",
-      colour: "220",
-      name: "Imported Functions",
-    },
+    // {
+    //   kind: "CATEGORY",
+    //   contents: mkBlocks(funcNames, "import_func"),
+    //   id: "catImported",
+    //   colour: "220",
+    //   name: "Imported Functions",
+    // },
   ]);
   console.log(nct);
   return {

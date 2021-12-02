@@ -1,6 +1,7 @@
 import React from "react";
 import { IFaceBlock } from "../../data/interfaces";
 import { compDict, compDefaults } from "./guiData/compDict";
+import { v4 as uuidv4 } from 'uuid';
 import '../../data/ctxmenu.css';
 import { toast } from "react-toastify";
 
@@ -34,6 +35,7 @@ const insOptions = (() => {
     compDefaults.forEach((cv) => {
         return op[categories[cv.id]][cv.id] = JSON.stringify(cv, null, 2) + ",\n"
     });
+    console.log(compDefaults[0])
     return op;
 })();
 
@@ -98,7 +100,11 @@ function GuiEditPanel(props) {
                 {Object.getOwnPropertyNames(insOptions).map((o, y) => (
                     <menu key={o + y} title={o}>
                         {Object.getOwnPropertyNames(insOptions[o]).map((e, i) => (
-                            <menu key={o + e + i} style={{ color: "blue" }} onClick={() => insText(insOptions[o][e])} title={e}></menu>
+                            <menu key={o + e + i} style={{ color: "blue" }} onClick={() => insText((() => {
+                                const stxt = insOptions[o][e];//original string to insert
+                                //inject uuid
+                                return stxt.slice(0, 1) + `"uuid": ${uuidv4()},` + stxt.slice(1);
+                            })())} title={e}></menu>
                         ))}
                     </menu>
                 ))}
