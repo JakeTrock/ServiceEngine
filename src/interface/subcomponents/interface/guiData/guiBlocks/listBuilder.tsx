@@ -10,6 +10,7 @@ function ListBuilder(props) {
         maxListLength,
         minListLength,
     } = props.validate || {};
+
     const id = props.uuid;
 
     const [allComps, setAllComps] = React.useState<string[]>(childNodesCurrent);
@@ -171,11 +172,12 @@ function ListBuilder(props) {
                                     })
                             }
 
-                            {(maxListLength && minListLength) ? maxListLength !== minListLength && minusButton(i) : minusButton(i)}
+                            {(maxListLength !== undefined && minListLength !== undefined) ?
+                                (maxListLength !== minListLength && minusButton(i)) : minusButton(i)}
                             <br />
                         </React.Fragment>
                     ))}
-                    {maxListLength ? (allVals.length < maxListLength) && adder : adder}
+                    {maxListLength ? ((allVals.length < maxListLength && maxListLength !== minListLength) && adder) : adder}
                 </div>
             </fieldset>
         </>

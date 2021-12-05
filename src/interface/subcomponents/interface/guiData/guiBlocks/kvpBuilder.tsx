@@ -9,7 +9,7 @@ function KvpBuilder(props) {
     const {
         maxListLength,
         minListLength,
-        keyWhitelist,
+        keyWhitelist,//TODO: add regex
         allowExtendedChoice
     } = props.validate || {};
     const id = props.uuid;
@@ -106,9 +106,9 @@ function KvpBuilder(props) {
     }
 
     const kvpAdd = () => {
-        if (keybox.current != null && valbox.current != null) {
+        if (keybox.current != null && (valbox.current != null || (selectableNodes.length === 1))) {
             const keyVal = keybox.current.value;
-            const newVal = valbox.current.value;
+            const newVal = (selectableNodes.length === 1) ? selectableNodes[0] : valbox.current.value;
             if (keyVal !== "" && newVal !== "") {
                 if (maxListLength && Object.getOwnPropertyNames(allVals).length + 1 > maxListLength) {
                     return toast(`This list should be between ${minListLength} and ${maxListLength} in length`)
@@ -179,10 +179,9 @@ function KvpBuilder(props) {
                                         return vals;
                                     }
                                     let finalJson = {};
-                                    //TODO: there are no dupe vals, rectify this
-                                    //this may seem jank but it's just incase the user allows duplicates
+
                                     Object.entries(vals).forEach(([key, value], j) => {
-                                        if (j === i) {
+                                        if (i === j) {
                                             finalJson[e.target.value] = value;
                                         } else {
                                             finalJson[key] = value;
@@ -222,13 +221,7 @@ function KvpBuilder(props) {
 
                     {addercond() && (<div style={{ border: "1px solid black" }}>
                         {!allowExtendedChoice ?
-                            <select ref={keybox} onChange={() => {
-                                if (keyWhitelist && keybox.current != null && keyWhitelist[keybox.current.value]?.inputMatch) {
-                                    setSelectableNodes([keyWhitelist[keybox.current.value].inputMatch]);
-                                } else setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
-                            }} >
-                                {optlist}
-                            </select> : <>
+                            <>
                                 <input type="text" onChange={() => {
                                     if (keyWhitelist && keybox.current != null && keyWhitelist[keybox.current.value]?.inputMatch) {
                                         setSelectableNodes([keyWhitelist[keybox.current.value].inputMatch]);
@@ -237,12 +230,20 @@ function KvpBuilder(props) {
                                 <datalist id="suggestions">
                                     {optlist}
                                 </datalist>
-                            </>}
-                        <select ref={valbox}>
-                            {childNodesPossible && selectableNodes.map((lbl, i) => (
-                                <option key={i} value={lbl}>{lbl}</option>
-                            ))}
-                        </select>
+                            </> : <select ref={keybox} onChange={() => {
+                                if (keyWhitelist && keybox.current != null && keyWhitelist[keybox.current.value]?.inputMatch) {
+                                    setSelectableNodes([keyWhitelist[keybox.current.value].inputMatch]);
+                                } else setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
+                            }} >
+                                {optlist}
+                            </select>}
+                        {childNodesPossible && ((selectableNodes.length > 1) &&
+                            <select ref={valbox}>
+                                {selectableNodes.map((lbl, i) => (
+                                    <option key={i} value={lbl}>{lbl}</option>
+                                ))}
+                            </select>
+                        )}
                         <button className="smbutton" type="button" onClick={() => kvpAdd()}>+</button>
                     </div>)}
                 </div>

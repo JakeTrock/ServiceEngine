@@ -42,3 +42,32 @@ event handler: (event, formAccess, additional, notify)
 
 generic gui block:
     generic event 1...n:consumes an event handler
+
+
+
+
+
+
+
+
+
+
+new elem markup?
+
+uniqueName:
+    value:
+        {
+            "":""
+        }
+    style:
+        {
+            "":""
+        }
+    validation:
+        {
+            "":""
+        }
+    hooks:
+        {
+            "":""
+        }

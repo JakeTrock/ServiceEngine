@@ -6,10 +6,6 @@ import TabsContainer from "./subcomponents/organizers/tabsContainer";
 import Tab from "./subcomponents/organizers/tab";
 import "./data/splitpanel.css"
 import { exportCollection, IFaceBlock, libraryHook, utility } from "./data/interfaces";
-import './subcomponents/interface/guiData/interfaceScriptToolbox';
-import { BlocklyWorkspace } from 'react-blockly';
-import Blockly from "blockly";
-import { genToolbox } from "./subcomponents/interface/guiData/interfaceScriptToolbox";
 import fileUtils from "./subcomponents/interface/programs/codeBlocks/fileUtils"
 import GuiEditPanel from "./subcomponents/interface/guiEditor";
 import GuiRunner from "./subcomponents/interface/guiRunner";
@@ -18,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import helpers from "./data/helpers";
 import getBlockMeta from "./subcomponents/interface/programs/codeBlocks/getBlockMeta";
 import { hookDict } from "./subcomponents/interface/guiData/compDict";
+import ProgEditPanel from "./subcomponents/interface/progeditpanel";
 
 const getAllLibNames = () => {
   //this is a shim placeholder, replace when an established server with a text spine for libraries is implemented
@@ -30,36 +27,6 @@ const getAllLibNames = () => {
 }
 
 const prefixCB = "./subcomponents/interface/programs/codeBlocks/";
-
-const blocklywsconfig = {
-  collapse: true,
-  comments: true,
-  disable: true,
-  maxBlocks: Infinity,
-  trashcan: true,
-  horizontalLayout: false,
-  toolboxPosition: 'start',
-  css: true,
-  media: 'https://blockly-demo.appspot.com/static/media/',
-  rtl: false,
-  scrollbars: true,
-  sounds: true,
-  oneBasedIndex: true,
-  grid: {
-    spacing: 20,
-    length: 1,
-    colour: '#888',
-    snap: false
-  },
-  zoom: {
-    controls: true,
-    wheel: true,
-    startScale: 1,
-    maxScale: 3,
-    minScale: 0.3,
-    scaleSpeed: 1.2
-  }
-};
 
 const glueMetaFetch = (name: string) => {
   //this is a fake to get all input/outputs of functions as a database replacement
@@ -113,74 +80,11 @@ const Editor = (props) => {
     return pv;
   })());
 
-
-
-  React.useEffect(() => {
-    ifSchema.forEach((e) => {
-      //TODO: also make blocks which allow certain defaults props to be changed
-      Blockly.Blocks[e.id+e.uuid] = {
-        init: function () {
-          this.appendDummyInput().appendField(e.id+e.uuid);
-          this.setColour(230);
-          hookDict[e.id].forEach(hk=>{
-            this.appendValueInput(hk).setCheck("function");
-          });
-          this.setTooltip("runs a function when a hook is triggered");
-          this.setHelpUrl("");
-        },
-      };
-      //@ts-ignore
-      Blockly.JavaScript[e.id+e.uuid] = function (block) {
-        //@ts-ignore
-        return [e.id+e.uuid, Blockly.JavaScript.ORDER_NONE];
-      };
-    });
-
-  }, [ifSchema]);
-
-  React.useEffect(() => {
-    Object.getOwnPropertyNames(exports).forEach((e) => {
-      //TODO: also make blocks which allow certain defaults props to be changed
-      Blockly.Blocks[e] = {
-        init: function () {
-          this.appendDummyInput().appendField(e);
-          exports[e].names.forEach(n => {
-            this.appendValueInput(n).setCheck("String");//TODO: typecheck
-          });
-          this.setOutput(true, null);
-          this.setColour(230);
-          this.setTooltip("");
-          this.setHelpUrl("");
-        },
-      };
-      //@ts-ignore
-      Blockly.JavaScript[e] = function (block) {
-        //@ts-ignore
-        const inputs = exports[e].names.map(n => Blockly.JavaScript.valueToCode(
-          block,
-          n,
-          //@ts-ignore
-          Blockly.JavaScript.ORDER_NONE
-        ));
-
-        return `${e}(${inputs.join(",")})`;
-      };
-    });
-  }, [exports]);
-
   const reloadRes = () => {//TODO: optimal insertion location for validation
     setResultData(Object.assign({}, initVals, { scheme: ifSchema }));
   };
 
   const downloadResult = async () => (await fileUtils()).downloadOne(new File([JSON.stringify(ifSchema)], "interface.txt"))
-
-  function genScript(workspace) {
-    const code = Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(workspace));
-    console.log(code)
-    //@ts-ignore
-    console.log(Blockly.JavaScript.workspaceToCode(workspace))
-    setScripts(code);
-  }
 
   const propform: IFaceBlock[] = [
     { "id": "label", "defaults": { "visible": true, "size": "1em", "label": "Title:" }, "uuid": "fd117200-5bd0-4f4f-aae6-5c475f050fb7" },
@@ -239,16 +143,7 @@ const Editor = (props) => {
             }} />
           </Tab>
           <Tab label="Program">
-            {scripts && <BlocklyWorkspace
-              toolboxConfiguration={genToolbox(
-                ifSchema,
-                initVals.binariesUsed
-              )}
-              initialXml={scripts}
-              className="fill-height"
-              workspaceConfiguration={blocklywsconfig}
-              onWorkspaceChange={genScript}
-            />}
+            <ProgEditPanel imports={initVals.binariesUsed} blocks={ifSchema} />
           </Tab>
           <Tab label="Interface">
             <GuiEditPanel initValues={ifSchema} parentCallback={setifSchema} />
