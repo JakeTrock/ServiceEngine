@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TabsContainer from "./subcomponents/organizers/tabsContainer";
 import Tab from "./subcomponents/organizers/tab";
-import "./data/splitpanel.css"
 import { exportCollection, IFaceBlock, libraryHook, utility } from "./data/interfaces";
 import fileUtils from "./subcomponents/interface/programs/codeBlocks/fileUtils"
 import GuiEditPanel from "./subcomponents/interface/guiEditor";
@@ -116,7 +115,7 @@ const Editor = (props) => {
 
   return (
     <>
-      <div className="split leftHnH">
+      <div className="left-0 w-1/2 border-black border-solid border h-full overflow-scroll overflow-x-hidden pt-5 fixed">
         <TabsContainer>
           <Tab label="Settings and Libraries">
             <GuiRender scheme={propform} exports={{
@@ -156,7 +155,7 @@ const Editor = (props) => {
           </Tab>
         </TabsContainer>
       </div>
-      <div className="split rightHnH">
+      <div className="right-0 w-1/2 border-black border-solid border h-full overflow-scroll overflow-x-hidden pt-5 fixed">
         {resultData ? <div id="serviceContainer">
           <GuiRender scheme={ifSchema} setScheme={setifSchema} exports={exports} />
         </div> : <h1>no data yet, hit "Run"</h1>}

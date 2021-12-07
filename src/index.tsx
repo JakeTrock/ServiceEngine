@@ -6,6 +6,7 @@ import {
   Route,
   withRouter
 } from 'react-router-dom';
+import './interface/data/main.css'
 
 import runner from './interface/runner';
 import NotFoundPage from './interface/404';
@@ -23,7 +24,7 @@ const Switchboard = () => {
 
   return (
     <Router>
-      <nav><TopBar /></nav>
+      <TopBar />
       <Switch>
         <Route exact path="/about">
           <AboutPage />

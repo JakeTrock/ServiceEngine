@@ -2,7 +2,6 @@ import React from "react";
 import { IFaceBlock } from "../../data/interfaces";
 import { compDict, compDefaults } from "./guiData/compDict";
 import { v4 as uuidv4 } from 'uuid';
-import '../../data/ctxmenu.css';
 import { toast } from "react-toastify";
 
 const categories = {
@@ -51,8 +50,8 @@ function GuiEditPanel(props) {
         mcedit.current!.addEventListener("contextmenu", function (event) {
             event.preventDefault();
             rtclick.current!.style.display = "block";
-            rtclick.current!.style.left = (event.pageX - 10) + "px";
-            rtclick.current!.style.top = (event.pageY - 10) + "px";
+            rtclick.current!.style.left = (event.pageX+20) + "px";
+            rtclick.current!.style.top = (event.pageY+20) + "px";
         }, false);
         mcedit.current!.addEventListener("click", function (event) {
             rtclick.current!.style.display = "";
@@ -115,3 +114,9 @@ function GuiEditPanel(props) {
 }
 
 export default GuiEditPanel;
+
+
+/*
+TODO: simplify language with parser, instead of using json, use toml or yaml
+
+*/

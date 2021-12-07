@@ -1,7 +1,6 @@
 import React from "react";
 import { compDict } from "../compDict";
 import FailComponent from "./failComponent";
-import '../../../../data/tabs.css';
 import helpers from "../../../../data/helpers";
 import { toast } from "react-toastify";
 
@@ -111,9 +110,9 @@ function TabbedView(props) {
 
     return (
         <div className="tabs">
-            <ol className="tab-list">
+            <ol className="list-reset flex border-b">
                 {labels.map((lbl) => <li
-                    className={activeTab === lbl ? 'tab-list-item tab-list-active' : 'tab-list-item'}
+                    className={activeTab === lbl ? 'bg-white inline-block border-b-2 py-2 px-4 hover:text-blue-darker font-semibold hover:text-purple-500 focus:outline-none' : 'bg-white inline-block rounded-t py-2 px-4 hover:text-purple-500 focus:outline-none'}
                     onClick={() => setActiveTab(lbl)}
                     key={id + lbl}
                 >

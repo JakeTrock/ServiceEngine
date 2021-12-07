@@ -1,5 +1,4 @@
 import * as React from "react";
-import '../../data/tabs.css';
 import Tab from "./tab";
 
 const TabsContainer = (props) => {
@@ -11,7 +10,7 @@ const TabsContainer = (props) => {
 
     return (
         <div className="tabs">
-            <ol className="tab-list">
+            <ol className="border-solid border-b pl-0">
                 {children.map((child) => {
                     const { label, onClick } = child.props;
                     return (

@@ -1,11 +1,10 @@
 import * as React from "react";
-import '../../data/tabs.css';
 
 const Tab = (props) => {
     const { label, onClick, activeTab } = props;
-    let className = 'tab-list-item';
+    let className = 'bg-white inline-block rounded-t py-2 px-4 hover:text-purple-500 focus:outline-none';
     if (activeTab === label) {
-        className += ' tab-list-active';
+        className = 'bg-white inline-block border-b-2 py-2 px-4 hover:text-blue-darker font-semibold hover:text-purple-500 focus:outline-none';
     }
 
     return (

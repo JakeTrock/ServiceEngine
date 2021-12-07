@@ -88,20 +88,6 @@ input[type="password"]:hover {
   border: 2px solid lightgray;
 }
 
-h1 {
-  color: #000;
-  font: inherit;
-  font-weight: bold;
-  font-size: 30px;
-}
-
-p {
-  color: #000;
-  font: inherit;
-  font-weight: bold;
-  font-size: 10px;
-}
-
 .fill-height {
   height: 75vh;
 }
