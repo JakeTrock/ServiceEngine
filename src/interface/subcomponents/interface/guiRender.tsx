@@ -1,8 +1,8 @@
 import React, { Fragment } from "react";
 import { toast } from "react-toastify";
 import { IFaceBlock } from "../../data/interfaces";
-import { compDict, compDefaults } from "./guiData/compDict";
-import FailComponent from "./guiData/guiBlocks/failComponent";
+import { compDict, compDefaults } from "../../guiData/compDict";
+import FailComponent from "../../guiData/guiBlocks/failComponent";
 
 
 

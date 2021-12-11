@@ -1,37 +1,23 @@
 import React from "react";
+import { compDict } from "../compDict";
+import FailComponent from "./failComponent";
+import helpers from "../../data/helpers";
 import { toast } from "react-toastify";
-import helpers from "../../../../data/helpers";
 
-function TextBox(props) {
-    const { visible, disabled, size, value, multirow, required } = props.objProps;
-    const {
-        maxChars,
-        minChars,
-        useBlacklist,
-        useWhitelist,
-        wordList,
-        validateRegex,
-        validateMessage
-    } = props.validate || {};
+function TabbedView(props) {
+    const { visible, labels, width, height, childNodes } = props.objProps;
     const id = props.uuid;
+    const [activeTab, setActiveTab] = React.useState<string>(labels[0]);
     const hookset = React.useRef(null);
 
-    const validateTxt = (e) => {
-        const val = e.target.value;
-        if (maxChars && minChars && minChars > maxChars) return toast("invalid max/min values");
-        if ((maxChars && val.length > maxChars) || (minChars && val.length < minChars)) {//bad length
-            hookset.current.value = hookset.current.value.substring(0, maxChars - 1 + (minChars || 0));
-            toast(`The length of this textbox is limited to between ${minChars || 0} and ${maxChars} characters`)
-        } else if (validateRegex && validateMessage && val.match(validateRegex)) {//regex violation
-            hookset.current.value = "";
-            toast(validateMessage);
-        } else if (wordList && (useBlacklist ?
-            wordList.find(w => val.indexOf(w) > -1) :
-            (useWhitelist ? wordList.find(w => val.indexOf(w) < 0) : true))) {//wordlist violation
-            hookset.current.value = "";
-            toast('Please do not type words that are restricted')
+    React.useEffect(() => {
+        const ohooks = props.objHooks;
+        if (ohooks && Object.getOwnPropertyNames(ohooks).includes("change")) {
+            return (ohooks["change"] as Function)({
+                value: activeTab,
+            })
         }
-    };
+    }, [activeTab, props.objHooks]);
 
     //attach hooks to html
     React.useEffect(() => {
@@ -40,9 +26,7 @@ function TextBox(props) {
             //if object has hook kvp, loop thru and attach all functions from hooks to html object
             Object.entries(ohooks).forEach(([key, func]) => {
                 switch (key) {
-                    case "change": hookset.current.addEventListener("change", () => (ohooks["change"] as Function)({
-                        value: hookset.current.value,
-                    })); break;
+                    case "change": break;
                     case "clickIn": hookset.current.addEventListener("click", (e) => {
                         e.preventDefault();
                         const bcr = hookset.current!.getBoundingClientRect();
@@ -51,7 +35,7 @@ function TextBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: hookset.current!.value
+                            value: activeTab,
                         })
                     }); break;
                     case "doubleClickIn": hookset.current.addEventListener("dblclick", (e) => {
@@ -62,7 +46,7 @@ function TextBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: hookset.current!.value
+                            value: activeTab,
                         })
                     }); break;
                     case "clickOut": hookset.current.addEventListener("blur", (e) => {
@@ -73,7 +57,7 @@ function TextBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: hookset.current!.value
+                            value: activeTab,
                         })
                     }); break;
                     case "mouseIn": hookset.current.addEventListener("mouseover", (e) => {
@@ -84,7 +68,7 @@ function TextBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: hookset.current!.value
+                            value: activeTab,
                         })
                     }); break;
                     case "mouseOut": hookset.current.addEventListener("mouseout", (e) => {
@@ -95,16 +79,16 @@ function TextBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: hookset.current!.value
+                            value: activeTab,
                         })
                     }); break;
-                    case "load": (func as Function)({ value: hookset.current.value }); break;
+                    case "load": (func as Function)({}); break;
                     case "keyPressed": hookset.current.addEventListener("click", (e) => {
-                        e.preventDefault();
+                        e.preventDefault();                      
                         return (func as Function)({
                             key: e.keyCode,
                             shift: e.shiftKey,
-                            value: hookset.current!.value
+                            value: activeTab,
                         })
                     }); break;
                     case "scroll": hookset.current.addEventListener("wheel", (e) => {
@@ -114,7 +98,7 @@ function TextBox(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: hookset.current!.value
+                            value: activeTab,
                         })
                     }); break;
                     default:
@@ -124,14 +108,31 @@ function TextBox(props) {
         }
     }, []);
 
-
     return (
-        <>
-            {multirow || false ?
-                <textarea onChange={validateTxt} id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: helpers.toggleVis(visible), fontSize: size || "1em" }} defaultValue={value} /> :
-                <input onChange={validateTxt} type="text" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: helpers.toggleVis(visible), fontSize: size || "1em" }} defaultValue={value} />}
-        </>
+        <div className="tabs">
+            <ol className="list-reset flex border-b">
+                {labels.map((lbl) => <li
+                    className={activeTab === lbl ? 'bg-white inline-block border-b-2 py-2 px-4 hover:text-blue-darker font-semibold hover:text-purple-500 focus:outline-none' : 'bg-white inline-block rounded-t py-2 px-4 hover:text-purple-500 focus:outline-none'}
+                    onClick={() => setActiveTab(lbl)}
+                    key={id + lbl}
+                >
+                    {lbl}
+                </li>)}
+            </ol>
+
+
+            <div id={id} ref={hookset} style={{ display: "flex", overflow: "scroll", visibility: helpers.toggleVis(visible), width, height }}>
+                {childNodes && childNodes !== [] && childNodes.map((node, i) => labels.indexOf(activeTab) == i && (
+                    <React.Fragment key={id + i}>
+                        {node.map((el, j) => (React.createElement(compDict[el.id] || FailComponent,
+                            { key: id + (i + el.id + j), uuid: el.uuid, objProps: el.defaults, objHooks: el.hooks, validate: el.validate }))
+                        )}
+                        < br />
+                    </React.Fragment>
+                ))}
+            </div>
+        </div>
     );
 }
 
-export default TextBox;
+export default TabbedView;

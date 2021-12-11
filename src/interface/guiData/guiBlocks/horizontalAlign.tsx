@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 import { compDict } from "../compDict";
 import FailComponent from "./failComponent";
 

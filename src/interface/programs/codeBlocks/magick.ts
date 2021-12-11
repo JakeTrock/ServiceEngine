@@ -1,5 +1,5 @@
 import { execute, MagickInputFile } from "wasm-imagemagick";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 
 const outFormatTranslate = {
   //TODO:addmore

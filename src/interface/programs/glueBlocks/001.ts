@@ -1,4 +1,4 @@
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 
 const glcode = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;

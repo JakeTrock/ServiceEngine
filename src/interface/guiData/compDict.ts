@@ -10,7 +10,7 @@ import Slider from "./guiBlocks/slider";
 import ProgressBar from "./guiBlocks/progressbar";
 import TextBox from "./guiBlocks/textBox";
 import ListBuilder from "./guiBlocks/listBuilder";
-import { IFaceBlock } from "../../../data/interfaces";
+import { IFaceBlock } from "../data/interfaces";
 import Container from "./guiBlocks/container";
 import HorizontalAlign from "./guiBlocks/horizontalAlign";
 import TabbedView from "./guiBlocks/tabbedview";

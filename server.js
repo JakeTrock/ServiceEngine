@@ -9,8 +9,11 @@ app.use((_, res, next) => {
 
 app.use(express.static("build"));
 
+app.use(express.static("hosted"));
+
 app.get("/*", (req, res) => {
-  res.sendFile(__dirname + "/build/index.html");
+  if (req.path.substring(1, 7) === "hosted") res.sendFile(__dirname + req.path);
+  else res.sendFile(__dirname + "/build/index.html");
 });
 
 const PORT = process.env.PORT || 8080;

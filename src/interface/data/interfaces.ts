@@ -9,7 +9,7 @@ export interface utility {
 }
 
 export interface libraryHook {
-  default: Function;
+  init: Function;
 }
 
 interface eventref {

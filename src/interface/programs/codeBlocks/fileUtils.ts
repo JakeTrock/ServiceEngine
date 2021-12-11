@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 
 const init = async () => {
   function save(file: File) {

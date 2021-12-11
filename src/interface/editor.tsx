@@ -5,14 +5,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import TabsContainer from "./subcomponents/organizers/tabsContainer";
 import Tab from "./subcomponents/organizers/tab";
 import { exportCollection, IFaceBlock, libraryHook, utility } from "./data/interfaces";
-import fileUtils from "./subcomponents/interface/programs/codeBlocks/fileUtils"
+import fileUtils from "./programs/codeBlocks/fileUtils"
 import GuiEditPanel from "./subcomponents/interface/guiEditor";
 import GuiRunner from "./subcomponents/interface/guiRunner";
 import GuiRender from "./subcomponents/interface/guiRender";
 import { v4 as uuidv4 } from 'uuid';
 import helpers from "./data/helpers";
-import getBlockMeta from "./subcomponents/interface/programs/codeBlocks/getBlockMeta";
-import { hookDict } from "./subcomponents/interface/guiData/compDict";
+import getBlockMeta from "./programs/codeBlocks/getBlockMeta";
+import { hookDict } from "./guiData/compDict";
 import ProgEditPanel from "./subcomponents/interface/progeditpanel";
 
 const getAllLibNames = () => {
@@ -25,7 +25,7 @@ const getAllLibNames = () => {
   ]
 }
 
-const prefixCB = "./subcomponents/interface/programs/codeBlocks/";
+const prefixCB = "./programs/codeBlocks/";
 
 const glueMetaFetch = (name: string) => {
   //this is a fake to get all input/outputs of functions as a database replacement
@@ -35,7 +35,7 @@ const glueMetaFetch = (name: string) => {
 const updateExport = (newcomer: string) =>
   //updates export linkages whenever you add a new lib to initvals
   newcomer !== undefined && import(`${prefixCB}${newcomer}`)
-    .then(l => [l].map(v => () => (v as libraryHook).default()))//stage init of all functions
+    .then(l => [l].map(v => () => (v as Function)()))//stage init of all functions
     .then(l => (l[0] as unknown as Function)())//init all functions
     .then((l) => {
       const gmf = glueMetaFetch(newcomer);

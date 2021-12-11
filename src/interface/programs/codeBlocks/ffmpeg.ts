@@ -1,5 +1,5 @@
 import { createFFmpeg } from "@ffmpeg/ffmpeg";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 const outFormatTranslate = {
   //Aud
   wav: "audio/wav",

@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 
 function UploadButtonBlock(props) {//TODO:make this a drag and drop
     const { visible, disabled, size, required, multiple } = props.objProps;

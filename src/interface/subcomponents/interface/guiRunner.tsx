@@ -1,66 +1,93 @@
-import React from "react";
-import { toast } from 'react-toastify';
-import '../../data/styles.css';
-import 'react-toastify/dist/ReactToastify.css';
+import * as React from "react";
 import { Helmet } from "react-helmet";
+import { toast } from "react-toastify";
+import helpers from "../../data/helpers";
 import { hookCollection, IFaceBlock, libraryHook, utility } from "../../data/interfaces";
 import GuiRender from "./guiRender";
-import helpers from "../../data/helpers";
 
+const spld='(()=>{window.glue=undefined; window.mods=[]; window.addmodule=(module)=>{window.mods=[...window.mods,module]};})();';
 
-const prefixCB = "./programs/codeBlocks/";
-const prefixGB = "./programs/glueBlocks/";
+const prefix = "http://localhost:8080/hosted/";
 
-//loads all code when run button is pressed, 
-const loadAll = async (component): Promise<hookCollection> => {
-    try {
-        const coreGlue = await import(`${prefixGB}${component.file}`);
-        if (component.binariesUsed) {
-            if (typeof SharedArrayBuffer === 'undefined') {
-                const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true });
-                //@ts-ignore
-                globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
-            }
-            const liblist = component.binariesUsed.map(o => import(`${prefixCB}${o}`));
-            return Promise.all(liblist)
-                .then(l => l.map(v => () => (v as libraryHook).default()))//stage init of all functions
-                .then(l => Promise.all(l))//init all functions
-                .then(l => helpers.asyncBuild(l, async (correspondingFunction, index, returned) => {
-                    returned[component.binariesUsed[index]] = await correspondingFunction();
-                })).then(libpreload => coreGlue.default({//load component into user code
-                    libraries: libpreload
-                }));
-        } else {
-            return coreGlue.default({});
-        }
-    } catch (e) {
-        toast.error(e.toString());
-    }
-}
+const prefixGB = `${prefix}glue/`;
+const prefixCB = `${prefix}libraries/`;
 
 const GuiRunner = (props) => {
     const currentComponent: utility = props.component;//current component data
     const [exports, setExports] = React.useState<hookCollection>();//all references to functions in a dictionary so the gui can attach
     const [currentInterface, setCurrentInterface] = React.useState<IFaceBlock[] | []>(currentComponent.scheme);//current gui scheme
 
-    //run loadall, pipe all hooks into the hook state so the form can attach
-    const saveHooks = () => loadAll(currentComponent).then(cmpt => setExports(cmpt));
+    //props.glue
+    const glue = `${prefixGB}${currentComponent.file}.js`;
+    //props.sources
+    const extsrc = currentComponent.binariesUsed.map(s => { return { "type": "text/javascript", src: `${prefixCB}${s}/main.js` }; });
 
-    return (
-        <div id="helper">
-            <Helmet>
-                <title itemProp="name" lang="en">{currentComponent.name}</title>
-                <meta name="keywords"
-                    content={currentComponent.tags.join(" ")} />
-                <meta name="description"
-                    content={currentComponent.description} />
-            </Helmet>
-            <div id="serviceContainer">
-                {(currentComponent.scheme && exports) ? <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} /> :
-                    <button className="smbutton" onClick={() => saveHooks()}>▶️ load and start program</button>}
+    let handleScriptInject = ({ scriptTags }) => {
+        if (scriptTags) {
+            const scriptTag = scriptTags[scriptTags.length - 1];
+            scriptTag.onload = () => {
+                //@ts-ignore
+                if (window.glue) {
+                    try {
+                        //@ts-ignore
+                        const coreGlue = window.glue;
+
+                        //@ts-ignore
+                        console.log(window.mods, currentComponent.binariesUsed.length)
+
+                        //@ts-ignore
+                        if (currentComponent.binariesUsed && window.mods.length === currentComponent.binariesUsed.length) {
+                            if (typeof SharedArrayBuffer === 'undefined') {
+                                const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true });
+                                //@ts-ignore
+                                globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
+                            }
+                            //@ts-ignore
+                            const liblist = window.mods;
+
+                            Promise.all(liblist)
+                                .then(l => l.map(v => () => (v as Function)()))//stage init of all functions
+                                .then(l => Promise.all(l))//init all functions
+                                .then(l => helpers.asyncBuild(l, async (correspondingFunction, index, returned) => {
+                                    returned[currentComponent.binariesUsed[index]] = await correspondingFunction();
+                                })).then(libpreload => coreGlue({//load component into user code
+                                    libraries: libpreload
+                                })).then(libsall => setExports(libsall));
+                        } else {
+                            return coreGlue({});
+                        }
+                    } catch (e) {
+                        toast.error(e.toString());
+                    }
+                }
+            };
+        }
+    }
+    handleScriptInject = handleScriptInject.bind(this);
+
+    return (<div>
+        {/* Load the myExternalLib.js library. */}
+        <Helmet
+            script={[{ "type": "text/javascript", innerHTML: spld }, { "type": "text/javascript", src: glue }, ...extsrc]}
+            // Helmet doesn't support `onload` in script objects so we have to hack in our own
+            onChangeClientState={(newState, addedTags) => handleScriptInject(addedTags)}
+        />
+        <div>
+            <div id="helper">
+                <Helmet>
+                    <title itemProp="name" lang="en">{currentComponent.name}</title>
+                    <meta name="keywords"
+                        content={currentComponent.tags.join(" ")} />
+                    <meta name="description"
+                        content={currentComponent.description} />
+                </Helmet>
+                <div id="serviceContainer">
+                    {(currentComponent.scheme && exports) && <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} />}
+                </div>
             </div>
         </div>
-    );
-};
+    </div>);
+
+}
 
 export default GuiRunner;

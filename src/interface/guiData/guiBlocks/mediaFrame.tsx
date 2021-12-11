@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 
 function MediaFrame(props) {
     // const { visible, hasVideo, hasControls, defaultSeek, media, width, height } = props.objProps;//TODO: add starttime, source

@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 
 function TextBlock(props) {
     const { visible, size, label } = props.objProps;

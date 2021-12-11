@@ -1,24 +1,29 @@
 import React from "react";
 import { toast } from "react-toastify";
-import helpers from "../../../../data/helpers";
+import helpers from "../../data/helpers";
 
-function OneChoice(props) {
-    const { visible, size, disabled, value, labels, required } = props.objProps;
+function Slider(props) {//can be optimized i reckon
+    const { visible, disabled, width, value, min, max, step, required } = props.objProps;
+    const { badRange } = props.validate || {};
     const hookset = React.useRef(null);
+    const validate = (e) => {
+        const cval = e.target.value;
+        const rangeViolation = badRange ? badRange.find(r => cval > r[0] && cval < r[1]) : undefined;//TODO:should this be made inclusive?
+        if (rangeViolation !== undefined) {
+            hookset.current.value = value;
+            toast.error(`your selection must not be between values ${rangeViolation}`);
+        };
+    }
 
     //attach hooks to html
     React.useEffect(() => {
-        if (value && labels.indexOf(value) < 0) {
-            toast("your default value must be contained in labels!");
-            return;
-        }
         const ohooks = props.objHooks;
         if (ohooks && ohooks !== {}) {
             //if object has hook kvp, loop thru and attach all functions from hooks to html object
             Object.entries(ohooks).forEach(([key, func]) => {
                 switch (key) {
-                    case "change": hookset.current.addEventListener("change", (e) => (func as Function)({
-                        value: hookset.current.value,
+                    case "change": hookset.current.addEventListener("change", () => (func as Function)({
+                        value: hookset.current!.value,
                     })); break;
                     case "clickIn": hookset.current.addEventListener("click", (e) => {
                         e.preventDefault();
@@ -28,7 +33,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || value
+                            value: hookset.current!.value,
                         })
                     }); break;
                     case "doubleClickIn": hookset.current.addEventListener("dblclick", (e) => {
@@ -39,7 +44,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || value
+                            value: hookset.current!.value,
                         })
                     }); break;
                     case "clickOut": hookset.current.addEventListener("blur", (e) => {
@@ -50,7 +55,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || value
+                            value: hookset.current!.value,
                         })
                     }); break;
                     case "mouseIn": hookset.current.addEventListener("mouseover", (e) => {
@@ -61,7 +66,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || value
+                            value: hookset.current!.value,
                         })
                     }); break;
                     case "mouseOut": hookset.current.addEventListener("mouseout", (e) => {
@@ -72,16 +77,16 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || value
+                            value: hookset.current!.value,
                         })
                     }); break;
-                    case "load": (func as Function)({ value: labels[value as number] }); break;
+                    case "load": (func as Function)({ value }); break;
                     case "keyPressed": hookset.current.addEventListener("click", (e) => {
                         e.preventDefault();
                         return (func as Function)({
                             key: e.keyCode,
                             shift: e.shiftKey,
-                            value: e.target.value || value
+                            value: hookset.current!.value,
                         })
                     }); break;
                     case "scroll": hookset.current.addEventListener("wheel", (e) => {
@@ -91,7 +96,7 @@ function OneChoice(props) {
                         return (func as Function)({
                             x,
                             y,
-                            value: e.target.value || value
+                            value: hookset.current!.value,
                         })
                     }); break;
                     default:
@@ -102,14 +107,14 @@ function OneChoice(props) {
     }, []);
     const id = props.uuid;
 
+
     return (
-        <select id={id} required={required} ref={hookset} disabled={disabled} defaultValue={value} style={{ visibility: helpers.toggleVis(visible), fontSize: size || "1em" }}>
-            {!value && <option value={null}>none</option>}
-            {labels && labels.map((lbl, i) => (
-                <option key={i} value={lbl}>{lbl}</option>
-            ))}
-        </select>
+        <div style={{ display: 'flex' }}><input type="range" id={id} disabled={disabled} required={required} ref={hookset} style={{ visibility: helpers.toggleVis(visible), width }} min={min} max={max} step={step} defaultValue={value} onChange={e => {
+            validate(e);
+            //@ts-ignore
+            e.currentTarget.parentNode.childNodes.item(1).innerHTML = e.target.value
+        }} /><p>{value}</p></div>
     );
 }
 
-export default OneChoice;
+export default Slider;
