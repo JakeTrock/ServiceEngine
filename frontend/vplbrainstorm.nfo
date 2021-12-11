@@ -1,0 +1,73 @@
+formChanger: #used with a formaccess to perform ops on it
+
+getForm:
+    consumes formAccess
+    optionally consumes uuid
+    returns form
+
+setForm:
+    consumes formAccess
+    consumes uuid
+    consumes json keys data to change to
+    returns current interface
+
+addToForm:
+    consumes formAccess
+    consumes component
+    optionally consumes insertion index
+    returns current interface
+
+
+delFromForm:
+    consumes formAccess
+    comsumes either a valid numeric deletion index or a uuid
+    returns current interface
+
+plainNotify
+    consumes notify
+    consumes string
+
+errorNotify
+    consumes notify
+    consumes string
+
+getKeyValue
+    consumes object
+    consumes valid key
+    returns corresponding elem
+
+event handler: (event, formAccess, additional, notify)
+     [does something]
+
+
+generic gui block:
+    generic event 1...n:consumes an event handler
+
+
+
+
+
+
+
+
+
+
+new elem markup?
+
+uniqueName:
+    value:
+        {
+            "":""
+        }
+    style:
+        {
+            "":""
+        }
+    validation:
+        {
+            "":""
+        }
+    hooks:
+        {
+            "":""
+        }
