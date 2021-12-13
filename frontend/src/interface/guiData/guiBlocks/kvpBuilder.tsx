@@ -99,10 +99,13 @@ function KvpBuilder(props) {
     }, [allComps, allVals, maxListLength, minListLength, props.objHooks]);
 
     const addercond = () => {
+        //TODO:perform conditional matrix to sort this gordian knot once and for all
+
         const mll = !maxListLength || Object.getOwnPropertyNames(allVals).length < maxListLength;
-        const dupe = !keyWhitelist || (keyWhitelist && allowExtendedChoice) ||
-            (keyWhitelist && !allowExtendedChoice && Object.getOwnPropertyNames(allVals).length < Object.getOwnPropertyNames(keyWhitelist).length);
-        return mll && dupe;
+        const dupe = !keyWhitelist || (keyWhitelist && allowExtendedChoice);
+
+        const wlEcNot = (keyWhitelist && !allowExtendedChoice && Object.getOwnPropertyNames(allVals).length !== Object.getOwnPropertyNames(keyWhitelist).length)
+        return wlEcNot || mll && dupe;
     }
 
     const kvpAdd = () => {
@@ -165,6 +168,33 @@ function KvpBuilder(props) {
         }
     }}>-</button>);
 
+    const plusButton = () => (<div style={{ border: "1px solid black" }}>
+        {!allowExtendedChoice ?
+            <>
+                <input type="text" onChange={() => {
+                    if (keyWhitelist && keybox.current != null && keyWhitelist[keybox.current.value]?.inputMatch) {
+                        setSelectableNodes([keyWhitelist[keybox.current.value].inputMatch]);
+                    } else setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
+                }} ref={keybox} placeholder="key name here" list="suggestions" />
+                <datalist id="suggestions">
+                    {optlist}
+                </datalist>
+            </> : <select ref={keybox} onChange={() => {
+                if (keyWhitelist && keybox.current != null && keyWhitelist[keybox.current.value]?.inputMatch) {
+                    setSelectableNodes([keyWhitelist[keybox.current.value].inputMatch]);
+                } else setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
+            }} >
+                {optlist}
+            </select>}
+        {childNodesPossible && ((selectableNodes.length > 1) &&
+            <select ref={valbox}>
+                {selectableNodes.map((lbl, i) => (
+                    <option key={i} value={lbl}>{lbl}</option>
+                ))}
+            </select>
+        )}
+        <button className="smbutton" type="button" onClick={() => kvpAdd()}>+</button>
+    </div>);
 
     return (
         <>
@@ -219,33 +249,7 @@ function KvpBuilder(props) {
                         </React.Fragment>
                     ))}
 
-                    {addercond() && (<div style={{ border: "1px solid black" }}>
-                        {!allowExtendedChoice ?
-                            <>
-                                <input type="text" onChange={() => {
-                                    if (keyWhitelist && keybox.current != null && keyWhitelist[keybox.current.value]?.inputMatch) {
-                                        setSelectableNodes([keyWhitelist[keybox.current.value].inputMatch]);
-                                    } else setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
-                                }} ref={keybox} placeholder="key name here" list="suggestions" />
-                                <datalist id="suggestions">
-                                    {optlist}
-                                </datalist>
-                            </> : <select ref={keybox} onChange={() => {
-                                if (keyWhitelist && keybox.current != null && keyWhitelist[keybox.current.value]?.inputMatch) {
-                                    setSelectableNodes([keyWhitelist[keybox.current.value].inputMatch]);
-                                } else setSelectableNodes(Object.getOwnPropertyNames(childNodesPossible));
-                            }} >
-                                {optlist}
-                            </select>}
-                        {childNodesPossible && ((selectableNodes.length > 1) &&
-                            <select ref={valbox}>
-                                {selectableNodes.map((lbl, i) => (
-                                    <option key={i} value={lbl}>{lbl}</option>
-                                ))}
-                            </select>
-                        )}
-                        <button className="smbutton" type="button" onClick={() => kvpAdd()}>+</button>
-                    </div>)}
+                    {addercond() && plusButton()}
                 </div>
             </fieldset>
         </>

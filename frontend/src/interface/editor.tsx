@@ -5,15 +5,26 @@ import 'react-toastify/dist/ReactToastify.css';
 import TabsContainer from "./subcomponents/organizers/tabsContainer";
 import Tab from "./subcomponents/organizers/tab";
 import { exportCollection, IFaceBlock, libraryHook, utility } from "./data/interfaces";
-import fileUtils from "./programs/codeBlocks/fileUtils"
 import GuiEditPanel from "./subcomponents/interface/guiEditor";
 import GuiRunner from "./subcomponents/interface/guiRunner";
 import GuiRender from "./subcomponents/interface/guiRender";
 import { v4 as uuidv4 } from 'uuid';
 import helpers from "./data/helpers";
-import getBlockMeta from "./programs/codeBlocks/getBlockMeta";
 import { hookDict } from "./guiData/compDict";
 import ProgEditPanel from "./subcomponents/interface/progeditpanel";
+
+const fileUtils = (file) => {//TODO: shim, remove
+  if (file) {
+    const url = window.URL.createObjectURL(file);
+    const dlink = document.createElement("a");
+    dlink.style.display = "none";
+    dlink.href = url;
+    dlink.download = file.name;
+    document.body.appendChild(dlink);
+    dlink.click();
+    window.URL.revokeObjectURL(url);
+  }
+}
 
 const getAllLibNames = () => {
   //this is a shim placeholder, replace when an established server with a text spine for libraries is implemented
@@ -27,27 +38,16 @@ const getAllLibNames = () => {
 
 const prefixCB = "./programs/codeBlocks/";
 
-const glueMetaFetch = (name: string) => {
-  //this is a fake to get all input/outputs of functions as a database replacement
-  return getBlockMeta[name];
-};
-
 const updateExport = (newcomer: string) =>
   //updates export linkages whenever you add a new lib to initvals
   newcomer !== undefined && import(`${prefixCB}${newcomer}`)
     .then(l => [l].map(v => () => (v as Function)()))//stage init of all functions
     .then(l => (l[0] as unknown as Function)())//init all functions
     .then((l) => {
-      const gmf = glueMetaFetch(newcomer);
       let newKV = {};
       newKV[newcomer] = {};
       Object.getOwnPropertyNames(l).forEach((name) => {
-        const { names, types } = gmf[name];
-        newKV[newcomer][name] = {
-          function: l[name],
-          names,
-          types
-        }
+        newKV[newcomer][name] = l[name];
       });
       console.log(newKV)
       return newKV;
@@ -83,7 +83,7 @@ const Editor = (props) => {
     setResultData(Object.assign({}, initVals, { scheme: ifSchema }));
   };
 
-  const downloadResult = async () => (await fileUtils()).downloadOne(new File([JSON.stringify(ifSchema)], "interface.txt"))
+  const downloadResult = async () => (fileUtils(new File([JSON.stringify(ifSchema)], "interface.txt")));
 
   const propform: IFaceBlock[] = [
     { "id": "label", "defaults": { "visible": true, "size": "1em", "label": "Title:" }, "uuid": "fd117200-5bd0-4f4f-aae6-5c475f050fb7" },
