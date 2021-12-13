@@ -5,7 +5,7 @@ import helpers from "../../data/helpers";
 import { hookCollection, IFaceBlock, libraryHook, utility } from "../../data/interfaces";
 import GuiRender from "./guiRender";
 
-const spld='(()=>{window.glue=undefined; window.mods=[]; window.addmodule=(module)=>{window.mods=[...window.mods,module]};})();';
+const spld = '(()=>{window.glue=undefined; window.mods=[]; window.addmodule=(module)=>{window.mods=[...window.mods,module]};})();';
 
 const prefix = "http://localhost:8080/hosted/";
 
@@ -81,7 +81,7 @@ const GuiRunner = (props) => {
                     <meta name="description"
                         content={currentComponent.description} />
                 </Helmet>
-                <div id="serviceContainer">
+                <div className="border-solid border-2" style={{ borderColor: "rgba(221, 221, 221, 1)", outline: "none" }}>
                     {(currentComponent.scheme && exports) && <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} />}
                 </div>
             </div>

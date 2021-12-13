@@ -156,7 +156,7 @@ const Editor = (props) => {
         </TabsContainer>
       </div>
       <div className="right-0 w-1/2 border-black border-solid border h-full overflow-scroll overflow-x-hidden pt-5 fixed">
-        {resultData ? <div id="serviceContainer">
+        {resultData ? <div className="border-solid border-2" style={{ borderColor: "rgba(221, 221, 221, 1)", outline: "none" }}>
           <GuiRender scheme={ifSchema} setScheme={setifSchema} exports={exports} />
         </div> : <h1>no data yet, hit "Run"</h1>}
       </div>
