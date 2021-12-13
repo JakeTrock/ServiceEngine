@@ -180,17 +180,6 @@ interface slider extends GenIFaceBlock {
   };
 }
 
-interface mediabox extends GenIFaceBlock {
-  readonly id: "mediabox";
-  defaults: {
-    visible?: boolean;
-    hasVideo: boolean;
-    hasControls?: boolean;
-    width?: string;
-    height?: string;
-  };
-}
-
 interface canvasbox extends GenIFaceBlock {
   readonly id: "canvasbox";
   defaults: {
@@ -299,7 +288,6 @@ export type IFaceBlock =
   | listbuild
   | kvpbuild
   | slider
-  | mediabox
   | canvasbox
   | progbar
   | container

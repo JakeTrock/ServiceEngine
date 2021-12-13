@@ -14,7 +14,6 @@ const categories = {
     "datebox": "input",
     "onechoice": "input",
     "slider": "input",
-    "mediabox": "feedback",
     "canvasbox": "feedback",
     "progbar": "input",
     "listbuild": "multiinput",

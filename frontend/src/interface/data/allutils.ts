@@ -482,17 +482,6 @@ const allutils: utility[] = [
         hooks: { change: { name: "returnDat" } },
       },
       {
-        id: "mediabox",
-        defaults: {
-          visible: true,
-          hasVideo: true,
-          hasControls: true,
-          width: "10em",
-          height: "10em",
-        },
-        hooks: { change: { name: "returnDat" } },
-      },
-      {
         id: "canvasbox",
         defaults: { visible: true, width: "10em", height: "10em" },
         hooks: { clickIn: { name: "returnDat" } },

@@ -4,7 +4,6 @@ import UploadButtonBlock from "./guiBlocks/uploadButton";
 import NumBox from "./guiBlocks/numBox";
 import DateBox from "./guiBlocks/dateBox";
 import OneChoice from "./guiBlocks/oneChoice";
-import MediaFrame from "./guiBlocks/mediaFrame";
 import CanvasFrame from "./guiBlocks/canvasFrame";
 import Slider from "./guiBlocks/slider";
 import ProgressBar from "./guiBlocks/progressbar";
@@ -29,7 +28,6 @@ export const compDict: { [key: string]: (props: any) => JSX.Element } = {
   onechoice: OneChoice,
   listbuild: ListBuilder,
   kvpbuild: KvpBuilder,
-  mediabox: MediaFrame,
   canvasbox: CanvasFrame,
   slider: Slider,
   progbar: ProgressBar,
@@ -126,17 +124,6 @@ export const hookDict: { [key: string]: string[] } = {
     "scroll",
   ],
   kvpbuild: [
-    "change",
-    "clickIn",
-    "doubleClickIn",
-    "clickOut",
-    "mouseIn",
-    "mouseOut",
-    "load",
-    "keyPressed",
-    "scroll",
-  ],
-  mediabox: [
     "change",
     "clickIn",
     "doubleClickIn",
@@ -317,16 +304,6 @@ export const compDefaults: IFaceBlock[] = [
         [2, 3],
         [7, 9],
       ],
-    },
-  },
-  {
-    id: "mediabox",
-    defaults: {
-      visible: true,
-      hasVideo: true,
-      hasControls: true,
-      width: "10em",
-      height: "10em",
     },
   },
   {
