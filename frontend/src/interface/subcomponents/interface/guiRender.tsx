@@ -36,6 +36,8 @@ export default function GuiRender(props) {
 
     //function which allows the form to be manipulated from the program which it runs. 
     const formAccess = (action: "get" | "set" | "add" | "del", key: string | number, kvpset) => {//TODO:make this into a switch statement
+
+        console.log(action, key, kvpset)
         if (action && currentInterface.length) {
             //delete form element, provide a uuid in the key slot and any match will be deleted
             if (action === "del" && key) {
@@ -52,10 +54,12 @@ export default function GuiRender(props) {
                 if (key && (typeof key !== "number" || key > currentInterface.length || key < 0)) return;//if key, must be (valid) number
                 setCurrentInterface((ci) => {
                     const nci = (ci || currentInterface);
-                    if (!kvpset.uuid) kvpset.uuid = Math.random().toString(36).substr(2);
-                    if (!nci.find((e: IFaceBlock) => e.uuid && e.uuid === kvpset.uuid)) {
-                        // const ncurr: IFaceBlock[] = [...nci, kvpset];
-                        const ncurr: IFaceBlock[] = nci.splice(key || nci.length, 0, kvpset);
+
+                    if (!kvpset.uuid || !nci.find((e: IFaceBlock) => e.uuid && e.uuid === kvpset.uuid)) {
+                        if (!kvpset.uuid)
+                            kvpset.uuid = Math.random().toString(34);
+                        const ncurr: IFaceBlock[] = [...nci, kvpset];
+                        // const ncurr: IFaceBlock[] = nci.splice(key || nci.length, 0, kvpset);
                         return ncurr;
                     }
                     return nci;
