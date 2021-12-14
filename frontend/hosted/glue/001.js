@@ -7,6 +7,7 @@ async function asyncFor(array, callback) {
 const init = (imports) => {
   const ffmpeg = imports.libraries.ffmpeg;
   const download = imports.libraries.fileUtils.downloadOne;
+  console.log(download)
   let dd2 = "wmv",
     filesIn,
     filesDownloadable,
@@ -90,7 +91,7 @@ const init = (imports) => {
                 label: "Download " + file.name,
               },
               hooks: {
-                click: {
+                clickIn: {
                   name: "download",
                   additional: { findex: i },
                 },

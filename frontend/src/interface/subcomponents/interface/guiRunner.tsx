@@ -31,10 +31,6 @@ const GuiRunner = (props) => {
                     try {
                         //@ts-ignore
                         const coreGlue = window.glue;
-
-                        //@ts-ignore
-                        console.log(window.mods, currentComponent.binariesUsed.length)
-
                         //@ts-ignore
                         if (currentComponent.binariesUsed && window.mods.length === currentComponent.binariesUsed.length) {
                             if (typeof SharedArrayBuffer === 'undefined') {
@@ -45,14 +41,12 @@ const GuiRunner = (props) => {
                             //@ts-ignore
                             const liblist = window.mods;
 
-                            Promise.all(liblist)
-                                .then(l => l.map(v => () => (v as Function)()))//stage init of all functions
-                                .then(l => Promise.all(l))//init all functions
-                                .then(l => helpers.asyncBuild(l, async (correspondingFunction, index, returned) => {
-                                    returned[currentComponent.binariesUsed[index]] = await correspondingFunction();
-                                })).then(libpreload => coreGlue({//load component into user code
-                                    libraries: libpreload
-                                })).then(libsall => setExports(libsall));
+
+                            helpers.asyncMap(liblist, async (correspondingFunction, index, returned) => {
+                                returned[currentComponent.binariesUsed[index]] = await correspondingFunction();
+                            }).then(libpreload => coreGlue({//load component into user code
+                                libraries: libpreload
+                            })).then(libsall => setExports(libsall));
                         } else {
                             return coreGlue({});
                         }

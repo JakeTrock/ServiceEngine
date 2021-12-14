@@ -442,7 +442,6 @@ img,
 svg,
 video,
 canvas,
-audio,
 object {
   display: block; /* 1 */
   vertical-align: middle; /* 2 */
@@ -659,6 +658,10 @@ video {
 .rounded-t {
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
+}
+
+.border-2 {
+  border-width: 2px;
 }
 
 .border {

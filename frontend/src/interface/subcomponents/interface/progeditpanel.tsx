@@ -6,6 +6,13 @@ import '../../data/ctxmenu.css';
 import { toast } from "react-toastify";
 import KvpBuilder from "../../guiData/guiBlocks/kvpBuilder";
 
+/*
+language basis:
+https://developer.apple.com/library/archive/documentation/LegacyTechnologies/WebObjects/WebObjects_3.1/DevGuide/WebScript/WebScript.mif.book.html
+*/
+
+
+
 const findEvts = (blks) => {
 
     let allHookAps = [];
