@@ -14,5 +14,8 @@
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production --node-env=production",
     "watch": "webpack --watch"
+  },
+  "dependencies": {
+    "assimpjs": "^0.0.6"
   }
 }
