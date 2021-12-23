@@ -20,9 +20,9 @@ const AboutPage = () => {
 
                             We are building a platform on the cutting-edge WASM language that is being adopted by browsers to deliver secure, intuitive client side applications.<br />
 
-                            SEngine is still in development, but when finished, its interface builder and wasm compiler will allow you to cobble together a gui that will work on the majority of browsers, and write a script to power it in a variety of programming languages, all in a fraction in the time it'd take you to write it from scratch. Then you'll be able to share it to our community.<br />
+                            SEngine is still in development, but when finished, its interface builder and wasm compiler will allow you to cobble together a gui that will work on the majority of browsers, and write a script to power it in an intuitive language, all in a fraction in the time it'd take you to write it from scratch. Then you'll be able to share it to our community. We want to foster a two-way relationship between developers and nonprogrammers that will finally bridge the productivity gap between those that know and those that don't.<br />
 
-                            You'll also be able to share settings within it so when a friend asks "how do I make these images of my dog into a purple tinted gif with glitter?", you'll go from a grueling 2 hour video help call to a "try this".<br />
+                            You'll also be able to share settings within it so when a friend asks "how do I make a video slideshow of my trip from these photos?", you'll go from a grueling 2 hour video help call to a "try this".<br />
 
                             Want to know more? check out our <a className="text-indigo-600" href="https://docs.google.com/presentation/d/1HBWE3047SEUFIb9vOd80FbWwX-CvWS8ymPlEQQ_Ctng/edit?usp=sharing">pitch deck</a><br />
 
