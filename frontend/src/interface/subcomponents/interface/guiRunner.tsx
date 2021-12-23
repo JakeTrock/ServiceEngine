@@ -58,29 +58,34 @@ const GuiRunner = (props) => {
         }
     }
     handleScriptInject = handleScriptInject.bind(this);
+    //TODO: sandbox here may cause runtime issues
 
-    return (<div>
-        {/* Load the myExternalLib.js library. */}
-        <Helmet
-            script={[{ "type": "text/javascript", innerHTML: spld }, { "type": "text/javascript", src: glue }, ...extsrc]}
-            // Helmet doesn't support `onload` in script objects so we have to hack in our own
-            onChangeClientState={(newState, addedTags) => handleScriptInject(addedTags)}
-        />
+    return (
         <div>
-            <div id="helper">
-                <Helmet>
-                    <title itemProp="name" lang="en">{currentComponent.name}</title>
-                    <meta name="keywords"
-                        content={currentComponent.tags.join(" ")} />
-                    <meta name="description"
-                        content={currentComponent.description} />
-                </Helmet>
-                <div className="border-solid border-2" style={{ borderColor: "rgba(221, 221, 221, 1)", outline: "none" }}>
-                    {(currentComponent.scheme && exports) && <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} />}
+            <div>
+                <div id="helper">
+                    <Helmet>
+                        <title itemProp="name" lang="en">{currentComponent.name}</title>
+                        <meta name="keywords"
+                            content={currentComponent.tags.join(" ")} />
+                        <meta name="description"
+                            content={currentComponent.description} />
+                    </Helmet>
+                    {/* Load the myExternalLib.js library. */}
+                    <iframe title="runnerFrame" seamless sandbox="allow-scripts allow-same-origin">
+                        <Helmet
+                            script={[{ "type": "text/javascript", innerHTML: spld }, { "type": "text/javascript", src: glue }, ...extsrc]}
+                            // Helmet doesn't support `onload` in script objects so we have to hack in our own
+                            onChangeClientState={(newState, addedTags) => handleScriptInject(addedTags)}
+                        />
+                        <div className="border-solid border-2" style={{ borderColor: "rgba(221, 221, 221, 1)", outline: "none" }}>
+                            {(currentComponent.scheme && exports) && <GuiRender scheme={currentInterface} setScheme={setCurrentInterface} exports={exports} />}
+                        </div>
+                    </iframe>
                 </div>
             </div>
         </div>
-    </div>);
+    );
 
 }
 

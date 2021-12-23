@@ -91,3 +91,5 @@ const init = async () => {
 (() => {
   window.addmodule(init);
 })();
+//https://github.com/clinthidinger/assimp.js
+//current:https://github.com/kovacsv/assimpjs

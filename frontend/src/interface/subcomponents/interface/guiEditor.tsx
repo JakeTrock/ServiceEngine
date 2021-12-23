@@ -44,7 +44,6 @@ function GuiEditPanel(props) {
 
     const parentCallback = (e) => props.parentCallback(e);
 
-
     React.useEffect(() => {
         mcedit.current!.addEventListener("contextmenu", function (event) {
             event.preventDefault();

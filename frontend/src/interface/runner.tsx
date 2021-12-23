@@ -18,6 +18,7 @@ const SvcPage = (props) => {
     const { match, location, history } = props;
     const utilID = match.params.uuid;
     const currentComponent = loadMetaData(utilID);//current component data
+
     return (
         <>
             <GuiRunner component={currentComponent} />
