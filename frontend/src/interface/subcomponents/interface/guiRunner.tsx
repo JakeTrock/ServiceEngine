@@ -5,7 +5,7 @@ import helpers from "../../data/helpers";
 import { hookCollection, IFaceBlock, libraryHook, utility } from "../../data/interfaces";
 import GuiRender from "./guiRender";
 
-const spld = '(()=>{window.glue=undefined; window.mods=[]; window.addmodule=(module)=>{window.mods=[...window.mods,module]};})();';
+const spld = '(()=>{window.glue=undefined; window.mods=[]; window.adddocs=(m)=>{}; window.addmodule=(module)=>{window.mods=[...window.mods,module]};})();';
 
 const prefix = "http://localhost:8080/hosted/";
 

@@ -84,11 +84,43 @@ const init = async () => {
       return { inputFormats, outputFormats };
     },
     convertOne: async (file, target) => convert([file], target)[0],
-    convertMany: async (file, target) => convert(file, target)
+    convertMany: async (files, target) => convert(files, target),
   };
 };
 
+const docs = {
+  getSupportedFormats: {
+    inputs: undefined,
+    output: {
+      inputFormats: "string",
+      outputFormats: "string",
+    },
+    description: "returns all possible input/output formats",
+    async: false,
+  },
+  convertOne: {
+    inputs: {
+      file: "File[]",
+      target: "string",
+    },
+    output: "File",
+    description: "converts one 3d model file",
+    async: true,
+  },
+  convertMany: {
+    inputs: {
+      files: "File[]",
+      target: "string",
+    },
+    output: "File[]",//TODO:finish adding docs/output to existing docs
+    description:
+      "converts one or many files to a desired output audio/video format with ffmpeg",
+    async: true,
+  },
+};
+
 (() => {
+  window.adddocs(docs);
   window.addmodule(init);
 })();
 //https://github.com/clinthidinger/assimp.js

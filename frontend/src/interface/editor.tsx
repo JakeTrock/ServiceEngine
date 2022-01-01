@@ -126,7 +126,7 @@ const Editor = (props) => {
     { "id": "textbox", "defaults": { "visible": true, "disabled": false, "size": "1em", "multirow": true, "value": initVals.description }, hooks: { "change": { name: "set", additional: { name: "description" } } }, "uuid": "a77429da-9fec-4457-9e3f-725a84b081d4" },
   ];
 
-  const spld = '(()=>{window.glue=undefined; window.mods=[]; window.addmodule=(module)=>{window.mods=[...window.mods,module]};})();';
+  const spld = '(()=>{window.glue=undefined; window.mods=[]; window.docs=[] window.adddocs=(module)=>{window.docs=[...window.docs,module]};} window.addmodule=(module)=>{window.mods=[...window.mods,module]};})();';
   const extsrc = () => initVals.binariesUsed.map(s => { return { "type": "text/javascript", src: `${prefixCB}${s}/main.js` }; });
 
   let handleScriptInject = ({ scriptTags }) => {

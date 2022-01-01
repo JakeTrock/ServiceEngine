@@ -90,6 +90,20 @@ const init = async () => {
   };
 };
 
-(()=>{
-    window.addmodule(init);
+const docs = {
+  basicProcess: {
+    inputs: {
+      input:"File[]",
+      runargs:"string[]",
+      opProgresscb:"Function",
+      opNames:"string[]",
+    },
+    description: "converts one or many files to a desired output audio/video format with ffmpeg",
+    async: true,
+  },
+};
+
+(() => {
+  window.addmodule(init);
+  window.adddocs(docs);
 })();

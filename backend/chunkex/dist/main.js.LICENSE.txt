@@ -1,0 +1,11 @@
+/*!
+
+// ------------------------------------------------------------------ //
+// Chunk Expression Library for JavaScript                            //
+// (c) 2006 Jonathynne/Ginny Rebecca Bettencourt / Kreative Software  //
+// http://www.kreativekorp.com                                        //
+//                                                                    //
+// You may do anything you wish with this code, provided the above    //
+// copyright notice remains intact. Please indicate any changes made. //
+// ------------------------------------------------------------------ //
+*/

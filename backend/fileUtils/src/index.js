@@ -36,6 +36,24 @@ const init = async () => {
   };
 };
 
-(()=>{
-    window.addmodule(init);
+const docs = {
+  downloadOne: {
+    inputs: {
+      file:"File",
+    },
+    description: "Downloads a single file from an argument",
+    async: false,
+  },
+  downloadMany: {
+    inputs: {
+      inputs:"File[]",
+    },
+    description: "adds list of files to a zip and downloads it",
+    async: true,
+  },
+};
+
+(() => {
+  window.addmodule(init);
+  window.adddocs(docs);
 })();
