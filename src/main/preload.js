@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('electron', {
     deleteProject(arg) {
       return ipcRenderer.send('deleteProject', arg);
     },
+    fileDialog(arg) {
+      return ipcRenderer.send('fileDialog', arg);
+    },
     on(channel, func) {
       const validChannels = [
         'getAllFiles',

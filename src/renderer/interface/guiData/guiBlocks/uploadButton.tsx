@@ -4,27 +4,50 @@ import helpers from '../../data/helpers';
 
 function UploadButtonBlock(props) {
   // TODO:make this a drag and drop
-  const { visible, disabled, size, required, multiple } = props.objProps;
-  const formats = props.validate?.formats;
-  const maxSize = props.validate?.maxSize || 4294967296;
+  const {
+    visible,
+    disabled,
+    size,
+    label,
+    required,
+    properties,
+    filters,
+    maxsize,
+  } = props.objProps;
   const hookset = React.useRef(null);
+  const [paths, setPaths] = React.useState<string[]>([]);
 
   const validateFiles = (e) => {
     const files = [...e.target.files];
-    if (files.find((f: File) => f.size > maxSize)) {
-      // hardcode in the filesize limit for wasm
-      hookset.current.value = '';
-      toast.error('File is too big!');
-    } else if (
-      formats &&
-      files &&
-      files.length > 0 &&
-      files.find((f: File) => formats.indexOf(f.type) < 0)
-    ) {
-      hookset.current.value = '';
-      toast(`This filechooser only accepts ${formats.join(',')}`);
-    }
+    // if (maxsize && files.find((f: File) => f.size > maxsize)) {
+    //   hookset.current.value = '';
+    //   toast.error('File is too big!');
+    // }//TODO: make appside calculator for filesize
   };
+
+  const fileDialog = () => {
+    window.electron.ipcRenderer.fileDialog({
+      properties: properties || [
+        'openFile',
+        'openDirectory',
+        'multiSelections',
+        'showHiddenFiles',
+      ],
+      filters: filters || [{ name: 'All Files', extensions: ['*'] }],
+      maxsize: maxsize || 0, //0 is infinity
+    });
+    window.electron.ipcRenderer.once('fileDialog', (arg) => {
+      // eslint-disable-next-line no-console
+      setPaths(arg);
+    });
+  };
+
+  React.useEffect(() => {
+    const ohooks = props.objHooks;
+    if (ohooks && Object.getOwnPropertyNames(ohooks).includes('change')) {
+      return (ohooks.change as Function)(paths);
+    }
+  }, [paths, props.objHooks]);
 
   React.useEffect(() => {
     const ohooks = props.objHooks;
@@ -33,9 +56,6 @@ function UploadButtonBlock(props) {
       Object.entries(ohooks).forEach(([key, func]) => {
         switch (key) {
           case 'change':
-            hookset.current.addEventListener('change', () =>
-              (func as Function)({ value: [...hookset.current!.files] })
-            );
             break;
           case 'clickIn':
             hookset.current.addEventListener('click', () =>
@@ -69,20 +89,19 @@ function UploadButtonBlock(props) {
   const id = props.uuid;
 
   return (
-    <input
-      type="file"
-      onChange={validateFiles}
+    <button
       id={id}
+      type="button"
       ref={hookset}
       disabled={disabled}
-      multiple={multiple}
-      accept={formats && formats.join(', ')}
-      required={required}
       style={{
         visibility: helpers.toggleVis(visible),
         fontSize: size || '1em',
       }}
-    />
+      onClick={fileDialog}
+    >
+      {label}
+    </button>
   );
 }
 

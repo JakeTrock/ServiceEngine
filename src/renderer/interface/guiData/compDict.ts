@@ -200,10 +200,18 @@ export const compDefaults: IFaceBlock[] = [
       multiple: false,
       size: '1em',
       required: false,
-    },
-    validate: {
-      formats: ['image/jpg', 'image/png', 'image/gif'],
-      maxSize: 4294967296,
+      properties: [
+        'openFile',
+        'openDirectory',
+        'multiSelections',
+        'showHiddenFiles',
+      ],
+      filters: [
+        { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+        { name: 'Movies', extensions: ['mkv', 'avi', 'mp4'] },
+        { name: 'Sounds', extensions: ['ogg', 'wav', 'mp3'] },
+      ],
+      maxsize: 4294967296,
     },
   },
   {

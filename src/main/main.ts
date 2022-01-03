@@ -19,6 +19,7 @@ import { resolveHtmlPath } from './util';
 import {
   createProject,
   deleteProject,
+  fileDialog,
   getAll,
   readProject,
   updateProject,
@@ -117,12 +118,6 @@ const createWindow = async () => {
  * Add event listeners...
  */
 
-// ipcMain.on('ipc-example', async (event, arg) => {
-//   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-//   console.log(msgTemplate(arg));
-//   event.reply('ipc-example', getAll());
-// });
-
 ipcMain.on('getAllFiles', (event, arg) => {
   event.reply('getAllFiles', getAll());
 });
@@ -141,6 +136,10 @@ ipcMain.on('updateProject', (event, arg) => {
 
 ipcMain.on('deleteProject', (event, name) => {
   event.reply('fileCrud', deleteProject(name));
+});
+
+ipcMain.on('fileDialog', (event, arg) => {
+  event.reply('fileDialog', fileDialog(arg));
 });
 
 app.on('window-all-closed', () => {

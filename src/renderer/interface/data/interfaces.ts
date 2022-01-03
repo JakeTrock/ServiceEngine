@@ -1,3 +1,5 @@
+import { FileFilter } from 'electron';
+
 export interface utility {
   id: string;
   name: string;
@@ -79,18 +81,23 @@ interface button extends GenIFaceBlock {
     label: string;
   };
 }
+
 interface uplbutton extends GenIFaceBlock {
   readonly id: 'uplbutton';
   defaults: {
     visible?: boolean;
     disabled?: boolean;
-    multiple?: boolean;
+    label: string;
     size?: string;
     required?: boolean;
-  };
-  validate?: {
-    formats?: string[];
-    maxSize?: number;
+    properties?: (
+      | 'openFile'
+      | 'openDirectory'
+      | 'multiSelections'
+      | 'showHiddenFiles'
+    )[];
+    filters?: FileFilter[];
+    maxsize?: 4294967296;
   };
 }
 

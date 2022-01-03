@@ -7,7 +7,7 @@ import {
   mkdir,
   mkdirSync,
 } from 'fs';
-import electron from 'electron';
+import electron, { dialog, FileFilter } from 'electron';
 import { v4 as uuidv4 } from 'uuid';
 
 const userDataPath = (electron.app || electron.remote.app).getPath('userData');
@@ -76,4 +76,24 @@ export function updateProject(name: string, files: { [key: string]: string }) {
 
 export function deleteProject(name: string) {
   unlinkSync(join(userDataPath, name));
+}
+
+interface FileOpts {
+  properties: (
+    | 'openFile'
+    | 'openDirectory'
+    | 'multiSelections'
+    | 'showHiddenFiles'
+  )[];
+  filters: FileFilter[]; // https://www.electronjs.org/docs/latest/api/dialog/#methods
+  maxSize: number; //TODO: implement on this side
+}
+
+export async function fileDialog(options: FileOpts) {
+  const { properties, filters } = options;
+  const paths = await dialog.showOpenDialog({
+    properties,
+    filters,
+  });
+  return paths;
 }
