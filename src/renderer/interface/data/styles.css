@@ -1,0 +1,39 @@
+.smbutton,
+#sma {
+  text-align: center;
+  font: inherit;
+  display: inline-block;
+  border-radius: 5px;
+  padding: 0.3rem 0.5rem;
+  margin: 0.5rem 1rem;
+  background: lightgreen;
+  color: white;
+  border: 2px solid lightgreen;
+}
+.smbutton:hover,
+#sma:hover {
+  border: 2px solid lightgray;
+}
+
+div.gbox {
+  margin: 5px;
+  border: 2px solid rgb(43, 43, 43);
+  float: center;
+  width: 90%;
+}
+
+div.gallery {
+  margin: 5px;
+  border: 1px solid #ccc;
+  float: left;
+  width: 15em;
+}
+
+div.gallery:hover {
+  border: 1px solid #777;
+}
+
+div.desc {
+  padding: 15px;
+  text-align: center;
+}
