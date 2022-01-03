@@ -129,19 +129,26 @@ function KvpBuilder(props) {
   }, [allComps, allVals, maxListLength, minListLength, props.objHooks]);
 
   const addercond = () => {
-    // TODO:perform conditional matrix to sort this gordian knot once and for all
-
-    const mll =
-      !maxListLength ||
-      Object.getOwnPropertyNames(allVals).length < maxListLength;
-    const dupe = !keyWhitelist || (keyWhitelist && allowExtendedChoice);
-
-    const wlEcNot =
-      keyWhitelist &&
+    let truthy = true;
+    if (
       !allowExtendedChoice &&
-      Object.getOwnPropertyNames(allVals).length !==
-        Object.getOwnPropertyNames(keyWhitelist).length;
-    return wlEcNot || (mll && dupe);
+      keyWhitelist &&
+      Object.getOwnPropertyNames(allVals).length ===
+        Object.getOwnPropertyNames(keyWhitelist).length
+    )
+      truthy = false;
+
+    if (
+      maxListLength &&
+      Object.getOwnPropertyNames(allVals).length > maxListLength
+    )
+      truthy = false;
+    if (
+      minListLength &&
+      Object.getOwnPropertyNames(allVals).length < minListLength
+    )
+      truthy = false;
+    return truthy;
   };
 
   const kvpAdd = () => {
