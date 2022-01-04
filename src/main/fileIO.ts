@@ -8,6 +8,7 @@ import {
   mkdirSync,
 } from 'fs';
 import * as cp from 'child_process';
+import du from 'du';
 import electron, { dialog, FileFilter } from 'electron';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -99,33 +100,20 @@ export const fileDialog = (options: FileOpts) =>
         properties,
         filters,
       })
-      .then((rtv) => {
+      .then(async (rtv) => {
         if (rtv.canceled) reject(new Error('No files chosen!'));
         if (maxSize && maxSize !== 0) {
-          exec(
-            `du -hs --block-size=1 ${rtv.filePaths.join(' ')}`, // TODO: may malfunction, idk if paths are absolute or relative, also no du command in winblow$
-            (
-              error: cp.ExecException | null,
-              stdout: string,
-              stderr: string
-            ) => {
-              if (error) {
-                return reject(new Error(`error: ${error.message}`));
-              }
-              if (stderr) {
-                return reject(new Error(`error: ${stderr}`));
-              }
-              if (
-                stdout
-                  .split('\n')
-                  .map((e = e.split(/(?:(?!\n)\s)/)[0]))
-                  .reduce((pv = 0, cv) => (pv += Number(cv))) <= maxSize
-              ) {
+          const allsizes = rtv.filePaths.map(async (p) => du(p)); // TODO:path may not be absolute
+
+          Promise.all(allsizes)
+            .then((s) => {
+              const ts = s.reduce((pv = 0, cv) => (pv += cv));
+              if (ts <= maxSize) {
                 return resolve(rtv.filePaths);
               }
               return reject(new Error('File is over the maximum size!'));
-            }
-          );
+            })
+            .catch((e) => reject(e));
         } else return resolve(rtv.filePaths);
         return reject(new Error('command error!'));
       })
