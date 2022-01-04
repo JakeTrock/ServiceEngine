@@ -7,9 +7,11 @@ import {
   mkdir,
   mkdirSync,
 } from 'fs';
+import * as cp from 'child_process';
 import electron, { dialog, FileFilter } from 'electron';
 import { v4 as uuidv4 } from 'uuid';
 
+const { exec } = cp;
 const userDataPath = (electron.app || electron.remote.app).getPath('userData');
 // const { readFileSync, writeFileSync, readdirSync } = window.require('fs');
 // const { join } = window.require('path');
@@ -85,14 +87,47 @@ interface FileOpts {
     | 'showHiddenFiles'
   )[];
   filters: FileFilter[]; // https://www.electronjs.org/docs/latest/api/dialog/#methods
-  maxSize: number; //TODO: implement on this side
+  maxSize: number;
 }
 
-export async function fileDialog(options: FileOpts) {
-  const { properties, filters } = options;
-  const paths = await dialog.showOpenDialog({
-    properties,
-    filters,
+export const fileDialog = (options: FileOpts) =>
+  new Promise<string[]>((resolve, reject) => {
+    const { properties, filters, maxSize } = options;
+
+    dialog
+      .showOpenDialog({
+        properties,
+        filters,
+      })
+      .then((rtv) => {
+        if (rtv.canceled) reject(new Error('No files chosen!'));
+        if (maxSize && maxSize !== 0) {
+          exec(
+            `du -hs --block-size=1 ${rtv.filePaths.join(' ')}`, // TODO: may malfunction, idk if paths are absolute or relative, also no du command in winblow$
+            (
+              error: cp.ExecException | null,
+              stdout: string,
+              stderr: string
+            ) => {
+              if (error) {
+                return reject(new Error(`error: ${error.message}`));
+              }
+              if (stderr) {
+                return reject(new Error(`error: ${stderr}`));
+              }
+              if (
+                stdout
+                  .split('\n')
+                  .map((e = e.split(/(?:(?!\n)\s)/)[0]))
+                  .reduce((pv = 0, cv) => (pv += Number(cv))) <= maxSize
+              ) {
+                return resolve(rtv.filePaths);
+              }
+              return reject(new Error('File is over the maximum size!'));
+            }
+          );
+        } else return resolve(rtv.filePaths);
+        return reject(new Error('command error!'));
+      })
+      .catch((e) => reject(e));
   });
-  return paths;
-}
