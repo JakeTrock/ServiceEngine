@@ -1,5 +1,19 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+const validChannels = [
+  'getAllFiles',
+  'createProject',
+  'readProject',
+  'updateProject',
+  'deleteProject',
+  'runHook',
+  'dockUp',
+  'dockDown',
+  'dockStatus',
+  'dockPause',
+  'dockUnpause',
+];
+
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
     // fs
@@ -41,26 +55,12 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.send('dockUnpause', pjname, arg);
     },
     on(channel, func) {
-      const validChannels = [
-        'getAllFiles',
-        'createProject',
-        'readProject',
-        'updateProject',
-        'deleteProject',
-      ];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => func(...args));
       }
     },
     once(channel, func) {
-      const validChannels = [
-        'getAllFiles',
-        'createProject',
-        'readProject',
-        'updateProject',
-        'deleteProject',
-      ];
       if (validChannels.includes(channel)) {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.once(channel, (event, ...args) => func(...args));
