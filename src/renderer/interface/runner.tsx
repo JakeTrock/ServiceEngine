@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import GuiRunner from './subcomponents/interface/guiRunner';
 
 // load metadata from fake database to build component, replace later with db call
-const loadMetaData = (id) => {//TODO: running now entails also running
+const loadMetaData = (id) => {//TODO: running now entails also running sh files
   if (id) {
     window.electron.ipcRenderer.readProject();
     return window.electron.ipcRenderer.once('readProject', (arg) => {

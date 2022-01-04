@@ -24,6 +24,15 @@ import {
   readProject,
   updateProject,
 } from './fileIO';
+import {
+  dockDown,
+  dockPause,
+  dockStatus,
+  dockUnpause,
+  dockUp,
+  Hprops,
+  runHook,
+} from './dockInterface';
 
 export default class AppUpdater {
   constructor() {
@@ -118,6 +127,7 @@ const createWindow = async () => {
  * Add event listeners...
  */
 
+// FILE OPS BLOCK
 ipcMain.on('getAllFiles', (event, arg) => {
   event.reply('getAllFiles', getAll());
 });
@@ -140,6 +150,32 @@ ipcMain.on('deleteProject', (event, name) => {
 
 ipcMain.on('fileDialog', (event, arg) => {
   event.reply('fileDialog', fileDialog(arg));
+});
+
+// DOCKER VM MGR BLOCK
+
+ipcMain.on('runHook', (event, pjname: string, arg: Hprops) => {
+  event.reply('runHook', runHook(pjname, arg));
+});
+
+ipcMain.on('dockUp', (event, pjname: string) => {
+  event.reply('dockUp', dockUp(pjname));
+});
+
+ipcMain.on('dockDown', (event, pjname: string) => {
+  event.reply('dockDown', dockDown(pjname));
+});
+
+ipcMain.on('dockStatus', (event, pjname: string) => {
+  event.reply('dockStatus', dockStatus(pjname));
+});
+
+ipcMain.on('dockPause', (event, pjname: string, ctname: string) => {
+  event.reply('dockPause', dockPause(pjname, ctname));
+});
+
+ipcMain.on('dockUnpause', (event, pjname: string, ctname: string) => {
+  event.reply('dockUnpause', dockUnpause(pjname, ctname));
 });
 
 app.on('window-all-closed', () => {

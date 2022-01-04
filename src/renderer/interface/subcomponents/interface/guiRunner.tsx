@@ -9,12 +9,13 @@ import {
 } from '../../data/interfaces';
 import GuiRender from './guiRender';
 
-
 const GuiRunner = (props) => {
-  const currentComponent: utility = props.component; // current component data
+  // TODO: this is now a filelist, fixme
+  const currentComponent: { [key: string]: string } = props.component; // current component data
+  const initIface = JSON.parse(currentComponent['utility.json']);
   const [currentInterface, setCurrentInterface] = React.useState<
     IFaceBlock[] | []
-  >(currentComponent.scheme); // current gui scheme
+  >(initIface); // current gui scheme
 
   return (
     <div>

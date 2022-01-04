@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
+    // fs
     getAll() {
       return ipcRenderer.send('getAllFiles', '');
     },
@@ -19,6 +20,25 @@ contextBridge.exposeInMainWorld('electron', {
     },
     fileDialog(arg) {
       return ipcRenderer.send('fileDialog', arg);
+    },
+    // docker
+    runHook(pjname, arg) {
+      return ipcRenderer.send('runHook', pjname, arg);
+    },
+    dockUp(pjname) {
+      return ipcRenderer.send('dockUp', pjname);
+    },
+    dockDown(pjname) {
+      return ipcRenderer.send('dockDown', pjname);
+    },
+    dockStatus(pjname) {
+      return ipcRenderer.send('dockStatus', pjname);
+    },
+    dockPause(pjname, arg) {
+      return ipcRenderer.send('dockPause', pjname, arg);
+    },
+    dockUnpause(pjname, arg) {
+      return ipcRenderer.send('dockUnpause', pjname, arg);
     },
     on(channel, func) {
       const validChannels = [

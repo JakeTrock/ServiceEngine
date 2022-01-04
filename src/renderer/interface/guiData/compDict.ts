@@ -197,7 +197,7 @@ export const compDefaults: IFaceBlock[] = [
     defaults: {
       visible: true,
       disabled: false,
-      multiple: false,
+      label: 'pick a media file',
       size: '1em',
       required: false,
       properties: [

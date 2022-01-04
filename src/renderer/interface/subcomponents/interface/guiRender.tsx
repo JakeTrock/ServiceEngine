@@ -36,7 +36,7 @@ export default function GuiRender(props) {
   // function which attaches the event function from the imported function based on the name string provided
   const makeEvent = (evv, uuid) => {
     const evfunction = (e) =>
-      props.exports![evv.name](
+      props.exports![evv.name](//TODO:alter to run command on container
         e,
         formAccess,
         { ...(evv.additional || {}), id: uuid },
@@ -160,8 +160,8 @@ export default function GuiRender(props) {
         processHooks(currentInterface, makeEvent).map((item, i) => (
           <Fragment key={props.key}>
             {React.createElement(compDict[item.id] || FailComponent, {
-              key: i,
-              uuid: item.uuid || Math.random().toString(36).substr(2),
+              key: item.id + i,
+              uuid: item.uuid || Math.random().toString(34),
               objProps: item.defaults,
               objHooks: item.hooks,
               validate: item.validate,

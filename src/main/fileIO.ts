@@ -14,26 +14,25 @@ const userDataPath = (electron.app || electron.remote.app).getPath('userData');
 // const { readFileSync, writeFileSync, readdirSync } = window.require('fs');
 // const { join } = window.require('path');
 
-function parseDataFile(filePath: string, defaults: Object) {
-  // We'll try/catch it in case the file doesn't exist yet, which will be the case on the first application run.
-  // `fs.readFileSync` will return a JSON string which we then parse into a Javascript object
+function parseDataFile(filePath: string) {
   try {
-    return JSON.parse(readFileSync(join(filePath + 'utility.json')));
+    return JSON.parse(
+      String(readFileSync(join(userDataPath, filePath, 'utility.json')))
+    );
   } catch (error) {
-    // if there was some kind of error, return the passed in defaults instead.
-    return defaults;
+    return {};
   }
 }
 
 export const getAll = () => {
   const files = readdirSync(userDataPath, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => parseDataFile(dirent.name, {}));
+    .map((dirent) => parseDataFile(dirent.name));
 
   return files;
 };
 
-export function createProject(name) {
+export function createProject(name: string) {
   mkdirSync(join(userDataPath, name));
   writeFileSync(
     join(userDataPath, `./${name}/utility.json`),
@@ -58,7 +57,7 @@ export function createProject(name) {
   );
 }
 
-export function readProject(name) {
+export function readProject(name: string) {
   let files: { [key: string]: string } = {};
   readdirSync(join(userDataPath, name), { withFileTypes: true })
     .filter((dirent) => !dirent.isDirectory())
